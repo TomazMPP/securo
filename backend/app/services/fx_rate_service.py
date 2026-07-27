@@ -12,10 +12,26 @@ from app.core.config import get_settings
 from app.models.fx_rate import FxRate
 from app.models.user import User
 from app.providers.openexchangerates import OpenExchangeRatesProvider
+from app.providers.yahoo_fx import YahooFxProvider
 
 logger = logging.getLogger(__name__)
 
-_provider = OpenExchangeRatesProvider()
+
+def _build_provider():
+    """Pick the FX source: Open Exchange Rates when configured, else Yahoo.
+
+    OER is kept as the preferred source for installs that already have an app
+    id, since it is a purpose-built FX API. Yahoo is the default because it
+    needs no account: without it, an unconfigured install resolves no rates at
+    all and every conversion silently falls back to 1:1, reporting foreign
+    currency at face value in the primary currency.
+    """
+    if get_settings().openexchangerates_app_id:
+        return OpenExchangeRatesProvider()
+    return YahooFxProvider()
+
+
+_provider = _build_provider()
 
 
 async def sync_rates(
