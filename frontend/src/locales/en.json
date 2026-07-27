@@ -614,6 +614,18 @@
         "title": "Connect via SimpleFIN",
         "description": "SimpleFIN is a read-only bank data protocol. Go to the SimpleFIN Bridge, pick your bank, and copy the setup token back here."
       },
+      "binance": {
+        "title": "Connect via Binance",
+        "description": "Create a read-only API key in Binance (Enable Reading only — never enable trading or withdrawals), then paste it below as {\"api_key\": \"...\", \"api_secret\": \"...\"} or as key:secret. Your balances become investment holdings; no accounts or transactions are imported."
+      },
+      "coinbase": {
+        "title": "Connect via Coinbase",
+        "description": "Create a read-only API key in Coinbase (view permission only), then paste the JSON here. CDP keys work as downloaded: {\"name\": \"...\", \"privateKey\": \"...\"}. Legacy keys: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Balances become investment holdings; no accounts or transactions are imported."
+      },
+      "kraken": {
+        "title": "Connect via Kraken",
+        "description": "Create an API key in Kraken with the Query Funds permission only — never trading or withdrawal. Paste it as {\"api_key\": \"...\", \"api_secret\": \"...\"} or as key:secret. Balances become investment holdings; no accounts or transactions are imported."
+      },
       "reconnectTitle": "Reconnect with a fresh token",
       "reconnectDescription": "Paste a new setup token to refresh this connection in place. Existing accounts, transactions, categories, and rules are preserved.",
       "reconnect": "Reconnect"
