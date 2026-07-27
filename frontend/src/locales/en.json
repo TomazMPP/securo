@@ -523,6 +523,7 @@
     "typeCreditCard": "Credit Card",
     "typeInvestment": "Investment",
     "typeWallet": "Wallet",
+    "typeLoan": "Loan",
     "creditLimit": "Credit limit",
     "statementCloseDay": "Statement close day",
     "paymentDueDay": "Payment due day",

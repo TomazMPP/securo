@@ -42,7 +42,14 @@ _ACCOUNT_TYPE_COLORS: dict[str, str] = {
     "credit_card": "#F43F5E",
     "investment": "#8B5CF6",
     "wallet": "#F59E0B",
+    "loan": "#EF4444",
 }
+
+# Account types that are a liability by their nature, regardless of the sign of
+# the balance. A loan stays a liability when it is fully paid down to zero, and
+# an overpaid one shouldn't flip into an asset — unlike a checking account,
+# which is only a liability while it happens to be overdrawn.
+_LIABILITY_ACCOUNT_TYPES: frozenset[str] = frozenset({"credit_card", "loan"})
 _ASSET_TYPE_COLORS: dict[str, str] = {
     "real_estate": "#0EA5E9",
     "vehicle": "#14B8A6",
@@ -132,7 +139,7 @@ async def _net_worth_at(
             session, Decimal(str(abs(bal))), account.currency, primary_currency, cutoff
         )
         converted_val = float(converted)
-        if account.type == "credit_card" or bal < 0:
+        if account.type in _LIABILITY_ACCOUNT_TYPES or bal < 0:
             liabilities_total += converted_val
             if converted_val > 0:
                 composition.append(ReportCompositionItem(
