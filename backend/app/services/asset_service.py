@@ -826,6 +826,12 @@ async def get_portfolio_trend(
             "name": asset.name,
             "type": asset.type,
             "group_id": str(asset.group_id) if asset.group_id else None,
+            # Lets the chart merge the same instrument held at several
+            # custodians using the same key the holdings list uses. Without
+            # it the chart could only match on name, which splits positions
+            # the brokers label differently (e.g. "Inter & Co" vs
+            # "Inter & Co Inc. Class A").
+            "ticker": asset.ticker,
         })
         asset_currency[aid] = asset.currency
 
