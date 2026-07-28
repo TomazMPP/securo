@@ -128,13 +128,15 @@ class CoinbaseProvider(CryptoExchangeProvider):
 
         now = int(time.time())
         # `uri` binds the token to one method+path, so a captured token cannot
-        # be replayed against a different endpoint.
+        # be replayed against a different endpoint. Coinbase builds it from the
+        # bare path: signing over the query string as well yields a 401.
+        endpoint = path.split("?", 1)[0]
         payload = {
             "sub": key_name,
             "iss": "cdp",
             "nbf": now,
             "exp": now + JWT_TTL_SECONDS,
-            "uri": f"{method} {COINBASE_API_HOST}{path}",
+            "uri": f"{method} {COINBASE_API_HOST}{endpoint}",
         }
         return jwt.encode(
             payload,

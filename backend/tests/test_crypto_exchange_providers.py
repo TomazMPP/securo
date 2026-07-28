@@ -331,6 +331,21 @@ def test_coinbase_ed25519_jwt_verifies_and_binds_the_uri():
     assert jwt.get_unverified_header(token)["kid"] == name
 
 
+def test_coinbase_jwt_uri_excludes_the_query_string():
+    """Coinbase signs the bare path; including `?limit=…` yields a 401."""
+    import jwt
+
+    secret, public_key = _ed25519_secret()
+    p = CoinbaseProvider()
+    creds = {"api_key": "organizations/o/apiKeys/k", "private_key": secret}
+
+    for path in ("/api/v3/brokerage/accounts?limit=250",
+                 "/api/v3/brokerage/accounts?limit=250&cursor=abc"):
+        token = p._cdp_jwt(creds, "GET", path)
+        claims = jwt.decode(token, public_key, algorithms=["EdDSA"])
+        assert claims["uri"] == "GET api.coinbase.com/api/v3/brokerage/accounts"
+
+
 def test_coinbase_escaped_newlines_in_pem_are_repaired():
     escaped = _ec_pem().replace("\n", "\\n")
     _, algorithm = _load_cdp_key(escaped)
