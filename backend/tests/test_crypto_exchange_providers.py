@@ -35,22 +35,30 @@ def run(coro):
     return asyncio.run(coro)
 
 
-def _holdings(provider: CryptoExchangeProvider, balances):
-    """Drive get_holdings with a fixed balance set and price table."""
+def _holdings(provider: CryptoExchangeProvider, balances, fallback=None):
+    """Drive get_holdings with a fixed balance set and price table.
+
+    Both oracles are stubbed, so nothing here reaches the network. `fallback`
+    stands in for the per-symbol lookup and defaults to knowing nothing.
+    """
     async def fake_balances(_creds):
         return balances
 
     async def fake_prices():
         return PRICES
 
+    async def fake_fallback(symbols):
+        return {s: p for s, p in (fallback or {}).items() if s in symbols}
+
     provider.fetch_balances = fake_balances  # type: ignore[assignment]
     import app.providers.crypto_exchange as ce
-    original = ce.fetch_price_table
+    originals = (ce.fetch_price_table, ce.fetch_fallback_prices)
     ce.fetch_price_table = fake_prices  # type: ignore[assignment]
+    ce.fetch_fallback_prices = fake_fallback  # type: ignore[assignment]
     try:
         return {h.external_id: h for h in run(provider.get_holdings({}))}
     finally:
-        ce.fetch_price_table = original  # type: ignore[assignment]
+        ce.fetch_price_table, ce.fetch_fallback_prices = originals  # type: ignore[assignment]
 
 
 # --- shared resolution ----------------------------------------------------
@@ -88,6 +96,41 @@ def test_unpriceable_coin_reports_quantity_without_value():
     assert h.current_value == Decimal("0")
     assert h.unit_price is None
     assert h.metadata["priced"] is False
+
+
+def test_fallback_oracle_prices_coins_absent_from_the_table():
+    """HYPE has no Binance pair; the per-symbol oracle still values it."""
+    class P(CryptoExchangeProvider):
+        @property
+        def name(self): return "test"
+        async def handle_oauth_callback(self, code): ...
+        async def refresh_credentials(self, c): return c
+
+    h = _holdings(
+        P(),
+        [WalletBalance("SPOT", "HYPE", Decimal("12"))],
+        fallback={"HYPE": Decimal("56")},
+    )["SPOT:HYPE"]
+    assert h.unit_price == Decimal("56")
+    assert h.current_value == Decimal("672")
+    assert h.metadata["price_source"] == "fallback"
+
+
+def test_fallback_is_only_consulted_for_unpriced_coins():
+    """A coin with a pair must not be re-quoted, even if the fallback knows it."""
+    class P(CryptoExchangeProvider):
+        @property
+        def name(self): return "test"
+        async def handle_oauth_callback(self, code): ...
+        async def refresh_credentials(self, c): return c
+
+    h = _holdings(
+        P(),
+        [WalletBalance("SPOT", "BTC", Decimal("1"))],
+        fallback={"BTC": Decimal("1")},   # wrong on purpose
+    )["SPOT:BTC"]
+    assert h.unit_price == Decimal("60000")
+    assert h.metadata["price_source"] == "oracle"
 
 
 def test_currency_is_always_iso_never_the_ticker():

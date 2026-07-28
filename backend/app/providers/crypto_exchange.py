@@ -15,7 +15,9 @@ Pricing note: quotes come from Binance's public ticker endpoint, which needs
 no credentials and covers far more symbols than any single exchange's own
 list. It is used purely as a price oracle — a Kraken or Coinbase connection
 never authenticates against Binance, and a user of those exchanges needs no
-Binance account.
+Binance account. Anything that table cannot price (newer listings such as
+HYPE are simply absent from it) gets a second lookup against Coinbase's
+public spot endpoint, which is also keyless.
 """
 from __future__ import annotations
 
@@ -36,6 +38,15 @@ from app.providers.base import (
 logger = logging.getLogger(__name__)
 
 PRICE_ORACLE_URL = "https://api.binance.com/api/v3/ticker/price"
+
+# Secondary, per-symbol oracle for coins the main table has no pair for.
+# Keyless, like the primary one.
+FALLBACK_PRICE_URL = "https://api.coinbase.com/v2/prices/{symbol}-USD/spot"
+
+# One HTTP call per symbol, so this is bounded. A wallet with more unpriced
+# coins than this is holding dust, not positions worth a round trip each.
+MAX_FALLBACK_LOOKUPS = 25
+
 HTTP_TIMEOUT = 30.0
 
 # Everything is valued against this quote asset, treated as 1 USD by model
@@ -107,6 +118,40 @@ async def fetch_price_table() -> dict[str, Decimal]:
     }
 
 
+async def fetch_fallback_prices(symbols: set[str]) -> dict[str, Decimal]:
+    """USD spot quotes for symbols the main ticker table could not price.
+
+    The endpoint takes one symbol per request, which is why it backs up the
+    batched table rather than replacing it. A symbol it does not recognise is
+    left out, so the holding still surfaces unpriced rather than at a made-up
+    value; a failed lookup is likewise never fatal to the sync.
+    """
+    if not symbols:
+        return {}
+
+    prices: dict[str, Decimal] = {}
+    ordered = sorted(symbols)[:MAX_FALLBACK_LOOKUPS]
+    if len(symbols) > MAX_FALLBACK_LOOKUPS:
+        logger.info(
+            "fallback pricing capped at %d symbols; %d left unpriced",
+            MAX_FALLBACK_LOOKUPS, len(symbols) - MAX_FALLBACK_LOOKUPS,
+        )
+
+    async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
+        for sym in ordered:
+            try:
+                resp = await client.get(FALLBACK_PRICE_URL.format(symbol=sym))
+                if resp.status_code >= 400:
+                    continue
+                amount = to_decimal(((resp.json() or {}).get("data") or {}).get("amount"))
+            except (httpx.HTTPError, ValueError, TypeError) as exc:  # noqa: PERF203
+                logger.info("fallback price lookup failed for %s: %s", sym, exc)
+                continue
+            if amount > 0:
+                prices[sym] = amount
+    return prices
+
+
 def resolve_asset(asset: str, has_pair: Callable[[str], bool]) -> ResolvedAsset:
     """Map a raw wallet symbol onto a canonical, priceable asset.
 
@@ -171,25 +216,41 @@ class CryptoExchangeProvider(BankProvider):
         def has_pair(pair: str) -> bool:
             return pair in prices
 
+        resolved_balances = [
+            (bal, self.resolve(bal.asset, has_pair))
+            for bal in balances
+            if bal.quantity > 0 and bal.asset
+        ]
+
+        # Only the leftovers reach the per-symbol oracle: fiat is at par,
+        # stablecoins are pinned, and anything with a pair is already priced.
+        fallback = await fetch_fallback_prices({
+            resolved.symbol
+            for _, resolved in resolved_balances
+            if resolved.kind == "CRYPTO" and not resolved.pair
+        })
+
         holdings: list[HoldingData] = []
-        for bal in balances:
-            if bal.quantity <= 0 or not bal.asset:
-                continue
-            resolved = self.resolve(bal.asset, has_pair)
+        for bal, resolved in resolved_balances:
             wallet = resolved.wallet_override or bal.wallet
+            source = "oracle"
 
             if resolved.kind == "FIAT":
-                currency, unit_price = resolved.symbol, Decimal("1")
+                currency, unit_price, source = resolved.symbol, Decimal("1"), "par"
             elif resolved.kind == "STABLE_USD":
-                currency, unit_price = "USD", Decimal("1")
+                currency, unit_price, source = "USD", Decimal("1"), "par"
             else:
                 currency = "USD"
                 unit_price = (prices.get(resolved.pair) if resolved.pair else None) or Decimal("0")
+                if unit_price <= 0:
+                    unit_price = fallback.get(resolved.symbol) or Decimal("0")
+                    source = "fallback"
 
             priced = unit_price > 0
             if not priced:
+                source = "none"
                 logger.info(
-                    "%s: no %s pair for %s; reporting unpriced",
+                    "%s: no %s pair and no fallback quote for %s; reporting unpriced",
                     self.name, QUOTE_STABLE, bal.asset,
                 )
 
@@ -216,6 +277,7 @@ class CryptoExchangeProvider(BankProvider):
                         "kind": resolved.kind,
                         "pair": resolved.pair,
                         "priced": priced,
+                        "price_source": source,
                     },
                 )
             )
