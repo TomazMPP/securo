@@ -3,8 +3,11 @@
 Coinbase has two generations of API credential and both are still in use:
 
 * **CDP keys** (current). A key *name* like
-  ``organizations/{org}/apiKeys/{key}`` plus an EC private key in PEM form.
-  Each request carries a short-lived ES256 JWT.
+  ``organizations/{org}/apiKeys/{key}`` plus a private key, and each request
+  carries a short-lived JWT. The key itself comes in either of two shapes —
+  an EC key in PEM form (signed ES256) or, for keys created with the portal's
+  current default, a base64 Ed25519 key (signed EdDSA). Coinbase accepts both,
+  so the algorithm is derived from the key rather than configured.
 * **Legacy HMAC keys**. api key + secret + passphrase, signed with
   HMAC-SHA256 over ``timestamp + method + path + body``.
 
@@ -46,8 +49,51 @@ JWT_TTL_SECONDS = 110
 
 
 def _looks_like_cdp(credentials: dict) -> bool:
-    """CDP keys carry a PEM private key; legacy ones carry a passphrase."""
+    """CDP keys carry a private key; legacy ones carry a secret + passphrase."""
     return bool(credentials.get("private_key_enc") or credentials.get("private_key"))
+
+
+def _load_cdp_key(secret: str):
+    """Return ``(key object, JWT algorithm)`` for a CDP private key.
+
+    Coinbase issues the key in one of two forms and accepts both, so the
+    signing algorithm follows from the material itself:
+
+    * PEM ``BEGIN EC PRIVATE KEY`` block  -> ES256
+    * base64 Ed25519 key                  -> EdDSA
+
+    An Ed25519 secret is 64 bytes: a 32-byte seed followed by the public key.
+    Only the seed is needed to sign, hence the truncation.
+    """
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
+    # Env vars and JSON files routinely carry the PEM with escaped newlines,
+    # which the PEM parser rejects outright.
+    text = (secret or "").replace("\\n", "\n").strip()
+
+    if "-----BEGIN" in text:
+        try:
+            return serialization.load_pem_private_key(text.encode(), password=None), "ES256"
+        except Exception as exc:  # noqa: BLE001
+            raise SessionExpiredError(
+                "Coinbase private key could not be parsed — expected an EC key in PEM form"
+            ) from exc
+
+    try:
+        raw = base64.b64decode(text, validate=True)
+    except Exception as exc:  # noqa: BLE001
+        raise SessionExpiredError(
+            "Coinbase private key could not be parsed — expected an EC key in PEM "
+            "form or a base64 Ed25519 key"
+        ) from exc
+
+    if len(raw) not in (32, 64):
+        raise SessionExpiredError(
+            "Coinbase Ed25519 private key must decode to 32 or 64 bytes, "
+            f"got {len(raw)}"
+        )
+    return Ed25519PrivateKey.from_private_bytes(raw[:32]), "EdDSA"
 
 
 class CoinbaseProvider(CryptoExchangeProvider):
@@ -71,27 +117,14 @@ class CoinbaseProvider(CryptoExchangeProvider):
     # ----- auth --------------------------------------------------------------
 
     def _cdp_jwt(self, credentials: dict, method: str, path: str) -> str:
-        import jwt  # PyJWT, with the cryptography backend for ES256
-
-        from cryptography.hazmat.primitives import serialization
+        import jwt  # PyJWT, with the cryptography backend for ES256/EdDSA
 
         key_name = credentials.get("api_key") or ""
-        private_key_pem = self._secret(credentials, "private_key_enc", "private_key")
-        if not key_name or not private_key_pem:
+        secret = self._secret(credentials, "private_key_enc", "private_key")
+        if not key_name or not secret:
             raise SessionExpiredError("Coinbase CDP credentials missing")
 
-        # Env vars and JSON files routinely carry the PEM with escaped
-        # newlines, which the PEM parser rejects outright.
-        private_key_pem = private_key_pem.replace("\\n", "\n").strip()
-
-        try:
-            private_key = serialization.load_pem_private_key(
-                private_key_pem.encode(), password=None
-            )
-        except Exception as exc:  # noqa: BLE001
-            raise SessionExpiredError(
-                "Coinbase private key could not be parsed — expected an EC key in PEM form"
-            ) from exc
+        private_key, algorithm = _load_cdp_key(secret)
 
         now = int(time.time())
         # `uri` binds the token to one method+path, so a captured token cannot
@@ -106,7 +139,7 @@ class CoinbaseProvider(CryptoExchangeProvider):
         return jwt.encode(
             payload,
             private_key,
-            algorithm="ES256",
+            algorithm=algorithm,
             headers={"kid": key_name, "nonce": secrets.token_hex(16)},
         )
 

@@ -7,8 +7,9 @@ import hmac
 import urllib.parse
 from decimal import Decimal
 
+from app.providers.base import SessionExpiredError
 from app.providers.binance import BinanceProvider
-from app.providers.coinbase import CoinbaseProvider, _looks_like_cdp
+from app.providers.coinbase import CoinbaseProvider, _load_cdp_key, _looks_like_cdp
 from app.providers.crypto_exchange import (
     CryptoExchangeProvider,
     WalletBalance,
@@ -268,3 +269,79 @@ def test_coinbase_rejects_credentials_without_any_secret():
         assert "private_key" in str(e)
     else:
         raise AssertionError("expected a ValueError")
+
+
+# --- Coinbase key material ------------------------------------------------
+# Coinbase hands out either an EC key in PEM form or a base64 Ed25519 key,
+# and the JWT algorithm has to follow whichever arrived.
+
+def _ed25519_secret() -> tuple[str, object]:
+    """A CDP-shaped Ed25519 secret: base64 of seed + public key."""
+    from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+    from cryptography.hazmat.primitives import serialization
+
+    key = Ed25519PrivateKey.generate()
+    seed = key.private_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PrivateFormat.Raw,
+        encryption_algorithm=serialization.NoEncryption(),
+    )
+    pub = key.public_key().public_bytes(
+        encoding=serialization.Encoding.Raw, format=serialization.PublicFormat.Raw
+    )
+    return base64.b64encode(seed + pub).decode(), key.public_key()
+
+
+def _ec_pem() -> str:
+    from cryptography.hazmat.primitives import serialization
+    from cryptography.hazmat.primitives.asymmetric import ec
+
+    key = ec.generate_private_key(ec.SECP256R1())
+    return key.private_bytes(
+        encoding=serialization.Encoding.PEM,
+        format=serialization.PrivateFormat.TraditionalOpenSSL,
+        encryption_algorithm=serialization.NoEncryption(),
+    ).decode()
+
+
+def test_coinbase_ed25519_key_selects_eddsa():
+    secret, _ = _ed25519_secret()
+    _, algorithm = _load_cdp_key(secret)
+    assert algorithm == "EdDSA"
+
+
+def test_coinbase_pem_key_selects_es256():
+    _, algorithm = _load_cdp_key(_ec_pem())
+    assert algorithm == "ES256"
+
+
+def test_coinbase_ed25519_jwt_verifies_and_binds_the_uri():
+    import jwt
+
+    secret, public_key = _ed25519_secret()
+    p = CoinbaseProvider()
+    name = "organizations/org-1/apiKeys/key-1"
+    token = p._cdp_jwt({"api_key": name, "private_key": secret}, "GET", "/api/v3/brokerage/accounts")
+
+    # Verifying with the matching public key proves the seed was used correctly.
+    claims = jwt.decode(token, public_key, algorithms=["EdDSA"], options={"verify_aud": False})
+    assert claims["sub"] == name
+    assert claims["iss"] == "cdp"
+    assert claims["uri"] == "GET api.coinbase.com/api/v3/brokerage/accounts"
+    assert jwt.get_unverified_header(token)["kid"] == name
+
+
+def test_coinbase_escaped_newlines_in_pem_are_repaired():
+    escaped = _ec_pem().replace("\n", "\\n")
+    _, algorithm = _load_cdp_key(escaped)
+    assert algorithm == "ES256"
+
+
+def test_coinbase_rejects_unusable_key_material():
+    for bad in ("not-a-key-at-all!!", base64.b64encode(b"tooshort").decode()):
+        try:
+            _load_cdp_key(bad)
+        except SessionExpiredError:
+            pass
+        else:
+            raise AssertionError(f"expected a failure for {bad!r}")
