@@ -117,6 +117,7 @@
     "splitGroups": "Groups",
     "goals": "Goals",
     "reports": "Reports",
+    "analysis": "Breakdown",
     "groupAnalysis": "Analysis",
     "groupSetup": "Setup",
     "groupAccounts": "Accounts",
@@ -1701,6 +1702,37 @@
         "title": "No connections yet",
         "subtitle": "Add a connection to point Securo at your local Ollama, OpenAI, Anthropic, or any OpenAI-compatible endpoint."
       }
+    }
+  },
+  "analysis": {
+    "title": "Period breakdown",
+    "income": "Income",
+    "expenses": "Expenses",
+    "net": "Net",
+    "savingsRate": "Savings rate",
+    "overDays": "over {{count}} days",
+    "total": "Total",
+    "dailyAverage": "Daily average",
+    "recurringShare": "Recurring share",
+    "transactionCount": "{{count}} transactions",
+    "byCategory": "By category",
+    "topPayees": "Top payees",
+    "payeesHint": "Grouped by payee when one is set, otherwise by the transaction description. Setting payees on recurring merchants makes this ranking sharper.",
+    "largest": "Largest movements",
+    "recurring": "Recurring vs one-off",
+    "recurringHint": "Recurring is detected, not declared: a payee counts as recurring when it appears in at least {{min}} different months within the {{months}} months before the period ends.",
+    "recurringLabel": "Recurring",
+    "oneOffLabel": "One-off",
+    "recurringBadge": "Detected as recurring",
+    "monthsSeen": "{{count}} months",
+    "uncategorized": "Uncategorized",
+    "noData": "No transactions in this period.",
+    "range": {
+      "thisMonth": "This month",
+      "lastMonth": "Last month",
+      "last3": "Last 3 months",
+      "thisYear": "This year",
+      "custom": "Custom"
     }
   }
 }

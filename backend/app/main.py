@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.accounts import router as accounts_router
+from app.api.analysis import router as analysis_router
 from app.api.budgets import router as budgets_router
 from app.api.goals import router as goals_router
 from app.api.groups import router as groups_router
@@ -171,6 +172,7 @@ app.include_router(asset_groups_router)
 app.include_router(collections_router)
 app.include_router(dashboard_router)
 app.include_router(reports_router)
+app.include_router(analysis_router)
 app.include_router(search_router)
 app.include_router(setup_router)
 app.include_router(currencies_router)

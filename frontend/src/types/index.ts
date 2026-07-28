@@ -753,3 +753,70 @@ export interface ReportResponse {
   composition: ReportCompositionItem[]
   category_trend: CategoryTrendItem[]
 }
+
+export interface AnalysisCategory {
+  category_id: string | null
+  name: string
+  icon: string
+  color: string
+  group_name: string | null
+  total: number
+  share: number
+  count: number
+}
+
+export interface AnalysisPayee {
+  key: string
+  label: string
+  total: number
+  share: number
+  count: number
+  recurring: boolean
+}
+
+export interface AnalysisTransaction {
+  id: string
+  date: string
+  description: string
+  payee: string | null
+  category_name: string | null
+  amount: number
+}
+
+export interface RecurringItem {
+  label: string
+  total: number
+  count: number
+  months_seen: number
+}
+
+export interface RecurrenceSplit {
+  recurring_total: number
+  one_off_total: number
+  recurring_count: number
+  one_off_count: number
+  items: RecurringItem[]
+  lookback_months: number
+  min_months: number
+}
+
+export interface AnalysisSide {
+  total: number
+  count: number
+  daily_average: number
+  categories: AnalysisCategory[]
+  payees: AnalysisPayee[]
+  largest: AnalysisTransaction[]
+  recurrence: RecurrenceSplit
+}
+
+export interface PeriodAnalysis {
+  start: string
+  end: string
+  days: number
+  currency: string
+  expenses: AnalysisSide
+  income: AnalysisSide
+  net: number
+  savings_rate: number | null
+}

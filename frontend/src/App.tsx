@@ -27,6 +27,7 @@ const RecurringPage = lazy(() => import('@/pages/recurring'))
 const GoalsPage = lazy(() => import('@/pages/goals'))
 const AssetsPage = lazy(() => import('@/pages/assets'))
 const ReportsPage = lazy(() => import('@/pages/reports'))
+const AnalysisPage = lazy(() => import('@/pages/analysis'))
 const PayeesPage = lazy(() => import('@/pages/payees'))
 const GroupsPage = lazy(() => import('@/pages/groups'))
 const GroupDetailPage = lazy(() => import('@/pages/group-detail'))
@@ -92,6 +93,7 @@ function App() {
                   <Route path="/recurring" element={<RecurringPage />} />
                   <Route path="/assets" element={<AssetsPage />} />
                   <Route path="/reports" element={<ReportsPage />} />
+                  <Route path="/analysis" element={<AnalysisPage />} />
                   <Route path="/payees" element={<PayeesPage />} />
                   <Route path="/groups" element={<GroupsPage />} />
                   <Route path="/groups/:id" element={<GroupDetailPage />} />

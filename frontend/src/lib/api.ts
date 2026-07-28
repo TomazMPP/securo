@@ -44,6 +44,7 @@ import type {
   MonthlyTrend,
   BalanceHistory,
   PaginatedTransactions,
+  PeriodAnalysis,
   ReportResponse,
   Group,
   GroupKind,
@@ -1095,6 +1096,18 @@ export const collections = {
   },
   delete: async (id: string): Promise<void> => {
     await api.delete(`/collections/${id}`)
+  },
+}
+
+// Period analysis — where the money in one date range went
+export const analysis = {
+  period: async (start: string, end: string, accountIds?: string[]): Promise<PeriodAnalysis> => {
+    const extra = acctIdsParam(accountIds)
+    const { data } = await api.get('/analysis/period', {
+      params: { start, end, ...(extra.params ?? {}) },
+      ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
+    })
+    return data
   },
 }
 

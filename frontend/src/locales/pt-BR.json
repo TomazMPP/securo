@@ -117,6 +117,7 @@
     "splitGroups": "Grupos",
     "goals": "Metas",
     "reports": "Relatórios",
+    "analysis": "Detalhamento",
     "groupAnalysis": "Análise",
     "groupSetup": "Configuração",
     "groupAccounts": "Contas",
@@ -1701,6 +1702,37 @@
         "claude": "Claude Desktop / Code / Cursor",
         "openai": "OpenAI Responses API"
       }
+    }
+  },
+  "analysis": {
+    "title": "Análise do período",
+    "income": "Entradas",
+    "expenses": "Saídas",
+    "net": "Saldo",
+    "savingsRate": "Taxa de poupança",
+    "overDays": "em {{count}} dias",
+    "total": "Total",
+    "dailyAverage": "Média diária",
+    "recurringShare": "Parcela recorrente",
+    "transactionCount": "{{count}} transações",
+    "byCategory": "Por categoria",
+    "topPayees": "Maiores favorecidos",
+    "payeesHint": "Agrupado pelo favorecido quando há um definido; caso contrário, pela descrição da transação. Definir favorecidos nos estabelecimentos recorrentes deixa este ranking mais preciso.",
+    "largest": "Maiores movimentações",
+    "recurring": "Recorrente × avulso",
+    "recurringHint": "A recorrência é detectada, não declarada: um favorecido conta como recorrente quando aparece em pelo menos {{min}} meses distintos dentro dos {{months}} meses anteriores ao fim do período.",
+    "recurringLabel": "Recorrente",
+    "oneOffLabel": "Avulso",
+    "recurringBadge": "Detectado como recorrente",
+    "monthsSeen": "{{count}} meses",
+    "uncategorized": "Sem categoria",
+    "noData": "Nenhuma transação neste período.",
+    "range": {
+      "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "last3": "Últimos 3 meses",
+      "thisYear": "Este ano",
+      "custom": "Personalizado"
     }
   }
 }
