@@ -20,6 +20,9 @@ x-backend-env: &backend-env
   ENABLE_BANKING_API_URL: ${ENABLE_BANKING_API_URL:-https://api.enablebanking.com}
   ENABLE_BANKING_OAUTH_REDIRECT_URI: ${ENABLE_BANKING_OAUTH_REDIRECT_URI:-http://localhost:3000/oauth/callback}
   SIMPLEFIN_ENABLED: ${SIMPLEFIN_ENABLED:-false}
+  BINANCE_ENABLED: ${BINANCE_ENABLED:-false}
+  COINBASE_ENABLED: ${COINBASE_ENABLED:-false}
+  KRAKEN_ENABLED: ${KRAKEN_ENABLED:-false}
   SIMPLEFIN_API_URL: ${SIMPLEFIN_API_URL:-https://beta-bridge.simplefin.org}
   OIDC_ENABLED: ${OIDC_ENABLED:-false}
   OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME:-OIDC}
@@ -72,6 +75,24 @@ x-backend-base: &backend-base
     db: { condition: service_healthy }
     redis: { condition: service_healthy }
   volumes:
+    # Local feature overlay. Kept outside ./backend on purpose: mounting the
+    # git working tree makes the running container depend on whichever
+    # branch happens to be checked out. deploy-local/ is gitignored.
+    - ./deploy-local/providers/binance.py:/app/app/providers/binance.py:ro
+    - ./deploy-local/providers/crypto_exchange.py:/app/app/providers/crypto_exchange.py:ro
+    - ./deploy-local/providers/kraken.py:/app/app/providers/kraken.py:ro
+    - ./deploy-local/providers/coinbase.py:/app/app/providers/coinbase.py:ro
+    - ./deploy-local/providers/base.py:/app/app/providers/base.py:ro
+    - ./deploy-local/providers/__init__.py:/app/app/providers/__init__.py:ro
+    - ./deploy-local/core/config.py:/app/app/core/config.py:ro
+    - ./deploy-local/services/report_service.py:/app/app/services/report_service.py:ro
+    - ./deploy-local/providers/yahoo_fx.py:/app/app/providers/yahoo_fx.py:ro
+    - ./deploy-local/services/fx_rate_service.py:/app/app/services/fx_rate_service.py:ro
+    - ./deploy-local/services/asset_service.py:/app/app/services/asset_service.py:ro
+    - ./deploy-local/services/analysis_service.py:/app/app/services/analysis_service.py:ro
+    - ./deploy-local/schemas/analysis.py:/app/app/schemas/analysis.py:ro
+    - ./deploy-local/api/analysis.py:/app/app/api/analysis.py:ro
+    - ./deploy-local/main.py:/app/app/main.py:ro
     - ./secrets:/app/secrets:ro
     - attachments:/app/data/attachments
     - agent_knowledge:/app/data/agent_knowledge
@@ -113,7 +134,9 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
 
   frontend:
-    image: ghcr.io/securo-finance/securo-frontend:latest
+    # Locally built from this repo to pick up the `loan` account type.
+    # Revert to ghcr.io/securo-finance/securo-frontend:latest to go back upstream.
+    image: securo-frontend:analysis
     ports:
       - "${FRONTEND_PORT:-3000}:8080"
     environment:

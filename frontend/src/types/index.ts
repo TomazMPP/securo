@@ -820,3 +820,46 @@ export interface PeriodAnalysis {
   net: number
   savings_rate: number | null
 }
+
+export interface AccountMonthPoint {
+  month: string // "2026-02", oldest first
+  total: number
+}
+
+export interface AnalysisAccount {
+  account_id: string
+  name: string
+  type: string
+  masked_number: string | null
+  card_brand: string | null
+  institution_name: string | null
+  institution_logo_url: string | null
+  account_currency: string
+  expense_total: number
+  expense_share: number
+  expense_count: number
+  income_total: number
+  income_count: number
+  categories: AnalysisCategory[]
+  other_categories_total: number
+  monthly: AccountMonthPoint[]
+  // Credit-card only; null for every other account type.
+  credit_limit: number | null
+  available_credit: number | null
+  utilization: number | null
+  next_close_date: string | null
+  next_due_date: string | null
+}
+
+export interface AccountsAnalysis {
+  start: string
+  end: string
+  days: number
+  currency: string
+  total_expenses: number
+  total_income: number
+  card_expenses: number
+  card_expense_share: number
+  trend_months: number
+  accounts: AnalysisAccount[]
+}

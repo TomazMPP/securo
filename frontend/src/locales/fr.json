@@ -117,6 +117,7 @@
     "splitGroups": "Groupes",
     "goals": "Objectifs",
     "reports": "Rapports",
+    "analysis": "Détail",
     "groupAnalysis": "Analyse",
     "groupSetup": "Configuration",
     "groupAccounts": "Comptes",
@@ -1701,6 +1702,48 @@
         "title": "Aucune connexion pour l'instant",
         "subtitle": "Ajoutez une connexion pour pointer Securo vers votre Ollama local, OpenAI, Anthropic, ou tout point de terminaison compatible OpenAI."
       }
+    }
+  },
+  "analysis": {
+    "title": "Analyse de la période",
+    "income": "Revenus",
+    "expenses": "Dépenses",
+    "net": "Net",
+    "savingsRate": "Taux d'épargne",
+    "overDays": "sur {{count}} jours",
+    "total": "Total",
+    "dailyAverage": "Moyenne quotidienne",
+    "recurringShare": "Part récurrente",
+    "transactionCount": "Transactions : {{count}}",
+    "byCategory": "Par catégorie",
+    "topPayees": "Principaux bénéficiaires",
+    "payeesHint": "Regroupé par bénéficiaire lorsqu'un bénéficiaire est défini, sinon par la description de la transaction. Définir des bénéficiaires pour les commerçants récurrents rend ce classement plus précis.",
+    "largest": "Principaux mouvements",
+    "recurring": "Récurrent vs ponctuel",
+    "recurringHint": "La récurrence est détectée, pas déclarée : un bénéficiaire est considéré comme récurrent lorsqu'il apparaît dans au moins {{min}} mois différents au cours des {{months}} mois précédant la fin de la période.",
+    "recurringLabel": "Récurrent",
+    "oneOffLabel": "Ponctuel",
+    "recurringBadge": "Détecté comme récurrent",
+    "monthsSeen": "{{count}} mois",
+    "uncategorized": "Non catégorisé",
+    "noData": "Aucune transaction sur cette période.",
+    "accounts": "Comptes et cartes",
+    "creditVsDebit": "Crédit vs débit",
+    "creditVsDebitHint": "Basé sur le type de compte : tout ce qui est dépensé via une carte de crédit est compté comme crédit ; le reste transite par les comptes courants, portefeuilles et autres comptes.",
+    "onCredit": "Par carte de crédit",
+    "onOther": "Autres comptes",
+    "accountsWithActivity": "Comptes avec activité sur la période : {{count}}",
+    "otherCategories": "Autres",
+    "limitUsed": "{{pct}} % de la limite utilisée",
+    "availableOfLimit": "{{available}} disponibles sur {{limit}}",
+    "closes": "Clôture le {{date}}",
+    "due": "Échéance le {{date}}",
+    "range": {
+      "thisMonth": "Ce mois-ci",
+      "lastMonth": "Le mois dernier",
+      "last3": "3 derniers mois",
+      "thisYear": "Cette année",
+      "custom": "Personnalisée"
     }
   }
 }

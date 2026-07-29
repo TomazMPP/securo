@@ -15,19 +15,24 @@ shows only the owner's share.
 """
 import uuid
 from datetime import date, timedelta
+from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import String, cast, func, select
+from sqlalchemy import String, case, cast, func, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
 from app.models.account import Account
+from app.models.bank_connection import BankConnection
 from app.models.category import Category
 from app.models.category_group import CategoryGroup
 from app.models.payee import Payee
 from app.models.transaction import Transaction
 from app.models.user import User
 from app.schemas.analysis import (
+    AccountMonthPoint,
+    AccountsAnalysis,
+    AnalysisAccount,
     AnalysisCategory,
     AnalysisPayee,
     AnalysisSide,
@@ -38,6 +43,7 @@ from app.schemas.analysis import (
 )
 from app.services._query_filters import counts_as_user_pnl, reporting_date_col
 from app.services.admin_service import get_credit_card_accounting_mode
+from app.services.credit_card_service import compute_available_credit, get_cycle_dates
 
 # How far back to look when deciding whether something repeats, and how many
 # distinct months it must appear in. Six months is long enough to catch a
@@ -47,6 +53,12 @@ LOOKBACK_MONTHS = 6
 MIN_MONTHS_FOR_RECURRING = 3
 
 TOP_N = 15
+
+# Per-account breakdown: how many expense categories to list per account
+# before rolling the tail into "other", and how many trailing months the
+# per-account spend trend covers.
+ACCOUNT_TOP_CATEGORIES = 5
+TREND_MONTHS = 6
 
 
 def _amount_expr():
@@ -358,4 +370,271 @@ async def get_period_analysis(
         income=income,
         net=net,
         savings_rate=(net / income.total) if income.total else None,
+    )
+
+
+def _trend_month_labels(end: date) -> list[tuple[int, str]]:
+    """The trailing `TREND_MONTHS` (bucket, label) pairs ending at `end`'s month,
+    oldest first. Bucket matches `_month_bucket_expr` (YYYYMM as int)."""
+    first = _subtract_months(date(end.year, end.month, 1), TREND_MONTHS - 1)
+    out = []
+    year, month = first.year, first.month
+    for _ in range(TREND_MONTHS):
+        out.append((year * 100 + month, f"{year:04d}-{month:02d}"))
+        month += 1
+        if month > 12:
+            month, year = 1, year + 1
+    return out
+
+
+async def get_accounts_analysis(
+    session: AsyncSession,
+    workspace_id: uuid.UUID,
+    user_id: uuid.UUID,
+    start: date,
+    end: date,
+    account_ids: Optional[list[uuid.UUID]] = None,
+) -> AccountsAnalysis:
+    """Break one date range down by the account the money moved through.
+
+    Same period conventions as `get_period_analysis` (`end` inclusive, same
+    P/L filters), so the totals reconcile with the category/payee view.
+    Totals are abs'ed at the (account, category) grain — the same convention
+    the category view applies per category — so reconciliation is exact
+    whenever signs are consistent within a category (see the inline note).
+    On top of the per-account totals this adds what only makes sense at the
+    account level: the credit-vs-debit split, and per credit card the limit
+    utilization and the next statement close/due dates.
+
+    Credit-card payments are transfer legs, so `counts_as_user_pnl()` keeps
+    them from double-counting a purchase once on the card and once on the
+    checking account that paid the bill.
+    """
+    if end < start:
+        start, end = end, start
+    end_exclusive = end + timedelta(days=1)
+    days = (end_exclusive - start).days
+
+    user = await session.get(User, user_id)
+    currency = user.primary_currency if user else get_settings().default_currency
+    report_date = reporting_date_col(await get_credit_card_accounting_mode(session))
+
+    amount = _amount_expr()
+    in_period = [report_date >= start, report_date < end_exclusive]
+    account_cols = [
+        Account.id, Account.name, Account.display_name, Account.type,
+        Account.masked_number, Account.card_brand, Account.currency,
+        Account.balance, Account.connection_id, Account.credit_limit,
+        Account.statement_close_day, Account.payment_due_day,
+        BankConnection.institution_name, BankConnection.logo_url,
+    ]
+
+    # Which accounts had qualifying activity in the period, plus their
+    # display metadata. Totals are NOT summed here — see the grain note below.
+    rows = (
+        await session.execute(
+            select(*account_cols)
+            .select_from(Transaction)
+            .join(Account, Transaction.account_id == Account.id)
+            .outerjoin(BankConnection, Account.connection_id == BankConnection.id)
+            .where(*_base_filters(workspace_id, account_ids), *in_period)
+            .group_by(*account_cols)
+        )
+    ).all()
+
+    # Everything is aggregated at the (account, category, type) grain and
+    # abs'ed there — the same convention as `_build_side`, which abs's each
+    # category's sum. Deriving the account totals from this grain rather than
+    # from an abs-of-sum per account keeps each account card internally
+    # consistent when an account holds mixed-sign rows (e.g. a refund stored
+    # as a negative debit): the category segments, the "other" bucket and the
+    # header total add up, and the grand total reconciles with the category
+    # view whenever signs are consistent within a category.
+    cat_rows = (
+        await session.execute(
+            select(
+                Transaction.account_id,
+                Transaction.type,
+                Category.id, Category.name, Category.icon, Category.color,
+                func.sum(amount), func.count(),
+            )
+            .select_from(Transaction)
+            .join(Account, Transaction.account_id == Account.id)
+            .outerjoin(Category, Transaction.category_id == Category.id)
+            .where(*_base_filters(workspace_id, account_ids), *in_period)
+            .group_by(
+                Transaction.account_id, Transaction.type,
+                Category.id, Category.name, Category.icon, Category.color,
+            )
+        )
+    ).all()
+    side_totals: dict = {}    # (account_id, tx_type) -> [total, count]
+    expense_cats: dict = {}   # account_id -> [(cat_id, name, icon, color, total, count)]
+    for acct_id, tx_type, cat_id, cat_name, icon, color, total, n in cat_rows:
+        value = abs(float(total or 0))
+        bucket = side_totals.setdefault((acct_id, tx_type), [0.0, 0])
+        bucket[0] += value
+        bucket[1] += int(n or 0)
+        if tx_type == "debit":
+            expense_cats.setdefault(acct_id, []).append(
+                (cat_id, cat_name, icon, color, value, int(n or 0))
+            )
+
+    # Spend trend over the trailing months ending at the period end. This
+    # window is anchored on `end`, not on the selected range: for a short
+    # range it adds context, for a long one it shows the recent tail.
+    # Aggregated per (account, month, category) and abs'ed at that grain so a
+    # month's bar matches what the account card reports for the same month.
+    months = _trend_month_labels(end)
+    trend_rows = (
+        await session.execute(
+            select(
+                Transaction.account_id,
+                _month_bucket_expr(report_date),
+                Transaction.category_id,
+                func.sum(amount),
+            )
+            .select_from(Transaction)
+            .join(Account, Transaction.account_id == Account.id)
+            .where(
+                *_base_filters(workspace_id, account_ids),
+                Transaction.type == "debit",
+                report_date >= _subtract_months(date(end.year, end.month, 1), TREND_MONTHS - 1),
+                report_date < end_exclusive,
+            )
+            .group_by(
+                Transaction.account_id, _month_bucket_expr(report_date), Transaction.category_id
+            )
+        )
+    ).all()
+    trend_by_account: dict = {}
+    for acct_id, bucket, _cat, total in trend_rows:
+        acct_map = trend_by_account.setdefault(acct_id, {})
+        key = int(bucket)
+        acct_map[key] = acct_map.get(key, 0.0) + abs(float(total or 0))
+
+    # Manual credit cards keep only a creation-time seed in `accounts.balance`;
+    # their real balance is the signed transaction sum — same formula as the
+    # balance subquery in `account_service.get_accounts`.
+    manual_cc_ids = [r[0] for r in rows if r[3] == "credit_card" and r[8] is None]
+    manual_cc_balance: dict = {}
+    if manual_cc_ids:
+        effective_amount = case(
+            (Transaction.currency == Account.currency, Transaction.amount),
+            else_=func.coalesce(Transaction.amount_primary, Transaction.amount),
+        )
+        signed = case((Transaction.type == "credit", effective_amount), else_=-effective_amount)
+        bal_rows = (
+            await session.execute(
+                select(Transaction.account_id, func.coalesce(func.sum(signed), 0))
+                .select_from(Transaction)
+                .join(Account, Transaction.account_id == Account.id)
+                .outerjoin(Category, Transaction.category_id == Category.id)
+                .where(
+                    Transaction.account_id.in_(manual_cc_ids),
+                    Transaction.is_ignored.is_(False),
+                    or_(Transaction.category_id.is_(None), Category.is_ignored.is_(False)),
+                )
+                .group_by(Transaction.account_id)
+            )
+        ).all()
+        manual_cc_balance = {row[0]: row[1] for row in bal_rows}
+
+    def _side(acct_id, tx_type) -> tuple[float, int]:
+        total, count = side_totals.get((acct_id, tx_type), (0.0, 0))
+        return total, count
+
+    total_expenses = sum(_side(r[0], "debit")[0] for r in rows)
+    total_income = sum(_side(r[0], "credit")[0] for r in rows)
+    card_expenses = sum(_side(r[0], "debit")[0] for r in rows if r[3] == "credit_card")
+
+    accounts: list[AnalysisAccount] = []
+    for r in rows:
+        (
+            acct_id, name, display_name, acct_type, masked, brand, acct_currency,
+            balance, connection_id, credit_limit, close_day, due_day, institution, logo,
+        ) = r
+        expense_total, expense_count = _side(acct_id, "debit")
+        income_total, income_count = _side(acct_id, "credit")
+
+        top: list[AnalysisCategory] = []
+        listed = 0.0
+        acct_cats = sorted(expense_cats.get(acct_id, []), key=lambda c: c[4], reverse=True)
+        for cat_id, cat_name, icon, color, value, cat_n in acct_cats[:ACCOUNT_TOP_CATEGORIES]:
+            listed += value
+            top.append(AnalysisCategory(
+                category_id=str(cat_id) if cat_id else None,
+                name=cat_name or "",
+                icon=icon or "circle-help",
+                color=color or "#6B7280",
+                total=value,
+                share=(value / expense_total) if expense_total else 0.0,
+                count=cat_n,
+            ))
+
+        acct_trend = trend_by_account.get(acct_id, {})
+        monthly = [
+            AccountMonthPoint(month=label, total=acct_trend.get(bucket, 0.0))
+            for bucket, label in months
+        ]
+
+        limit_f = available_f = utilization = None
+        next_close = next_due = None
+        if acct_type == "credit_card":
+            # serialize_account's balance convention: providers report card
+            # debt as a POSITIVE balance → negate; manual cards use the
+            # signed transaction sum computed above.
+            if connection_id is not None:
+                resolved_balance = -(balance or Decimal("0"))
+            else:
+                resolved_balance = Decimal(str(manual_cc_balance.get(acct_id, 0) or 0))
+            available = compute_available_credit(credit_limit, resolved_balance)
+            if credit_limit:
+                limit_f = float(credit_limit)
+                if available is not None:
+                    available_f = float(available)
+                    utilization = float((credit_limit - available) / credit_limit)
+            cycle = get_cycle_dates(close_day, due_day)
+            if cycle["next_close_date"]:
+                next_close = cycle["next_close_date"].isoformat()
+            if cycle["next_due_date"]:
+                next_due = cycle["next_due_date"].isoformat()
+
+        accounts.append(AnalysisAccount(
+            account_id=str(acct_id),
+            name=display_name or name,
+            type=acct_type,
+            masked_number=masked,
+            card_brand=brand,
+            institution_name=institution,
+            institution_logo_url=logo,
+            account_currency=acct_currency,
+            expense_total=expense_total,
+            expense_share=(expense_total / total_expenses) if total_expenses else 0.0,
+            expense_count=expense_count,
+            income_total=income_total,
+            income_count=income_count,
+            categories=top,
+            other_categories_total=max(0.0, expense_total - listed),
+            monthly=monthly,
+            credit_limit=limit_f,
+            available_credit=available_f,
+            utilization=utilization,
+            next_close_date=next_close,
+            next_due_date=next_due,
+        ))
+
+    accounts.sort(key=lambda a: (a.expense_total, a.income_total), reverse=True)
+
+    return AccountsAnalysis(
+        start=start.isoformat(),
+        end=end.isoformat(),
+        days=days,
+        currency=currency,
+        total_expenses=total_expenses,
+        total_income=total_income,
+        card_expenses=card_expenses,
+        card_expense_share=(card_expenses / total_expenses) if total_expenses else 0.0,
+        trend_months=TREND_MONTHS,
+        accounts=accounts,
     )

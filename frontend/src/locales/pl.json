@@ -116,6 +116,7 @@
     "splitGroups": "Grupy",
     "goals": "Cele",
     "reports": "Raporty",
+    "analysis": "Zestawienie",
     "groupAnalysis": "Analiza",
     "groupSetup": "Konfiguracja",
     "groupAccounts": "Konta",
@@ -1791,6 +1792,48 @@
         "claude": "Claude Desktop / Code / Cursor",
         "openai": "OpenAI Responses API"
       }
+    }
+  },
+  "analysis": {
+    "title": "Zestawienie okresu",
+    "income": "Przychody",
+    "expenses": "Wydatki",
+    "net": "Netto",
+    "savingsRate": "Stopa oszczędności",
+    "overDays": "liczba dni: {{count}}",
+    "total": "Łącznie",
+    "dailyAverage": "Średnia dzienna",
+    "recurringShare": "Udział cyklicznych",
+    "transactionCount": "transakcje: {{count}}",
+    "byCategory": "Według kategorii",
+    "topPayees": "Najwięksi odbiorcy",
+    "payeesHint": "Grupowane wg odbiorcy, jeśli jest ustawiony; w przeciwnym razie wg opisu transakcji. Ustawienie odbiorców dla cyklicznych sprzedawców sprawia, że ten ranking jest dokładniejszy.",
+    "largest": "Największe operacje",
+    "recurring": "Cykliczne vs jednorazowe",
+    "recurringHint": "Cykliczność jest wykrywana, a nie deklarowana: odbiorca jest uznawany za cyklicznego, gdy pojawia się w co najmniej {{min}} różnych miesiącach w ciągu {{months}} miesięcy przed końcem okresu.",
+    "recurringLabel": "Cykliczne",
+    "oneOffLabel": "Jednorazowe",
+    "recurringBadge": "Wykryto jako cykliczne",
+    "monthsSeen": "{{count}} mies.",
+    "uncategorized": "Nieskategoryzowane",
+    "noData": "Brak transakcji w tym okresie.",
+    "accounts": "Konta i karty",
+    "creditVsDebit": "Kredyt vs debet",
+    "creditVsDebitHint": "Na podstawie typu konta: wszystko, co wydano przez konto karty kredytowej, liczy się jako kredyt; reszta przeszła przez konta bieżące, portfele i inne konta.",
+    "onCredit": "Na kartach kredytowych",
+    "onOther": "Inne konta",
+    "accountsWithActivity": "Konta z aktywnością w tym okresie: {{count}}",
+    "otherCategories": "Inne",
+    "limitUsed": "Wykorzystano {{pct}}% limitu",
+    "availableOfLimit": "Dostępne {{available}} z {{limit}}",
+    "closes": "Zamknięcie {{date}}",
+    "due": "Termin płatności {{date}}",
+    "range": {
+      "thisMonth": "Bieżący miesiąc",
+      "lastMonth": "Poprzedni miesiąc",
+      "last3": "Ostatnie 3 miesiące",
+      "thisYear": "Bieżący rok",
+      "custom": "Niestandardowy"
     }
   }
 }

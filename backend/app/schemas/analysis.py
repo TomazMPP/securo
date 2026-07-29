@@ -70,3 +70,46 @@ class PeriodAnalysis(BaseModel):
     income: AnalysisSide
     net: float
     savings_rate: Optional[float] = None   # net / income, null when no income
+
+
+class AccountMonthPoint(BaseModel):
+    month: str            # "2026-02", oldest first in the list
+    total: float
+
+
+class AnalysisAccount(BaseModel):
+    account_id: str
+    name: str
+    type: str             # checking, savings, credit_card, ...
+    masked_number: Optional[str] = None
+    card_brand: Optional[str] = None
+    institution_name: Optional[str] = None
+    institution_logo_url: Optional[str] = None
+    account_currency: str
+    expense_total: float
+    expense_share: float  # 0..1 of the period's expenses across all accounts
+    expense_count: int
+    income_total: float
+    income_count: int
+    categories: list[AnalysisCategory]  # top expense categories inside this account
+    other_categories_total: float       # expense beyond the listed categories
+    monthly: list[AccountMonthPoint]    # trailing expense trend
+    # Credit-card only; null for every other account type.
+    credit_limit: Optional[float] = None
+    available_credit: Optional[float] = None
+    utilization: Optional[float] = None  # 0..1, utilized / limit
+    next_close_date: Optional[str] = None  # ISO
+    next_due_date: Optional[str] = None    # ISO
+
+
+class AccountsAnalysis(BaseModel):
+    start: str
+    end: str               # inclusive, ISO
+    days: int
+    currency: str
+    total_expenses: float
+    total_income: float
+    card_expenses: float
+    card_expense_share: float   # 0..1 of total_expenses that went through credit cards
+    trend_months: int
+    accounts: list[AnalysisAccount]

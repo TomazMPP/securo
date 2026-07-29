@@ -117,6 +117,7 @@
     "splitGroups": "Grupos",
     "goals": "Objetivos",
     "reports": "Informes",
+    "analysis": "Desglose",
     "groupAnalysis": "Análisis",
     "groupSetup": "Configuración",
     "groupAccounts": "Cuentas",
@@ -1701,6 +1702,48 @@
         "claude": "Claude Desktop / Code / Cursor",
         "openai": "OpenAI Responses API"
       }
+    }
+  },
+  "analysis": {
+    "title": "Desglose del período",
+    "income": "Ingresos",
+    "expenses": "Gastos",
+    "net": "Neto",
+    "savingsRate": "Tasa de ahorro",
+    "overDays": "en {{count}} días",
+    "total": "Total",
+    "dailyAverage": "Promedio diario",
+    "recurringShare": "Proporción recurrente",
+    "transactionCount": "{{count}} transacciones",
+    "byCategory": "Por categoría",
+    "topPayees": "Principales beneficiarios",
+    "payeesHint": "Agrupado por beneficiario cuando hay uno definido; si no, por la descripción de la transacción. Asignar beneficiarios a los comercios recurrentes hace este ranking más preciso.",
+    "largest": "Mayores movimientos",
+    "recurring": "Recurrente vs. puntual",
+    "recurringHint": "La recurrencia se detecta, no se declara: un beneficiario cuenta como recurrente cuando aparece en al menos {{min}} meses distintos dentro de los {{months}} meses anteriores al fin del período.",
+    "recurringLabel": "Recurrente",
+    "oneOffLabel": "Puntual",
+    "recurringBadge": "Detectado como recurrente",
+    "monthsSeen": "{{count}} meses",
+    "uncategorized": "Sin categorizar",
+    "noData": "No hay transacciones en este período.",
+    "accounts": "Cuentas y tarjetas",
+    "creditVsDebit": "Crédito vs. débito",
+    "creditVsDebitHint": "Según el tipo de cuenta: todo lo gastado a través de una cuenta de tarjeta de crédito cuenta como crédito; el resto se movió por cuentas corrientes, carteras y otras cuentas.",
+    "onCredit": "En tarjetas de crédito",
+    "onOther": "Otras cuentas",
+    "accountsWithActivity": "{{count}} cuentas con actividad en este período",
+    "otherCategories": "Otras",
+    "limitUsed": "{{pct}}% del límite usado",
+    "availableOfLimit": "{{available}} disponibles de {{limit}}",
+    "closes": "Cierra el {{date}}",
+    "due": "Vence el {{date}}",
+    "range": {
+      "thisMonth": "Este mes",
+      "lastMonth": "Mes pasado",
+      "last3": "Últimos 3 meses",
+      "thisYear": "Este año",
+      "custom": "Personalizado"
     }
   }
 }

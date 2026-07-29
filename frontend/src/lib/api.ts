@@ -45,6 +45,7 @@ import type {
   BalanceHistory,
   PaginatedTransactions,
   PeriodAnalysis,
+  AccountsAnalysis,
   ReportResponse,
   Group,
   GroupKind,
@@ -1104,6 +1105,14 @@ export const analysis = {
   period: async (start: string, end: string, accountIds?: string[]): Promise<PeriodAnalysis> => {
     const extra = acctIdsParam(accountIds)
     const { data } = await api.get('/analysis/period', {
+      params: { start, end, ...(extra.params ?? {}) },
+      ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
+    })
+    return data
+  },
+  accounts: async (start: string, end: string, accountIds?: string[]): Promise<AccountsAnalysis> => {
+    const extra = acctIdsParam(accountIds)
+    const { data } = await api.get('/analysis/accounts', {
       params: { start, end, ...(extra.params ?? {}) },
       ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
     })

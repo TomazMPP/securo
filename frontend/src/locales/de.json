@@ -117,6 +117,7 @@
     "splitGroups": "Gruppen",
     "goals": "Ziele",
     "reports": "Berichte",
+    "analysis": "Aufschlüsselung",
     "groupAnalysis": "Analyse",
     "groupSetup": "Einrichtung",
     "groupAccounts": "Konten",
@@ -1701,6 +1702,48 @@
         "title": "Noch keine Verbindungen",
         "subtitle": "Füge eine Verbindung hinzu, um Securo auf dein lokales Ollama, OpenAI, Anthropic oder einen OpenAI-kompatiblen Endpunkt zu verweisen."
       }
+    }
+  },
+  "analysis": {
+    "title": "Aufschlüsselung des Zeitraums",
+    "income": "Einnahmen",
+    "expenses": "Ausgaben",
+    "net": "Netto",
+    "savingsRate": "Sparquote",
+    "overDays": "über {{count}} Tage",
+    "total": "Gesamt",
+    "dailyAverage": "Tagesdurchschnitt",
+    "recurringShare": "Wiederkehrender Anteil",
+    "transactionCount": "Transaktionen: {{count}}",
+    "byCategory": "Nach Kategorie",
+    "topPayees": "Top-Zahlungsempfänger",
+    "payeesHint": "Gruppiert nach Zahlungsempfänger, wenn einer festgelegt ist, andernfalls nach der Transaktionsbeschreibung. Das Festlegen von Zahlungsempfängern bei wiederkehrenden Händlern macht dieses Ranking präziser.",
+    "largest": "Größte Bewegungen",
+    "recurring": "Wiederkehrend vs. einmalig",
+    "recurringHint": "Wiederkehrend wird erkannt, nicht festgelegt: Ein Zahlungsempfänger gilt als wiederkehrend, wenn er in mindestens {{min}} verschiedenen Monaten innerhalb der {{months}} Monate vor dem Ende des Zeitraums vorkommt.",
+    "recurringLabel": "Wiederkehrend",
+    "oneOffLabel": "Einmalig",
+    "recurringBadge": "Als wiederkehrend erkannt",
+    "monthsSeen": "Monate: {{count}}",
+    "uncategorized": "Nicht kategorisiert",
+    "noData": "Keine Transaktionen in diesem Zeitraum.",
+    "accounts": "Konten & Karten",
+    "creditVsDebit": "Kredit vs. Debit",
+    "creditVsDebitHint": "Basierend auf dem Kontotyp: Alles, was über ein Kreditkartenkonto ausgegeben wurde, zählt als Kredit; der Rest lief über Girokonto, Bargeld und andere Konten.",
+    "onCredit": "Über Kreditkarten",
+    "onOther": "Andere Konten",
+    "accountsWithActivity": "Konten mit Aktivität in diesem Zeitraum: {{count}}",
+    "otherCategories": "Sonstige",
+    "limitUsed": "{{pct}}% des Limits genutzt",
+    "availableOfLimit": "{{available}} von {{limit}} verfügbar",
+    "closes": "Abschluss am {{date}}",
+    "due": "Fällig am {{date}}",
+    "range": {
+      "thisMonth": "Diesen Monat",
+      "lastMonth": "Letzter Monat",
+      "last3": "Letzte 3 Monate",
+      "thisYear": "Dieses Jahr",
+      "custom": "Benutzerdefiniert"
     }
   }
 }
