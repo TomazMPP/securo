@@ -1,4 +1,11 @@
 import { useState, useMemo, useEffect, useRef } from 'react'
+import {
+  consolidationKeyOf,
+  consolidatedLabelOf,
+  classifyAsset,
+  type AssetClass,
+  type AssetRegion,
+} from '@/lib/asset-classification'
 import { useTranslation } from 'react-i18next'
 import { useDisplayLocale, useDateLocale } from '@/hooks/use-display-locale'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
@@ -222,6 +229,14 @@ export default function AssetsPage() {
   const [deletingWalletId, setDeletingWalletId] = useState<string | null>(null)
   // Collapsed wallet IDs — default is expanded (empty set), user can collapse manually
   const [collapsedWallets, setCollapsedWallets] = useState<Set<string>>(new Set())
+  // Persisted so the chosen lens survives navigation — switching back to a
+  // fragmented list on every visit defeats the point.
+  const [consolidated, setConsolidated] = useState<boolean>(
+    () => localStorage.getItem('assets.consolidated') === '1'
+  )
+  const [expandedConsolidated, setExpandedConsolidated] = useState<string | null>(null)
+  const [concentrationDim, setConcentrationDim] = useState<'class' | 'region' | 'currency'>('class')
+  const [includeNonFinancial, setIncludeNonFinancial] = useState(false)
   // Asset being moved to a wallet (null = no picker open)
   const [movingAsset, setMovingAsset] = useState<Asset | null>(null)
 
@@ -866,6 +881,88 @@ export default function AssetsPage() {
     )
   }
 
+  // One consolidated row. Expands to show which wallets hold it and how much
+  // each contributes, so merging never hides where the position actually sits.
+  function renderConsolidatedRow(h: (typeof consolidatedHoldings)[number]) {
+    const config = getTypeConfig(h.head.type)
+    const Icon = config.icon
+    const isExpanded = expandedConsolidated === h.key
+    const pctOfPortfolio = portfolioTotalPrimary > 0 ? (h.value / portfolioTotalPrimary) * 100 : null
+
+    return (
+      <div key={h.key} className="border-b border-border last:border-b-0">
+        <div
+          className="grid items-center gap-2 px-3 py-3 cursor-pointer hover:bg-muted/20 transition-colors text-sm"
+          style={{ gridTemplateColumns: HOLDINGS_GRID }}
+          onClick={() => setExpandedConsolidated(isExpanded ? null : h.key)}
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <AssetIcon logoUrl={h.head.logo_url} Icon={Icon} colorClass={config.color} bgClass={config.bg} size={16} tile="w-8 h-8" />
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="font-semibold text-foreground truncate">{h.label}</span>
+                {h.parts.length > 1 && (
+                  <Badge variant="outline" className="text-[9px] px-1 py-0 text-muted-foreground shrink-0">
+                    {h.parts.length}×
+                  </Badge>
+                )}
+              </div>
+              {h.wallets.length > 0 && (
+                <div className="text-[10px] text-muted-foreground truncate">{h.wallets.join(' · ')}</div>
+              )}
+            </div>
+          </div>
+          <div className="text-right tabular-nums text-muted-foreground">
+            {h.units != null ? mask(h.units.toLocaleString(locale, { maximumFractionDigits: 6 })) : '—'}
+          </div>
+          <div className="text-right tabular-nums text-muted-foreground">
+            {h.avgPrice != null ? mask(formatCurrency(h.avgPrice, h.currency, locale)) : '—'}
+          </div>
+          <div className="text-right tabular-nums text-muted-foreground">
+            {h.lastPrice != null ? mask(formatCurrency(h.lastPrice, h.currency, locale)) : '—'}
+          </div>
+          <div className={`text-right tabular-nums font-medium ${h.returnPct == null ? 'text-muted-foreground' : h.returnPct >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+            {h.returnPct != null ? `${h.returnPct >= 0 ? '+' : ''}${h.returnPct.toFixed(2)}%` : '—'}
+          </div>
+          <div className="text-right">
+            <span className="font-semibold text-foreground">{mask(formatCurrency(h.value, userCurrency, locale))}</span>
+            {h.gain != null && (
+              <span className={`block text-[10px] ${h.gain >= 0 ? 'text-emerald-600' : 'text-rose-500'}`}>
+                {h.gain >= 0 ? '+' : ''}{mask(formatCurrency(h.gain, userCurrency, locale))}
+              </span>
+            )}
+          </div>
+          <div className="text-right tabular-nums text-muted-foreground">
+            {pctOfPortfolio != null ? `${pctOfPortfolio.toFixed(1)}%` : '—'}
+          </div>
+          <div className="flex justify-end">
+            {isExpanded ? <ChevronDown size={14} className="text-muted-foreground" /> : <ChevronRight size={14} className="text-muted-foreground" />}
+          </div>
+        </div>
+
+        {isExpanded && (
+          <div className="bg-muted/20 px-3 py-2 space-y-1">
+            {h.parts.map(p => {
+              const wallet = p.group_id ? (walletsList ?? []).find(w => w.id === p.group_id)?.name : null
+              const v = p.current_value_primary ?? p.current_value ?? 0
+              return (
+                <div key={p.id} className="flex items-center justify-between gap-3 text-xs py-1">
+                  <span className="text-muted-foreground truncate">{wallet ?? t('assets.ungrouped')}</span>
+                  <span className="flex items-center gap-3 shrink-0 tabular-nums">
+                    {p.units != null && (
+                      <span className="text-muted-foreground">{mask(p.units.toLocaleString(locale, { maximumFractionDigits: 6 }))}</span>
+                    )}
+                    <span className="font-medium text-foreground">{mask(formatCurrency(v, userCurrency, locale))}</span>
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    )
+  }
+
   // Wrap a set of holding rows in a horizontally-scrollable table shell so the
   // columns stay aligned (and usable on narrow screens).
   function renderHoldingsTable(rows: Asset[]) {
@@ -878,6 +975,102 @@ export default function AssetsPage() {
       </div>
     )
   }
+
+  // Consolidated view: one row per instrument, merged across wallets.
+  //
+  // The same security is routinely held at more than one broker — Tesouro
+  // Prefixado 2027 at two banks, INTR at two brokerages — and the per-wallet
+  // view repeats it once per custodian, which fragments the real position.
+  //
+  // Grouping is by ticker when there is one, otherwise by normalized name.
+  // Provider-synced fixed income (Tesouro, CDB) carries no ticker at all, so a
+  // ticker-only key would leave exactly the rows that motivated this feature
+  // unmerged.
+  const consolidationKey = consolidationKeyOf
+
+  // Concentration: how the portfolio splits by asset class, region and
+  // currency. Uses current_value_primary so everything is comparable in one
+  // currency — mixing USD and BRL face values would make the percentages lie.
+  const concentration = useMemo(() => {
+    const walletName = new Map((walletsList ?? []).map(w => [w.id, w.name]))
+    const byClass = new Map<AssetClass, number>()
+    const byRegion = new Map<AssetRegion, number>()
+    const byCurrency = new Map<string, number>()
+    let total = 0
+
+    for (const a of activeAssets) {
+      // Non-financial holdings (a car, a flat) are wealth but not portfolio
+      // allocation, and at this size they'd dominate every percentage.
+      if (!includeNonFinancial && (a.type === 'vehicle' || a.type === 'real_estate')) continue
+      const value = a.current_value_primary ?? a.current_value ?? 0
+      if (value <= 0) continue
+      const { cls, region } = classifyAsset({
+        name: a.name,
+        ticker: a.ticker,
+        currency: a.currency,
+        type: a.type,
+        walletName: a.group_id ? walletName.get(a.group_id) : null,
+      })
+      byClass.set(cls, (byClass.get(cls) ?? 0) + value)
+      byRegion.set(region, (byRegion.get(region) ?? 0) + value)
+      const cur = (a.currency || 'BRL').toUpperCase()
+      byCurrency.set(cur, (byCurrency.get(cur) ?? 0) + value)
+      total += value
+    }
+
+    const toRows = (m: Map<string, number>, labeller: (k: string) => string) =>
+      Array.from(m.entries())
+        .map(([k, v]) => ({ key: k, label: labeller(k), value: v, pct: total > 0 ? (v / total) * 100 : 0 }))
+        .sort((a, b) => b.value - a.value)
+
+    return {
+      total,
+      byClass: toRows(byClass as Map<string, number>, k => t(`assets.class_${k}`)),
+      byRegion: toRows(byRegion as Map<string, number>, k => t(`assets.region_${k}`)),
+      byCurrency: toRows(byCurrency, k => k),
+    }
+  }, [activeAssets, walletsList, includeNonFinancial, t])
+
+  const consolidatedHoldings = useMemo(() => {
+    const walletName = new Map((walletsList ?? []).map(w => [w.id, w.name]))
+    const buckets = new Map<string, Asset[]>()
+    for (const a of activeAssets) {
+      const key = consolidationKey(a)
+      if (!buckets.has(key)) buckets.set(key, [])
+      buckets.get(key)!.push(a)
+    }
+    return Array.from(buckets.entries())
+      .map(([key, parts]) => {
+        const head = parts[0]
+        const value = parts.reduce((s, a) => s + (a.current_value_primary ?? a.current_value ?? 0), 0)
+        // Only sum cost when every part reports one — a partial sum would
+        // understate the basis and invent a return that isn't real.
+        const allHaveCost = parts.every(a => a.total_invested != null)
+        const invested = allHaveCost ? parts.reduce((s, a) => s + (a.total_invested ?? 0), 0) : null
+        const allHaveUnits = parts.every(a => a.units != null)
+        const units = allHaveUnits ? parts.reduce((s, a) => s + (a.units ?? 0), 0) : null
+        // Weighted average, not a mean of averages: the parts have different
+        // sizes, so averaging the per-broker prices would be wrong.
+        const avgPrice = invested != null && units ? invested / units : null
+        const gain = allHaveCost ? value - (invested ?? 0) : null
+        return {
+          key,
+          label: consolidatedLabelOf(head),
+          parts,
+          wallets: Array.from(new Set(parts.map(a => (a.group_id ? walletName.get(a.group_id) : null)).filter(Boolean))) as string[],
+          value,
+          invested,
+          units,
+          avgPrice,
+          gain,
+          returnPct: invested ? ((value - invested) / invested) * 100 : null,
+          currency: head.currency,
+          lastPrice: parts.find(a => a.last_price != null)?.last_price ?? null,
+          head,
+        }
+      })
+      .sort((a, b) => b.value - a.value)
+  }, [activeAssets, walletsList])
 
   // Bucket active assets by group_id so each wallet renders with its
   // total and collapse toggle. Un-grouped actives go under a synthetic
@@ -1083,8 +1276,110 @@ export default function AssetsPage() {
         </div>
       ) : (
         <div className="space-y-6">
-          {/* Wallets (active assets grouped) */}
+          {/* Concentration: allocation by class / region / currency */}
+          {concentration.total > 0 && (
+            <div className="rounded-xl border border-border bg-card shadow-sm p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="text-sm font-semibold text-foreground">{t('assets.concentration')}</h3>
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 text-[11px] text-muted-foreground cursor-pointer select-none">
+                    <input
+                      type="checkbox"
+                      checked={includeNonFinancial}
+                      onChange={e => setIncludeNonFinancial(e.target.checked)}
+                      className="accent-primary"
+                    />
+                    {t('assets.includeNonFinancial')}
+                  </label>
+                  <div className="inline-flex items-center rounded-lg border border-border p-0.5 bg-muted/40">
+                    {(['class', 'region', 'currency'] as const).map(dim => (
+                      <button
+                        key={dim}
+                        type="button"
+                        aria-pressed={concentrationDim === dim}
+                        onClick={() => setConcentrationDim(dim)}
+                        className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${
+                          concentrationDim === dim ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        {t(`assets.dim_${dim}`)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                {(concentrationDim === 'class'
+                  ? concentration.byClass
+                  : concentrationDim === 'region'
+                    ? concentration.byRegion
+                    : concentration.byCurrency
+                ).map((row, i) => (
+                  <div key={row.key} className="space-y-1">
+                    <div className="flex items-center justify-between gap-3 text-xs">
+                      <span className="font-medium text-foreground truncate">{row.label}</span>
+                      <span className="flex items-center gap-2 shrink-0 tabular-nums">
+                        <span className="text-muted-foreground">{mask(formatCurrency(row.value, userCurrency, locale))}</span>
+                        <span className="font-semibold text-foreground w-12 text-right">{row.pct.toFixed(1)}%</span>
+                      </span>
+                    </div>
+                    <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${Math.max(row.pct, 0.5)}%`,
+                          backgroundColor: PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length],
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex items-center justify-between pt-1 text-[11px] text-muted-foreground border-t border-border">
+                <span>{t('assets.concentrationTotal')}</span>
+                <span className="tabular-nums font-medium">{mask(formatCurrency(concentration.total, userCurrency, locale))}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Lens toggle: per-wallet (custody view) vs consolidated (position view) */}
           {(sortedWallets.length > 0 || ungroupedAssets.length > 0) && (
+            <div className="flex items-center justify-end gap-1 px-1">
+              <div className="inline-flex rounded-lg border border-border bg-card p-0.5">
+                {([false, true] as const).map(mode => (
+                  <button
+                    key={String(mode)}
+                    onClick={() => {
+                      setConsolidated(mode)
+                      localStorage.setItem('assets.consolidated', mode ? '1' : '0')
+                    }}
+                    className={`px-2.5 py-1 text-xs font-medium rounded-md transition-colors ${
+                      consolidated === mode
+                        ? 'bg-muted text-foreground'
+                        : 'text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {mode ? t('assets.viewConsolidated') : t('assets.viewByWallet')}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Consolidated: one row per instrument, merged across wallets */}
+          {consolidated && consolidatedHoldings.length > 0 && (
+            <div className="rounded-xl border border-border bg-card shadow-sm overflow-x-auto">
+              <div className="min-w-[720px]">
+                {renderHoldingsHeader()}
+                {consolidatedHoldings.map(renderConsolidatedRow)}
+              </div>
+            </div>
+          )}
+
+          {/* Wallets (active assets grouped) */}
+          {!consolidated && (sortedWallets.length > 0 || ungroupedAssets.length > 0) && (
             <div className="space-y-4">
               {sortedWallets.map(w => renderWalletSection(w, assetsByGroup.get(w.id) ?? []))}
 
@@ -1689,7 +1984,7 @@ export default function AssetsPage() {
 const PORTFOLIO_COLORS = ['#6366F1', '#F43F5E', '#F59E0B', '#10B981', '#8B5CF6', '#EC4899', '#06B6D4', '#84CC16']
 
 function PortfolioChart({ data, wallets, currency, locale: loc, dateLocale: dateLoc, mask }: {
-  data: { assets: { id: string; name: string; type: string; group_id: string | null }[]; trend: Record<string, unknown>[]; total: number }
+  data: { assets: { id: string; name: string; type: string; group_id: string | null; ticker?: string | null }[]; trend: Record<string, unknown>[]; total: number }
   wallets: AssetGroup[]
   currency: string
   locale: string
@@ -1702,7 +1997,7 @@ function PortfolioChart({ data, wallets, currency, locale: loc, dateLocale: date
   // the default drawing style, while letting users switch to true lines when
   // they need to compare each wallet/asset's own value instead of the running
   // cumulative total.
-  const [mode, setMode] = useState<'wallet' | 'asset'>('wallet')
+  const [mode, setMode] = useState<'wallet' | 'asset' | 'consolidated'>('wallet')
   const [drawMode, setDrawMode] = useState<'stacked' | 'lines'>('stacked')
   const isStacked = drawMode === 'stacked'
 
@@ -1726,6 +2021,33 @@ function PortfolioChart({ data, wallets, currency, locale: loc, dateLocale: date
         sourceAssetIds: [a.id],
       }))
       return { series: s, displayTrend: data.trend }
+    }
+
+    // Consolidated: one series per instrument, merged across custodians.
+    // Uses the same key as the holdings list so both views agree.
+    if (mode === 'consolidated') {
+      const buckets = new Map<string, { name: string; ids: string[] }>()
+      for (const a of data.assets) {
+        const key = consolidationKeyOf(a)
+        if (!buckets.has(key)) buckets.set(key, { name: consolidatedLabelOf(a), ids: [] })
+        buckets.get(key)!.ids.push(a.id)
+      }
+      const s = Array.from(buckets.entries()).map(([key, b], i) => ({
+        key: `c_${key}`,
+        name: b.name,
+        color: PORTFOLIO_COLORS[i % PORTFOLIO_COLORS.length],
+        sourceAssetIds: b.ids,
+      }))
+      const newTrend = data.trend.map(row => {
+        const newRow: Record<string, unknown> = { date: row.date, _total: row._total }
+        for (const entry of s) {
+          let sum = 0
+          for (const aid of entry.sourceAssetIds) sum += (row[aid] as number) ?? 0
+          newRow[entry.key] = sum
+        }
+        return newRow
+      })
+      return { series: s, displayTrend: newTrend }
     }
 
     const walletById = new Map<string, AssetGroup>()
@@ -1818,6 +2140,14 @@ function PortfolioChart({ data, wallets, currency, locale: loc, dateLocale: date
                 className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${mode === 'asset' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
               >
                 {t('assets.chartByAsset')}
+              </button>
+              <button
+                type="button"
+                aria-pressed={mode === 'consolidated'}
+                onClick={() => setMode('consolidated')}
+                className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-colors ${mode === 'consolidated' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                {t('assets.viewConsolidated')}
               </button>
             </div>
             <div role="group" aria-label={t('assets.chartDrawMode')} className="inline-flex items-center rounded-lg border border-border p-0.5 bg-muted/40">
