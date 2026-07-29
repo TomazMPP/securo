@@ -653,7 +653,19 @@
       },
       "reconnectTitle": "Połącz ponownie za pomocą nowego tokenu",
       "reconnectDescription": "Wklej nowy token konfiguracji, aby odświeżyć to połączenie bez jego usuwania. Istniejące konta, transakcje, kategorie i reguły zostaną zachowane.",
-      "reconnect": "Połącz ponownie"
+      "reconnect": "Połącz ponownie",
+      "binance": {
+        "title": "Połącz przez Binance",
+        "description": "Utwórz w Binance klucz API tylko do odczytu (wyłącznie „Enable Reading” — nigdy handel ani wypłaty), a następnie wklej go poniżej jako {\"api_key\": \"...\", \"api_secret\": \"...\"} lub jako key:secret. Twoje salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
+      },
+      "coinbase": {
+        "title": "Połącz przez Coinbase",
+        "description": "Utwórz w Coinbase klucz API tylko do odczytu (wyłącznie uprawnienie podglądu) i wklej tutaj JSON. Klucze CDP działają w formie pobranej: {\"name\": \"...\", \"privateKey\": \"...\"}. Starsze klucze: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
+      },
+      "kraken": {
+        "title": "Połącz przez Kraken",
+        "description": "Utwórz w Kraken klucz API wyłącznie z uprawnieniem „Query Funds” — nigdy handel ani wypłaty. Wklej go jako {\"api_key\": \"...\", \"api_secret\": \"...\"} lub jako key:secret. Salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
+      }
     },
     "providers": {
       "pluggy": {
@@ -666,7 +678,8 @@
         "description": "Banki w USA i międzynarodowe przez SimpleFIN Bridge"
       }
     },
-    "reconnected": "Bank połączony ponownie"
+    "reconnected": "Bank połączony ponownie",
+    "typeLoan": "Kredyt"
   },
   "connections": {
     "settings": "Ustawienia połączenia",
@@ -1160,7 +1173,28 @@
     "total": "Łącznie",
     "confirmRegenerateTitle": "Przeliczyć wartości ponownie?",
     "confirmRegenerate": "Zmieniono parametry wzrostu. Wszystkie automatycznie wygenerowane wartości zostaną usunięte i przeliczone ponownie. Wartości ręczne zostaną zachowane.",
-    "regenerate": "Przelicz ponownie"
+    "regenerate": "Przelicz ponownie",
+    "class_cash": "Gotówka",
+    "class_crypto": "Krypto",
+    "class_etfsBR": "ETF-y BR",
+    "class_etfsUS": "ETF-y USA",
+    "class_fiis": "REIT-y (FII)",
+    "class_fixedIncome": "Stały dochód",
+    "class_other": "Inne",
+    "class_stocksBR": "Akcje BR",
+    "class_stocksUS": "Akcje USA",
+    "class_vehicle": "Pojazd",
+    "concentration": "Koncentracja",
+    "concentrationTotal": "Suma uwzględniona",
+    "dim_class": "Klasa",
+    "dim_currency": "Waluta",
+    "dim_region": "Region",
+    "includeNonFinancial": "Uwzględnij niefinansowe",
+    "region_brazil": "Brazylia",
+    "region_global": "Globalne",
+    "region_unitedStates": "Stany Zjednoczone",
+    "viewByWallet": "Według portfela",
+    "viewConsolidated": "Skonsolidowane"
   },
   "reports": {
     "section": "Analityka",

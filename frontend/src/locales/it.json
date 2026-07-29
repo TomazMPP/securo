@@ -617,7 +617,19 @@
       },
       "reconnectTitle": "Riconnetti con un nuovo token",
       "reconnectDescription": "Incolla un nuovo token di configurazione per aggiornare questa connessione senza sostituirla. Account, transazioni, categorie e regole esistenti vengono conservati.",
-      "reconnect": "Riconnetti"
+      "reconnect": "Riconnetti",
+      "binance": {
+        "title": "Connetti tramite Binance",
+        "description": "Crea una chiave API di sola lettura in Binance (solo «Enable Reading» — mai trading o prelievi), poi incollala qui sotto come {\"api_key\": \"...\", \"api_secret\": \"...\"} o come key:secret. I tuoi saldi diventano posizioni di investimento; non vengono importati conti né transazioni."
+      },
+      "coinbase": {
+        "title": "Connetti tramite Coinbase",
+        "description": "Crea una chiave API di sola lettura in Coinbase (solo permesso di visualizzazione), poi incolla qui il JSON. Le chiavi CDP funzionano così come scaricate: {\"name\": \"...\", \"privateKey\": \"...\"}. Chiavi legacy: {\"api_key\": \"...\", \"api_secret\": \"...\"}. I saldi diventano posizioni di investimento; non vengono importati conti né transazioni."
+      },
+      "kraken": {
+        "title": "Connetti tramite Kraken",
+        "description": "Crea una chiave API in Kraken con il solo permesso «Query Funds» — mai trading o prelievi. Incollala come {\"api_key\": \"...\", \"api_secret\": \"...\"} o come key:secret. I saldi diventano posizioni di investimento; non vengono importati conti né transazioni."
+      }
     },
     "providers": {
       "pluggy": {
@@ -630,7 +642,8 @@
         "description": "Banche statunitensi e internazionali tramite SimpleFIN Bridge"
       }
     },
-    "reconnected": "Banca riconnessa correttamente"
+    "reconnected": "Banca riconnessa correttamente",
+    "typeLoan": "Prestito"
   },
   "connections": {
     "settings": "Impostazioni connessione",
@@ -1091,7 +1104,28 @@
     "total": "Totale",
     "confirmRegenerateTitle": "Rigenerare i valori?",
     "confirmRegenerate": "I parametri di crescita sono cambiati. Tutti i valori generati automaticamente saranno eliminati e ricalcolati. I valori manuali saranno mantenuti.",
-    "regenerate": "Rigenera"
+    "regenerate": "Rigenera",
+    "class_cash": "Liquidità",
+    "class_crypto": "Cripto",
+    "class_etfsBR": "ETF BR",
+    "class_etfsUS": "ETF USA",
+    "class_fiis": "REIT (FII)",
+    "class_fixedIncome": "Reddito fisso",
+    "class_other": "Altro",
+    "class_stocksBR": "Azioni BR",
+    "class_stocksUS": "Azioni USA",
+    "class_vehicle": "Veicolo",
+    "concentration": "Concentrazione",
+    "concentrationTotal": "Totale considerato",
+    "dim_class": "Classe",
+    "dim_currency": "Valuta",
+    "dim_region": "Regione",
+    "includeNonFinancial": "Includi non finanziari",
+    "region_brazil": "Brasile",
+    "region_global": "Globale",
+    "region_unitedStates": "Stati Uniti",
+    "viewByWallet": "Per portafoglio",
+    "viewConsolidated": "Consolidato"
   },
   "reports": {
     "section": "Analisi",

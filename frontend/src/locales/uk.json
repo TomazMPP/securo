@@ -617,7 +617,19 @@
       },
       "reconnectTitle": "Перепідключити з новим токеном",
       "reconnectDescription": "Вставте новий setup-токен, щоб оновити це підключення на місці. Наявні рахунки, транзакції, категорії та правила буде збережено.",
-      "reconnect": "Перепідключити"
+      "reconnect": "Перепідключити",
+      "binance": {
+        "title": "Підключити через Binance",
+        "description": "Створіть у Binance API-ключ лише для читання (тільки «Enable Reading» — ніколи не вмикайте торгівлю чи виведення коштів) і вставте його нижче як {\"api_key\": \"...\", \"api_secret\": \"...\"} або як key:secret. Ваші баланси стануть інвестиційними позиціями; рахунки й транзакції не імпортуються."
+      },
+      "coinbase": {
+        "title": "Підключити через Coinbase",
+        "description": "Створіть у Coinbase API-ключ лише для читання (тільки право перегляду) і вставте сюди JSON. Ключі CDP працюють як завантажені: {\"name\": \"...\", \"privateKey\": \"...\"}. Старі ключі: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Баланси стануть інвестиційними позиціями; рахунки й транзакції не імпортуються."
+      },
+      "kraken": {
+        "title": "Підключити через Kraken",
+        "description": "Створіть у Kraken API-ключ лише з правом «Query Funds» — ніколи торгівля чи виведення коштів. Вставте його як {\"api_key\": \"...\", \"api_secret\": \"...\"} або як key:secret. Баланси стануть інвестиційними позиціями; рахунки й транзакції не імпортуються."
+      }
     },
     "providers": {
       "pluggy": {
@@ -630,7 +642,8 @@
         "description": "Банки США та інших країн через SimpleFIN Bridge"
       }
     },
-    "reconnected": "Банк успішно перепідключено"
+    "reconnected": "Банк успішно перепідключено",
+    "typeLoan": "Кредит"
   },
   "connections": {
     "settings": "Налаштування підключення",
@@ -1091,7 +1104,28 @@
     "total": "Усього",
     "confirmRegenerateTitle": "Перегенерувати значення?",
     "confirmRegenerate": "Параметри зростання змінено. Усі автоматично згенеровані значення буде видалено та перераховано. Ручні значення збережуться.",
-    "regenerate": "Перегенерувати"
+    "regenerate": "Перегенерувати",
+    "class_cash": "Готівка",
+    "class_crypto": "Криптовалюта",
+    "class_etfsBR": "ETF Бразилії",
+    "class_etfsUS": "ETF США",
+    "class_fiis": "REIT (FII)",
+    "class_fixedIncome": "Фіксований дохід",
+    "class_other": "Інше",
+    "class_stocksBR": "Акції Бразилії",
+    "class_stocksUS": "Акції США",
+    "class_vehicle": "Автомобіль",
+    "concentration": "Концентрація",
+    "concentrationTotal": "Врахована сума",
+    "dim_class": "Клас",
+    "dim_currency": "Валюта",
+    "dim_region": "Регіон",
+    "includeNonFinancial": "Включати нефінансові",
+    "region_brazil": "Бразилія",
+    "region_global": "Глобальний",
+    "region_unitedStates": "США",
+    "viewByWallet": "За гаманцями",
+    "viewConsolidated": "Консолідовано"
   },
   "reports": {
     "section": "Аналітика",

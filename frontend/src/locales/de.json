@@ -617,7 +617,19 @@
       },
       "reconnectTitle": "Mit einem neuen Token erneut verbinden",
       "reconnectDescription": "Füge ein neues Setup-Token ein, um diese Verbindung direkt zu aktualisieren. Bestehende Konten, Transaktionen, Kategorien und Regeln bleiben erhalten.",
-      "reconnect": "Erneut verbinden"
+      "reconnect": "Erneut verbinden",
+      "binance": {
+        "title": "Über Binance verbinden",
+        "description": "Erstelle in Binance einen API-Schlüssel mit Nur-Lese-Zugriff (nur „Enable Reading“ — niemals Handel oder Abhebungen), und füge ihn unten als {\"api_key\": \"...\", \"api_secret\": \"...\"} oder als key:secret ein. Deine Bestände werden zu Anlagepositionen; es werden keine Konten oder Transaktionen importiert."
+      },
+      "coinbase": {
+        "title": "Über Coinbase verbinden",
+        "description": "Erstelle in Coinbase einen API-Schlüssel mit Nur-Lese-Zugriff (nur Ansichtsberechtigung) und füge das JSON hier ein. CDP-Schlüssel funktionieren wie heruntergeladen: {\"name\": \"...\", \"privateKey\": \"...\"}. Ältere Schlüssel: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Bestände werden zu Anlagepositionen; es werden keine Konten oder Transaktionen importiert."
+      },
+      "kraken": {
+        "title": "Über Kraken verbinden",
+        "description": "Erstelle in Kraken einen API-Schlüssel nur mit der Berechtigung „Query Funds“ — niemals Handel oder Abhebungen. Füge ihn als {\"api_key\": \"...\", \"api_secret\": \"...\"} oder als key:secret ein. Bestände werden zu Anlagepositionen; es werden keine Konten oder Transaktionen importiert."
+      }
     },
     "providers": {
       "pluggy": {
@@ -630,7 +642,8 @@
         "description": "US-amerikanische und internationale Banken via SimpleFIN Bridge"
       }
     },
-    "reconnected": "Bank erfolgreich erneut verbunden"
+    "reconnected": "Bank erfolgreich erneut verbunden",
+    "typeLoan": "Darlehen"
   },
   "connections": {
     "settings": "Verbindungseinstellungen",
@@ -1091,7 +1104,28 @@
     "total": "Gesamt",
     "confirmRegenerateTitle": "Werte neu generieren?",
     "confirmRegenerate": "Wachstumsparameter wurden geändert. Alle automatisch generierten Werte werden gelöscht und neu berechnet. Manuell eingegebene Werte bleiben erhalten.",
-    "regenerate": "Neu generieren"
+    "regenerate": "Neu generieren",
+    "class_cash": "Cash",
+    "class_crypto": "Krypto",
+    "class_etfsBR": "BR-ETFs",
+    "class_etfsUS": "US-ETFs",
+    "class_fiis": "REITs (FIIs)",
+    "class_fixedIncome": "Festverzinsliche",
+    "class_other": "Sonstige",
+    "class_stocksBR": "BR-Aktien",
+    "class_stocksUS": "US-Aktien",
+    "class_vehicle": "Fahrzeug",
+    "concentration": "Konzentration",
+    "concentrationTotal": "Berücksichtigte Summe",
+    "dim_class": "Klasse",
+    "dim_currency": "Währung",
+    "dim_region": "Region",
+    "includeNonFinancial": "Nicht-finanzielle einbeziehen",
+    "region_brazil": "Brasilien",
+    "region_global": "Global",
+    "region_unitedStates": "USA",
+    "viewByWallet": "Nach Wallet",
+    "viewConsolidated": "Konsolidiert"
   },
   "reports": {
     "section": "Analysen",
