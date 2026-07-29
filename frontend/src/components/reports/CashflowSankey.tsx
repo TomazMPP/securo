@@ -233,24 +233,36 @@ export function CashflowSankey({ composition, currency, locale }: CashflowSankey
 
   // Always-on labels: place each node's label and push overlapping neighbours
   // apart per column so even a 1px-tall node keeps a readable name + amount.
+  // Two passes: the forward pass pushes overlaps downward; when that shoves
+  // the tail past the bottom edge (one dominant node squeezing everything
+  // else), the backward pass absorbs the overflow upward into the slack above.
   const labelY = useMemo(() => {
     const pos = new Map<number, number>()
     if (!layout) return pos
+    const maxY = height - 18 // keep the label's second line (amount) on-SVG
     for (const left of [true, false]) {
       const column = layout.nodes
         .filter((n) => n.id !== 'center')
         .filter((n) => ((n.x0 ?? 0) < width / 2) === left)
         .sort((a, b) => ((a.y0! + a.y1!) / 2) - ((b.y0! + b.y1!) / 2))
+      const ys: number[] = []
       let prev = -Infinity
       for (const n of column) {
         let y = (n.y0! + n.y1!) / 2
         if (y < prev + LABEL_MIN_GAP) y = prev + LABEL_MIN_GAP
-        pos.set((n as SankeyNodeDatum & { index: number }).index, y)
+        ys.push(y)
         prev = y
       }
+      for (let i = ys.length - 1; i >= 0; i--) {
+        const bound = i === ys.length - 1 ? maxY : ys[i + 1] - LABEL_MIN_GAP
+        if (ys[i] > bound) ys[i] = bound
+      }
+      column.forEach((n, i) =>
+        pos.set((n as SankeyNodeDatum & { index: number }).index, ys[i])
+      )
     }
     return pos
-  }, [layout, width])
+  }, [layout, width, height])
 
   // Resolve the current hover into the exact set of links/nodes to keep lit.
   const { activeLinks, activeNodes } = useMemo(() => {
@@ -352,7 +364,7 @@ export function CashflowSankey({ composition, currency, locale }: CashflowSankey
                     {(link.target as SankeyNodeDatum).id === 'center'
                       ? (link.source as SankeyNodeDatum).name
                       : (link.target as SankeyNodeDatum).name}
-                    : {fmtAmount(link.value)} ({pct}%)
+                    : {fmtAmount(link.value)} ({privacyMode ? MASK : `${pct}%`})
                   </title>
                 </path>
               )

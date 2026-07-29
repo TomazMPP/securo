@@ -714,12 +714,17 @@ async def get_income_expenses_report(
     # from spending and from leftover surplus (mirrors how Sure shows an
     # "Investment Contributions" node). Paired account transfers stay excluded via
     # the transfer_pair_id filter, so only one-sided movements (contributions)
-    # appear here.
+    # appear here. The lane is NET per category: redemptions flowing back
+    # (credits in the same category) offset the applications, otherwise
+    # application/redemption churn reads as money set aside and fabricates a
+    # deficit in the Sankey. Categories that net to zero or received more than
+    # they sent are dropped.
     inv_result = await session.execute(
         select(
             Category.id,
             Category.name,
             Category.color,
+            Transaction.type,
             func.sum(amount_expr),
         )
         .select_from(Transaction)
@@ -731,23 +736,29 @@ async def get_income_expenses_report(
             report_date >= start,
             report_date <= today,
             Transaction.source != "opening_balance",
-            Transaction.type == "debit",
+            Transaction.source != "settlement",
             Transaction.transfer_pair_id.is_(None),
             Transaction.is_ignored.is_(False),
             Category.treat_as_transfer.is_(True),
             Category.is_ignored.is_(False),
             *acct_filter,
         )
-        .group_by(Category.id, Category.name, Category.color)
+        .group_by(Category.id, Category.name, Category.color, Transaction.type)
     )
-    for cat_id, cat_name, cat_color, total_amount in inv_result.all():
+    inv_net: dict[uuid.UUID, dict] = {}
+    for cat_id, cat_name, cat_color, txn_type, total_amount in inv_result.all():
+        entry = inv_net.setdefault(
+            cat_id, {"label": cat_name, "color": cat_color, "net": 0.0}
+        )
         amount = abs(float(total_amount or 0))
-        if amount <= 0:
+        entry["net"] += amount if txn_type == "debit" else -amount
+    for cat_id, entry in inv_net.items():
+        if entry["net"] <= 0:
             continue
         comp_map[(str(cat_id), "investments")] = {
-            "label": cat_name or "Investments",
-            "color": cat_color or "#0EA5E9",
-            "value": amount,
+            "label": entry["label"] or "Investments",
+            "color": entry["color"] or "#0EA5E9",
+            "value": entry["net"],
         }
 
     # Build per-category trend (sparklines) for the full date range
@@ -846,7 +857,11 @@ async def get_income_expenses_report(
     cursor2 = start
     while cursor2 <= today:
         m_start, m_end = _month_range(cursor2)
-        projections = await _get_recurring_projections(session, workspace_id, m_start, m_end, account_ids)
+        # Same mid-month clamp as the trend loop above: a day-window range can
+        # start mid-month, and composition must not count occurrences before it.
+        projections = await _get_recurring_projections(
+            session, workspace_id, max(m_start, start), m_end, account_ids
+        )
         period_label = _format_date_label(cursor2, interval)
         for proj in projections:
             cat_id_str = str(proj["category_id"]) if proj["category_id"] else "uncategorized"
@@ -1184,6 +1199,56 @@ async def get_cash_flow_report(
 
     flow_date_col = Transaction.effective_date if accrual else Transaction.date
 
+    # Composition + category caches; filled from booked future transactions
+    # (1b) and forward projections (3) — everything the forecast is made of.
+    cat_totals: dict[tuple[str, str], dict] = {}
+    cat_cache: dict[str, dict] = {}
+
+    def _add_composition(cat_id_str: str, group: str, amount: float, info: dict) -> None:
+        key = (cat_id_str, group)
+        if key not in cat_totals:
+            cat_totals[key] = {"label": info["label"], "color": info["color"], "value": 0.0}
+        cat_totals[key]["value"] += amount
+
+    # Ledger-faithful daily deltas for the balance walk. The anchor
+    # (_balance_at) counts every non-ignored transaction — including paired
+    # transfers and treat_as_transfer movements that counts_as_pnl() hides
+    # from the inflow/outflow buckets. Walking the balance from the P&L flows
+    # alone drifts by exactly those movements (badly, for users with heavy
+    # investment churn), so the walk gets its own raw delta series and the
+    # P&L flows stay display-only. Opening balances stay excluded: they mark
+    # "history unknown before this point", not money arriving that day, so the
+    # walk treats them as having always existed (same as before).
+    balance_rows = await session.execute(
+        select(
+            flow_date_col,
+            Transaction.type,
+            Transaction.amount,
+            Transaction.amount_primary,
+            Transaction.currency,
+        )
+        .join(Account, Transaction.account_id == Account.id)
+        .where(
+            Transaction.workspace_id == workspace_id,
+            Account.is_closed == False,
+            flow_date_col > chart_start,
+            flow_date_col <= end,
+            Transaction.source != "opening_balance",
+            Transaction.is_ignored.is_(False),
+            *acct_filter,
+        )
+    )
+    balance_net: dict[date, float] = {}
+    for flow_date, tx_type, amt, amt_primary, ccy in balance_rows.all():
+        if amt_primary is not None:
+            amount_primary = float(amt_primary)
+        else:
+            amount_primary = await _to_primary(Decimal(str(amt or 0)), ccy)
+        if amount_primary == 0:
+            continue
+        signed = abs(amount_primary) if tx_type == "credit" else -abs(amount_primary)
+        balance_net[flow_date] = balance_net.get(flow_date, 0.0) + signed
+
     # 1a. Past actual transactions (chart_start, today]. Gives the chart a
     #     "real" section before the forecast so the today-marker has meaning.
     past_result = await session.execute(
@@ -1214,7 +1279,9 @@ async def get_cash_flow_report(
             continue
         _add_flow(flow_date, abs(amount_primary), tx_type == "credit")
 
-    # 1b. Future booked transactions whose cash impact is past today.
+    # 1b. Future booked transactions whose cash impact is past today. These
+    #     also feed the composition donut: installments and scheduled bills are
+    #     part of the forecast even when no recurring rule exists for them.
     booked_result = await session.execute(
         select(
             flow_date_col,
@@ -1222,8 +1289,12 @@ async def get_cash_flow_report(
             Transaction.amount,
             Transaction.amount_primary,
             Transaction.currency,
+            Category.id,
+            Category.name,
+            Category.color,
         )
         .join(Account, Transaction.account_id == Account.id)
+        .outerjoin(Category, Transaction.category_id == Category.id)
         .where(
             Transaction.workspace_id == workspace_id,
             Account.is_closed == False,
@@ -1235,7 +1306,7 @@ async def get_cash_flow_report(
         )
     )
     for row in booked_result.all():
-        flow_date, tx_type, amt, amt_primary, ccy = row
+        flow_date, tx_type, amt, amt_primary, ccy, cat_id, cat_name, cat_color = row
         if amt_primary is not None:
             amount_primary = float(amt_primary)
         else:
@@ -1243,6 +1314,16 @@ async def get_cash_flow_report(
         if amount_primary == 0:
             continue
         _add_flow(flow_date, abs(amount_primary), tx_type == "credit")
+
+        cat_id_str = str(cat_id) if cat_id else "uncategorized"
+        if cat_id and cat_id_str not in cat_cache:
+            cat_cache[cat_id_str] = {
+                "label": cat_name or "Uncategorized",
+                "color": cat_color or "#6B7280",
+            }
+        info = cat_cache.get(cat_id_str, {"label": "Uncategorized", "color": "#6B7280"})
+        group = "income" if tx_type == "credit" else "expenses"
+        _add_composition(cat_id_str, group, abs(amount_primary), info)
 
     # 2. Accrual mode: pending CC purchases (purchase date <= today, due
     #    date in the forward window) already reduced today's balance via the
@@ -1285,8 +1366,6 @@ async def get_cash_flow_report(
     #    Baseline mode: replace them with a historical-mean estimate so the
     #    chart reflects the user's actual recent lifestyle, not just what
     #    they've explicitly marked as recurring.
-    cat_totals: dict[tuple[str, str], dict] = {}
-    cat_cache: dict[str, dict] = {}
     baseline_lookback_days = 0
 
     if baseline:
@@ -1299,6 +1378,10 @@ async def get_cash_flow_report(
             account_ids,
         )
 
+    # Projections are synthetic (no booked row backs them), so they move the
+    # balance walk too — tracked separately from the ledger deltas above.
+    proj_net: dict[date, float] = {}
+
     for proj in projections:
         d = proj["date"]
         if d <= today or d > end:
@@ -1309,6 +1392,8 @@ async def get_cash_flow_report(
         if amount_primary == 0:
             continue
         _add_flow(d, amount_primary, proj["type"] == "credit")
+        signed = amount_primary if proj["type"] == "credit" else -amount_primary
+        proj_net[d] = proj_net.get(d, 0.0) + signed
 
         cat_id = proj["category_id"]
         if cat_id:
@@ -1329,10 +1414,7 @@ async def get_cash_flow_report(
             # Frontend translates via reports.baseline; label is the fallback.
             cat_cache[cat_id_str] = {"label": "Baseline", "color": "#94A3B8"}
         info = cat_cache.get(cat_id_str, {"label": "Uncategorized", "color": "#6B7280"})
-        key = (cat_id_str, group)
-        if key not in cat_totals:
-            cat_totals[key] = {"label": info["label"], "color": info["color"], "value": 0.0}
-        cat_totals[key]["value"] += amount_primary
+        _add_composition(cat_id_str, group, amount_primary, info)
 
     # 4. Walk day-by-day. The walk is anchored at today's authoritative
     #    balance (``current_balance`` from ``_balance_at``) rather than at
@@ -1352,25 +1434,27 @@ async def get_cash_flow_report(
     daily_inflow[today] = today_bucket["inflow"]
     daily_outflow[today] = today_bucket["outflow"]
 
-    # Backward walk: balance(d-1) = balance(d) - net_flow(d).
+    # Backward walk: balance(d-1) = balance(d) - net_delta(d). Uses the raw
+    # ledger deltas (not the P&L flows) so reconstructed past balances agree
+    # with what _balance_at would report for those dates.
     running = current_balance
     cursor_d = today
     while cursor_d > chart_start:
-        bucket = flows.get(cursor_d, {"inflow": 0.0, "outflow": 0.0})
-        running -= bucket["inflow"] - bucket["outflow"]
+        running -= balance_net.get(cursor_d, 0.0)
         cursor_d = cursor_d - timedelta(days=1)
         daily_balance[cursor_d] = running
         prev_bucket = flows.get(cursor_d, {"inflow": 0.0, "outflow": 0.0})
         daily_inflow[cursor_d] = prev_bucket["inflow"]
         daily_outflow[cursor_d] = prev_bucket["outflow"]
 
-    # Forward walk: balance(d+1) = balance(d) + net_flow(d+1).
+    # Forward walk: balance(d+1) = balance(d) + net_delta(d+1); booked ledger
+    # deltas plus synthetic projections.
     running = current_balance
     cursor_d = today
     while cursor_d < end:
         cursor_d = cursor_d + timedelta(days=1)
         bucket = flows.get(cursor_d, {"inflow": 0.0, "outflow": 0.0})
-        running += bucket["inflow"] - bucket["outflow"]
+        running += balance_net.get(cursor_d, 0.0) + proj_net.get(cursor_d, 0.0)
         daily_balance[cursor_d] = running
         daily_inflow[cursor_d] = bucket["inflow"]
         daily_outflow[cursor_d] = bucket["outflow"]

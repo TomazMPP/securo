@@ -216,12 +216,16 @@ export default function ReportsPage() {
   // The boundary point is duplicated in both series so the line visually
   // connects without a gap.
   const forecastStart = meta?.forecast_start_date ?? null
-  const NEGATIVE_SERIES = new Set(['liabilities'])
+  // Series drawn below the zero line in sign-stacked charts: liabilities on
+  // net worth, outflow on cash flow. Without the negation the positive outflow
+  // values stack ON TOP of inflow instead of mirroring beneath it.
+  const NEGATIVE_SERIES = new Set(['liabilities', 'outflow'])
+  const hasNegativeStack = meta?.type === 'net_worth' || meta?.type === 'cash_flow'
 
   const chartData = trend.map((dp) => {
     const isPast = forecastStart ? dp.date < forecastStart : false
     const isBoundary = forecastStart ? dp.date === forecastStart : false
-    const breakdowns = meta?.type === 'net_worth'
+    const breakdowns = hasNegativeStack
       ? Object.fromEntries(Object.entries(dp.breakdowns).map(([k, v]) => [k, NEGATIVE_SERIES.has(k) ? -v : v]))
       : dp.breakdowns
     return {
@@ -249,6 +253,10 @@ export default function ReportsPage() {
     snapshotTrendPoint !== null &&
     selectedDate !== trend[trend.length - 1]?.date
 
+  // Cash-flow trend points carry inflow/outflow keys that don't exist in the
+  // summary breakdowns — resolve their colors to the bar series colors instead
+  // of letting both fall back to the same indigo.
+  const TREND_POINT_COLORS: Record<string, string> = { inflow: '#10B981', outflow: '#F43F5E' }
   const snapshotBreakdownData = snapshotTrendPoint
     ? Object.entries(snapshotTrendPoint.breakdowns)
         .map(([key, rawValue]) => {
@@ -257,7 +265,7 @@ export default function ReportsPage() {
             key,
             label: orig?.label ?? key,
             value: Math.abs(rawValue as number),
-            color: orig?.color ?? '#6366F1',
+            color: orig?.color ?? TREND_POINT_COLORS[key] ?? '#6366F1',
           }
         })
         .filter((b) => b.value > 0)
@@ -594,8 +602,10 @@ export default function ReportsPage() {
                   {' '}{t(meta?.type === 'cash_flow' ? 'reports.vsToday' : 'reports.vsStart')}
                 </p>
               </div>
+              {/* All breakdowns, including zero/negative — a R$0 projected
+                  income is information, not absence of it. */}
               <div className="flex flex-wrap gap-6">
-                {breakdownData.map((b) => (
+                {allBreakdowns.map((b) => (
                   <div key={b.key} className="min-w-0">
                     <div className="flex items-center gap-1.5 mb-0.5">
                       <div
@@ -744,7 +754,8 @@ export default function ReportsPage() {
                         const point = payload[0].payload as Record<string, number>
                         const balance = point.value ?? 0
                         const inflow = point.inflow ?? 0
-                        const outflow = point.outflow ?? 0
+                        // Stored negated for the sign-stacked bar chart.
+                        const outflow = Math.abs(point.outflow ?? 0)
                         return (
                           <div style={tooltipStyle} className="px-3 py-2">
                             <p className="text-xs font-medium mb-1">{label}</p>
@@ -1388,7 +1399,6 @@ export default function ReportsPage() {
                     formatter={(value: string) => t(`reports.${value}`, { defaultValue: value })}
                   />
                   {(() => {
-                    const isNetWorth = meta.type === 'net_worth'
                     const allSeries = meta.type === 'cash_flow'
                       ? [
                           { key: 'inflow', color: '#10B981' },
@@ -1398,13 +1408,13 @@ export default function ReportsPage() {
                     const filteredSeries = allSeries.filter(({ key }) =>
                       chartData.some((d) => { const v = d[key]; return typeof v === 'number' && v !== 0 })
                     )
-                    const positiveKeys = isNetWorth ? filteredSeries.filter(({ key }) => !NEGATIVE_SERIES.has(key)) : filteredSeries
-                    const negativeKeys = isNetWorth ? filteredSeries.filter(({ key }) => NEGATIVE_SERIES.has(key)) : []
+                    const positiveKeys = hasNegativeStack ? filteredSeries.filter(({ key }) => !NEGATIVE_SERIES.has(key)) : filteredSeries
+                    const negativeKeys = hasNegativeStack ? filteredSeries.filter(({ key }) => NEGATIVE_SERIES.has(key)) : []
                     const lastPositiveKey = positiveKeys.at(-1)?.key ?? null
                     const lastNegativeKey = negativeKeys.at(-1)?.key ?? null
                     return filteredSeries.map(({ key, color }) => {
                       let radius: [number, number, number, number] = [0, 0, 0, 0]
-                      if (isNetWorth && NEGATIVE_SERIES.has(key) && key === lastNegativeKey) {
+                      if (hasNegativeStack && NEGATIVE_SERIES.has(key) && key === lastNegativeKey) {
                         radius = [4, 4, 0, 0]
                       } else if (key === lastPositiveKey) {
                         radius = [4, 4, 0, 0]

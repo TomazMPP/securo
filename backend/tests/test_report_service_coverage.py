@@ -127,10 +127,11 @@ async def _add_txn(
 
 async def _make_category(
     session: AsyncSession, user_id: uuid.UUID, name: str, color: str = "#123456",
+    treat_as_transfer: bool = False,
 ) -> Category:
     cat = Category(
         id=uuid.uuid4(), user_id=user_id, name=name, icon="tag",
-        color=color, is_system=False,
+        color=color, is_system=False, treat_as_transfer=treat_as_transfer,
     )
     session.add(cat)
     await session.commit()
@@ -752,3 +753,105 @@ async def test_cash_flow_accrual_mode_pending_cc(session, test_user, test_worksp
     )
     assert report.meta.type == "cash_flow"
     assert len(report.trend) > 0
+
+
+# ---------------------------------------------------------------------------
+# get_income_expenses_report — investments lane nets redemptions
+# ---------------------------------------------------------------------------
+
+
+async def test_income_expenses_investments_lane_nets_redemptions(session, test_user, test_workspace):
+    """Applications minus redemptions: churn must not read as money set aside."""
+    acct = await _make_account(session, test_user.id, "Invest Netting")
+    inv_cat = await _make_category(
+        session, test_user.id, "Investments", color="#0EA5E9", treat_as_transfer=True
+    )
+    today = date.today()
+    await _add_txn(session, test_user.id, acct.id, 100, "debit", today, category_id=inv_cat.id)
+    await _add_txn(session, test_user.id, acct.id, 60, "credit", today, category_id=inv_cat.id)
+    # Settlement rows never touch the lane in either direction
+    await _add_txn(
+        session, test_user.id, acct.id, 30, "credit", today,
+        category_id=inv_cat.id, source="settlement",
+    )
+
+    report = await get_income_expenses_report(
+        session, test_workspace.id, test_user.id, months=6, interval="monthly"
+    )
+    inv_items = [c for c in report.composition if c.group == "investments"]
+    assert len(inv_items) == 1
+    assert inv_items[0].key == str(inv_cat.id)
+    assert inv_items[0].value == pytest.approx(40.0)
+
+
+async def test_income_expenses_investments_lane_dropped_when_net_negative(session, test_user, test_workspace):
+    """A category that received more than it sent nets out of the lane entirely."""
+    acct = await _make_account(session, test_user.id, "Invest NetNeg")
+    inv_cat = await _make_category(
+        session, test_user.id, "Investments", color="#0EA5E9", treat_as_transfer=True
+    )
+    today = date.today()
+    await _add_txn(session, test_user.id, acct.id, 60, "debit", today, category_id=inv_cat.id)
+    await _add_txn(session, test_user.id, acct.id, 100, "credit", today, category_id=inv_cat.id)
+
+    report = await get_income_expenses_report(
+        session, test_workspace.id, test_user.id, months=6, interval="monthly"
+    )
+    assert [c for c in report.composition if c.group == "investments"] == []
+
+
+# ---------------------------------------------------------------------------
+# get_cash_flow_report — booked future transactions in composition + raw walk
+# ---------------------------------------------------------------------------
+
+
+async def test_cash_flow_composition_includes_booked_future_txns(session, test_user, test_workspace):
+    """Installments already booked past today are part of the forecast donut,
+    not just the chart, even with zero recurring rules."""
+    acct = await _make_account(session, test_user.id, "CF Booked")
+    cat = await _make_category(session, test_user.id, "Shopping", color="#F97316")
+    today = date.today()
+    await _add_txn(session, test_user.id, acct.id, 1000, "credit", today, source="opening_balance")
+    await _add_txn(
+        session, test_user.id, acct.id, 200, "debit", today + timedelta(days=10),
+        category_id=cat.id,
+    )
+
+    report = await get_cash_flow_report(
+        session, test_workspace.id, test_user.id, months=1, interval="daily"
+    )
+    expense_items = [c for c in report.composition if c.group == "expenses"]
+    assert len(expense_items) == 1
+    assert expense_items[0].key == str(cat.id)
+    assert expense_items[0].value == pytest.approx(200.0)
+    projected_expenses = next(
+        b for b in report.summary.breakdowns if b.key == "projectedExpenses"
+    )
+    assert projected_expenses.value == pytest.approx(200.0)
+
+
+async def test_cash_flow_past_walk_includes_non_pnl_movements(session, test_user, test_workspace):
+    """The reconstructed past balance honors transfers/investments the P&L
+    buckets hide — otherwise the 'real' section of the chart drifts."""
+    acct = await _make_account(session, test_user.id, "CF Walk")
+    inv_cat = await _make_category(
+        session, test_user.id, "Investments", color="#0EA5E9", treat_as_transfer=True
+    )
+    today = date.today()
+    await _add_txn(session, test_user.id, acct.id, 1000, "credit", today - timedelta(days=20))
+    # Unpaired investment application: excluded from P&L, but real money left
+    await _add_txn(
+        session, test_user.id, acct.id, 500, "debit", today - timedelta(days=3),
+        category_id=inv_cat.id,
+    )
+
+    report = await get_cash_flow_report(
+        session, test_workspace.id, test_user.id, months=1, interval="daily"
+    )
+    by_date = {dp.date: dp for dp in report.trend}
+    before = by_date[(today - timedelta(days=4)).isoformat()]
+    after = by_date[(today - timedelta(days=3)).isoformat()]
+    assert before.value == pytest.approx(1000.0)
+    assert after.value == pytest.approx(500.0)
+    # ...while the display buckets still exclude the transfer-like movement
+    assert after.breakdowns["outflow"] == pytest.approx(0.0)
