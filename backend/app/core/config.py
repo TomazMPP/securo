@@ -43,6 +43,10 @@ class Settings(BaseSettings):
     simplefin_enabled: bool = False
     simplefin_api_url: str = "https://beta-bridge.simplefin.org"
 
+    # Binance (crypto balances as investment holdings, read-only API key).
+    # Off by default; credentials live on the connection, not in env.
+    binance_enabled: bool = False
+
     # Frontend
     frontend_url: str = "http://localhost:5173"
 

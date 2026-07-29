@@ -41,6 +41,14 @@ KNOWN_PROVIDERS = [
         "requires_institution_select": False,
         "supports_asset_sync": True,
     },
+    {
+        "name": "binance",
+        "display_name": "Binance",
+        "description": "Crypto balances from Binance (read-only API key)",
+        "flow_type": "token",
+        "requires_institution_select": False,
+        "supports_asset_sync": True,
+    },
 ]
 
 
@@ -93,6 +101,10 @@ def _auto_register_providers() -> None:
     if settings.simplefin_enabled:
         from app.providers.simplefin import SimpleFinProvider
         register_provider("simplefin", SimpleFinProvider)
+
+    if settings.binance_enabled:
+        from app.providers.binance import BinanceProvider
+        register_provider("binance", BinanceProvider)
 
 
 _auto_register_providers()
