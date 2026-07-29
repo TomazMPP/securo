@@ -880,6 +880,48 @@ async def test_net_worth_with_credit_card(session: AsyncSession, test_user, test
 
 
 @pytest.mark.asyncio
+async def test_net_worth_with_loan_account(session: AsyncSession, test_user, test_workspace: User):
+    """A loan's outstanding balance counts as a liability, not negative cash."""
+    checking = await _make_manual_account(session, test_user.id, "NW Loan Check")
+    await _add_txn(session, test_user.id, checking.id, 5000, "credit", date.today())
+
+    loan = await _make_manual_account(
+        session, test_user.id, "Car loan", acct_type="loan"
+    )
+    await _add_txn(session, test_user.id, loan.id, 20000, "debit", date.today())
+
+    dp = await _net_worth_at(session, test_workspace.id, date.today(), "BRL")
+    assert dp.breakdowns["accounts"] == 5000.0
+    assert dp.breakdowns["liabilities"] == 20000.0
+    assert dp.value == -15000.0
+
+
+@pytest.mark.asyncio
+async def test_net_worth_loan_stays_liability_when_paid_off(
+    session: AsyncSession, test_user, test_workspace: User
+):
+    """A fully-repaid loan must not flip into an asset.
+
+    This is the reason `loan` exists as a type rather than relying on a
+    negative balance: at zero the sign test alone would file it under
+    accounts.
+    """
+    checking = await _make_manual_account(session, test_user.id, "NW Paid Check")
+    await _add_txn(session, test_user.id, checking.id, 5000, "credit", date.today())
+
+    loan = await _make_manual_account(
+        session, test_user.id, "Repaid loan", acct_type="loan"
+    )
+    await _add_txn(session, test_user.id, loan.id, 20000, "debit", date.today())
+    await _add_txn(session, test_user.id, loan.id, 20000, "credit", date.today())
+
+    dp = await _net_worth_at(session, test_workspace.id, date.today(), "BRL")
+    assert dp.breakdowns["accounts"] == 5000.0
+    assert dp.breakdowns["liabilities"] == 0.0
+    assert dp.value == 5000.0
+
+
+@pytest.mark.asyncio
 async def test_net_worth_with_assets(session: AsyncSession, test_user, test_workspace: User):
     checking = await _make_manual_account(session, test_user.id, "NW Assets Check")
     await _add_txn(session, test_user.id, checking.id, 3000, "credit", date.today())

@@ -524,6 +524,7 @@
     "typeCreditCard": "Cartão de Crédito",
     "typeInvestment": "Investimento",
     "typeWallet": "Carteira",
+    "typeLoan": "Financiamento",
     "creditLimit": "Limite do cartão",
     "statementCloseDay": "Dia de fechamento",
     "paymentDueDay": "Dia de vencimento",
