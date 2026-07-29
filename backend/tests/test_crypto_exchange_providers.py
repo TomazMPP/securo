@@ -32,7 +32,14 @@ def has_pair(p: str) -> bool:
 
 
 def run(coro):
-    return asyncio.run(coro)
+    # NOT asyncio.run(): that resets the thread's event-loop slot on exit,
+    # which kills the session-scoped loop pytest-asyncio (asyncio_mode=auto)
+    # shares across every other async test in the run.
+    loop = asyncio.new_event_loop()
+    try:
+        return loop.run_until_complete(coro)
+    finally:
+        loop.close()
 
 
 def _holdings(provider: CryptoExchangeProvider, balances, fallback=None):
