@@ -30,6 +30,13 @@ server {
     }
 
     # SPA fallback — serve index.html for all non-file routes
+    # Hashed build assets: a missing one must 404, not fall back to
+    # index.html. A stale tab importing a previous build's chunk would
+    # otherwise parse HTML as JavaScript and render a white screen.
+    location /static/ {
+        try_files $uri =404;
+    }
+
     location / {
         try_files $uri $uri/ /index.html;
     }
