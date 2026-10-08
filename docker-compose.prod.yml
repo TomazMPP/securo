@@ -23,6 +23,7 @@ x-backend-env: &backend-env
   BINANCE_ENABLED: ${BINANCE_ENABLED:-false}
   COINBASE_ENABLED: ${COINBASE_ENABLED:-false}
   KRAKEN_ENABLED: ${KRAKEN_ENABLED:-false}
+  BYBIT_ENABLED: ${BYBIT_ENABLED:-false}
   SIMPLEFIN_API_URL: ${SIMPLEFIN_API_URL:-https://beta-bridge.simplefin.org}
   OIDC_ENABLED: ${OIDC_ENABLED:-false}
   OIDC_PROVIDER_NAME: ${OIDC_PROVIDER_NAME:-OIDC}
@@ -69,7 +70,9 @@ x-backend-env: &backend-env
   AGENTS_EMBEDDING_MODEL: ${AGENTS_EMBEDDING_MODEL:-sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2}
 
 x-backend-base: &backend-base
-  image: ghcr.io/securo-finance/securo-backend:latest
+  # Pinned on restore (2026-10-08): :latest runs newer migrations and the
+  # deploy-local/ overlays only fit this era. Do not bump without testing.
+  image: ghcr.io/securo-finance/securo-backend:0.13.11
   environment: *backend-env
   depends_on:
     db: { condition: service_healthy }
@@ -82,6 +85,7 @@ x-backend-base: &backend-base
     - ./deploy-local/providers/crypto_exchange.py:/app/app/providers/crypto_exchange.py:ro
     - ./deploy-local/providers/kraken.py:/app/app/providers/kraken.py:ro
     - ./deploy-local/providers/coinbase.py:/app/app/providers/coinbase.py:ro
+    - ./deploy-local/providers/bybit.py:/app/app/providers/bybit.py:ro
     - ./deploy-local/providers/base.py:/app/app/providers/base.py:ro
     - ./deploy-local/providers/__init__.py:/app/app/providers/__init__.py:ro
     - ./deploy-local/core/config.py:/app/app/core/config.py:ro
@@ -90,6 +94,8 @@ x-backend-base: &backend-base
     - ./deploy-local/services/fx_rate_service.py:/app/app/services/fx_rate_service.py:ro
     - ./deploy-local/services/asset_service.py:/app/app/services/asset_service.py:ro
     - ./deploy-local/services/analysis_service.py:/app/app/services/analysis_service.py:ro
+    - ./deploy-local/services/rule_engine.py:/app/app/services/rule_engine.py:ro
+    - ./deploy-local/services/connection_service.py:/app/app/services/connection_service.py:ro
     - ./deploy-local/schemas/analysis.py:/app/app/schemas/analysis.py:ro
     - ./deploy-local/api/analysis.py:/app/app/api/analysis.py:ro
     - ./deploy-local/main.py:/app/app/main.py:ro
@@ -134,7 +140,9 @@ services:
       - "${BACKEND_PORT:-8000}:8000"
 
   frontend:
-    # Locally built from this repo to pick up the `loan` account type.
+    # Locally built from this repo (feat/spending-analysis: loan account type,
+    # consolidated holdings view, crypto connectors). Rebuild after frontend
+    # changes with:  docker build -t securo-frontend:analysis ./frontend
     # Revert to ghcr.io/securo-finance/securo-frontend:latest to go back upstream.
     image: securo-frontend:analysis
     ports:
