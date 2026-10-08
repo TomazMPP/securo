@@ -132,7 +132,8 @@
     "agents": "Agenti",
     "aiAgents": "AI agenti",
     "collapseSidebar": "Zbaliť bočný panel",
-    "expandSidebar": "Rozbaliť bočný panel"
+    "expandSidebar": "Rozbaliť bočný panel",
+    "analysis": "Rozpis"
   },
   "invoices": {
     "title": "Faktúry",
@@ -1350,7 +1351,23 @@
       },
       "reconnectTitle": "Znovu prepojiť s novým tokenom",
       "reconnectDescription": "Vlož nový setup token a obnov toto prepojenie na mieste. Existujúce účty, transakcie, kategórie a pravidlá zostanú zachované.",
-      "reconnect": "Znovu prepojiť"
+      "reconnect": "Znovu prepojiť",
+      "binance": {
+        "title": "Prepojiť cez Binance",
+        "description": "Vytvor v Binance API kľúč len na čítanie (zapni iba Enable Reading — nikdy nepovoľuj obchodovanie ani výbery) a vlož ho nižšie ako {\"api_key\": \"...\", \"api_secret\": \"...\"} alebo ako key:secret. Tvoje zostatky sa stanú investičnými pozíciami; neimportujú sa žiadne účty ani transakcie."
+      },
+      "coinbase": {
+        "title": "Prepojiť cez Coinbase",
+        "description": "Vytvor v Coinbase API kľúč len na čítanie (iba oprávnenie view) a vlož sem JSON. Kľúče CDP fungujú tak, ako sa stiahnu: {\"name\": \"...\", \"privateKey\": \"...\"}. Staršie kľúče: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Zostatky sa stanú investičnými pozíciami; neimportujú sa žiadne účty ani transakcie."
+      },
+      "kraken": {
+        "title": "Prepojiť cez Kraken",
+        "description": "Vytvor v Kraken API kľúč iba s oprávnením Query Funds — nikdy nie obchodovanie ani výbery. Vlož ho ako {\"api_key\": \"...\", \"api_secret\": \"...\"} alebo ako key:secret. Zostatky sa stanú investičnými pozíciami; neimportujú sa žiadne účty ani transakcie."
+      },
+      "bybit": {
+        "title": "Prepojiť cez Bybit",
+        "description": "Vytvor v Bybit API kľúč len na čítanie (režim Read-Only — nikdy obchodovanie ani výbery) a vlož ho nižšie ako {\"api_key\": \"...\", \"api_secret\": \"...\"} alebo ako key:secret. Zostatky sa stanú investičnými pozíciami; neimportujú sa žiadne účty ani transakcie."
+      }
     },
     "providers": {
       "pluggy": {
@@ -1368,7 +1385,8 @@
       "active": "Aktívne",
       "error": "Chyba",
       "expired": "Vypršané"
-    }
+    },
+    "typeLoan": "Úver"
   },
   "connections": {
     "settings": "Nastavenia prepojenia",
@@ -2025,7 +2043,28 @@
     "total": "Spolu",
     "confirmRegenerateTitle": "Prepočítať hodnoty?",
     "confirmRegenerate": "Parametre rastu sa zmenili. Všetky automaticky vygenerované hodnoty sa vymažú a prepočítajú. Manuálne hodnoty zostanú zachované.",
-    "regenerate": "Prepočítať"
+    "regenerate": "Prepočítať",
+    "viewByWallet": "Podľa peňaženky",
+    "viewConsolidated": "Konsolidované",
+    "concentration": "Koncentrácia",
+    "concentrationTotal": "Celkom zahrnuté",
+    "includeNonFinancial": "Zahrnúť nefinančné",
+    "dim_class": "Trieda",
+    "dim_region": "Región",
+    "dim_currency": "Mena",
+    "class_fixedIncome": "Pevný výnos",
+    "class_stocksBR": "Akcie BR",
+    "class_fiis": "Realitné fondy (FIIs)",
+    "class_etfsBR": "ETF BR",
+    "class_stocksUS": "Akcie USA",
+    "class_etfsUS": "ETF USA",
+    "class_crypto": "Krypto",
+    "class_cash": "Hotovosť",
+    "class_vehicle": "Vozidlo",
+    "class_other": "Iné",
+    "region_brazil": "Brazília",
+    "region_unitedStates": "Spojené štáty",
+    "region_global": "Globálne"
   },
   "reports": {
     "section": "Analytika",
@@ -3006,6 +3045,48 @@
       "invoicesHint": "Ako určujeme, ktorá platba vyrovnáva ktorú faktúru.",
       "recurring": "Pravidlá opakovaných",
       "recurringHint": "Ako určujeme, že odpis je účet, ktorý ste už očakávali."
+    }
+  },
+  "analysis": {
+    "title": "Rozpis obdobia",
+    "income": "Príjmy",
+    "expenses": "Výdavky",
+    "net": "Netto",
+    "savingsRate": "Miera úspor",
+    "overDays": "za {{count}} dní",
+    "total": "Spolu",
+    "dailyAverage": "Denný priemer",
+    "recurringShare": "Podiel opakovaných",
+    "transactionCount": "Transakcie: {{count}}",
+    "byCategory": "Podľa kategórie",
+    "topPayees": "Najväčší príjemcovia",
+    "payeesHint": "Zoskupené podľa príjemcu, ak je nastavený, inak podľa popisu transakcie. Nastavenie príjemcov pre opakovaných obchodníkov spresní toto poradie.",
+    "largest": "Najväčšie pohyby",
+    "recurring": "Opakované vs. jednorazové",
+    "recurringHint": "Opakovanie sa zisťuje, nedeklaruje: príjemca sa považuje za opakovaného, ak sa objaví aspoň v {{min}} rôznych mesiacoch počas {{months}} mesiacov pred koncom obdobia.",
+    "recurringLabel": "Opakované",
+    "oneOffLabel": "Jednorazové",
+    "recurringBadge": "Zistené ako opakované",
+    "monthsSeen": "Mesiace: {{count}}",
+    "uncategorized": "Bez kategórie",
+    "noData": "V tomto období nie sú žiadne transakcie.",
+    "accounts": "Účty a karty",
+    "creditVsDebit": "Kredit vs. debet",
+    "creditVsDebitHint": "Podľa typu účtu: všetko minuté cez účet kreditnej karty sa počíta ako kredit; zvyšok prešiel cez bežné účty, peňaženky a iné účty.",
+    "onCredit": "Na kreditných kartách",
+    "onOther": "Iné účty",
+    "accountsWithActivity": "Účty s aktivitou v tomto období: {{count}}",
+    "otherCategories": "Iné",
+    "limitUsed": "Využité {{pct}} % limitu",
+    "availableOfLimit": "Dostupné {{available}} z {{limit}}",
+    "closes": "Uzávierka {{date}}",
+    "due": "Splatné {{date}}",
+    "range": {
+      "thisMonth": "Tento mesiac",
+      "lastMonth": "Minulý mesiac",
+      "last3": "Posledné 3 mesiace",
+      "thisYear": "Tento rok",
+      "custom": "Vlastné"
     }
   }
 }

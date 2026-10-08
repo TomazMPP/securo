@@ -16,7 +16,6 @@ import json
 import logging
 import time
 import urllib.parse
-from decimal import Decimal
 from typing import Callable
 
 import httpx

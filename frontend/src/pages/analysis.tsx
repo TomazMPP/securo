@@ -8,7 +8,8 @@ import { analysis } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { PageHeader } from '@/components/page-header'
-import { AccountIcon, getAccountTypeConfig } from '@/components/account-icon'
+import { AccountIcon } from '@/components/account-icon'
+import { getAccountTypeConfig } from '@/lib/account-type-config'
 import { usePrivacyMode } from '@/hooks/use-privacy-mode'
 import { useDisplayLocale } from '@/hooks/use-display-locale'
 import { useAuth } from '@/contexts/auth-context'
@@ -75,10 +76,19 @@ function Panel({ title, hint, children }: { title: string; hint?: string; childr
   )
 }
 
+interface TreemapCellProps {
+  x?: number
+  y?: number
+  width?: number
+  height?: number
+  color?: string
+  name?: string
+  share?: number
+}
+
 /** Treemap cell. Labels are dropped when the rectangle is too small to hold
  *  them, which is what keeps a long tail of small categories readable. */
-function TreemapCell(props: any) {
-  const { x, y, width, height, color, name, share } = props
+function TreemapCell({ x = 0, y = 0, width = 0, height = 0, color, name, share = 0 }: TreemapCellProps) {
   const showLabel = width > 62 && height > 30
   const showShare = width > 62 && height > 46
   return (
@@ -178,7 +188,7 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
               content={<TreemapCell />}
             >
               <Tooltip
-                formatter={(value: any) => money(Number(value))}
+                formatter={(value) => money(Number(value))}
                 contentStyle={{
                   background: 'hsl(var(--card))',
                   border: '1px solid hsl(var(--border))',

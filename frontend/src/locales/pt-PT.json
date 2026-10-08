@@ -132,7 +132,8 @@
     "agents": "Agentes",
     "aiAgents": "Agentes de IA",
     "collapseSidebar": "Recolher barra lateral",
-    "expandSidebar": "Expandir barra lateral"
+    "expandSidebar": "Expandir barra lateral",
+    "analysis": "Detalhe"
   },
   "invoices": {
     "title": "Cobranças",
@@ -1286,7 +1287,23 @@
       },
       "reconnectTitle": "Reconectar com um novo token",
       "reconnectDescription": "Cola um novo token de configuração para atualizar esta ligação no lugar. Contas, transações, categorias e regras existentes são preservadas.",
-      "reconnect": "Reconectar"
+      "reconnect": "Reconectar",
+      "binance": {
+        "title": "Conectar via Binance",
+        "description": "Cria uma chave de API só de leitura na Binance (ativa apenas Enable Reading — nunca negociação nem levantamentos) e cola-a abaixo como {\"api_key\": \"...\", \"api_secret\": \"...\"} ou como key:secret. Os teus saldos passam a ser posições de investimento; não são importadas contas nem transações."
+      },
+      "coinbase": {
+        "title": "Conectar via Coinbase",
+        "description": "Cria uma chave de API só de leitura na Coinbase (apenas permissão view) e cola o JSON aqui. As chaves CDP funcionam tal como são transferidas: {\"name\": \"...\", \"privateKey\": \"...\"}. Chaves antigas: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Os saldos passam a ser posições de investimento; não são importadas contas nem transações."
+      },
+      "kraken": {
+        "title": "Conectar via Kraken",
+        "description": "Cria uma chave de API na Kraken apenas com a permissão Query Funds — nunca negociação nem levantamentos. Cola-a como {\"api_key\": \"...\", \"api_secret\": \"...\"} ou como key:secret. Os saldos passam a ser posições de investimento; não são importadas contas nem transações."
+      },
+      "bybit": {
+        "title": "Conectar via Bybit",
+        "description": "Cria uma chave de API só de leitura na Bybit (modo Read-Only — nunca negociação nem levantamentos) e cola-a abaixo como {\"api_key\": \"...\", \"api_secret\": \"...\"} ou como key:secret. Os saldos passam a ser posições de investimento; não são importadas contas nem transações."
+      }
     },
     "providers": {
       "pluggy": {
@@ -1304,7 +1321,8 @@
       "active": "Ativa",
       "error": "Erro",
       "expired": "Expirada"
-    }
+    },
+    "typeLoan": "Empréstimo"
   },
   "connections": {
     "settings": "Definições da ligação",
@@ -1913,7 +1931,28 @@
     "total": "Total",
     "confirmRegenerateTitle": "Regenerar valores?",
     "confirmRegenerate": "Os parâmetros de crescimento foram alterados. Todos os valores gerados automaticamente serão eliminados e recalculados. Valores manuais serão mantidos.",
-    "regenerate": "Regenerar"
+    "regenerate": "Regenerar",
+    "viewByWallet": "Por carteira",
+    "viewConsolidated": "Consolidado",
+    "concentration": "Concentração",
+    "concentrationTotal": "Total considerado",
+    "includeNonFinancial": "Incluir não financeiros",
+    "dim_class": "Classe",
+    "dim_region": "Região",
+    "dim_currency": "Moeda",
+    "class_fixedIncome": "Rendimento fixo",
+    "class_stocksBR": "Ações BR",
+    "class_fiis": "Fundos imobiliários (FIIs)",
+    "class_etfsBR": "ETFs BR",
+    "class_stocksUS": "Ações EUA",
+    "class_etfsUS": "ETFs EUA",
+    "class_crypto": "Cripto",
+    "class_cash": "Numerário",
+    "class_vehicle": "Veículo",
+    "class_other": "Outros",
+    "region_brazil": "Brasil",
+    "region_unitedStates": "Estados Unidos",
+    "region_global": "Global"
   },
   "reports": {
     "section": "Análises",
@@ -2864,6 +2903,48 @@
       "invoicesHint": "Como decidimos qual pagamento liquida qual fatura.",
       "recurring": "Regras de Recorrentes",
       "recurringHint": "Como decidimos que uma cobrança é a conta que já esperava."
+    }
+  },
+  "analysis": {
+    "title": "Análise do período",
+    "income": "Receitas",
+    "expenses": "Despesas",
+    "net": "Saldo",
+    "savingsRate": "Taxa de poupança",
+    "overDays": "em {{count}} dias",
+    "total": "Total",
+    "dailyAverage": "Média diária",
+    "recurringShare": "Parcela recorrente",
+    "transactionCount": "{{count}} transações",
+    "byCategory": "Por categoria",
+    "topPayees": "Principais entidades",
+    "payeesHint": "Agrupado por entidade quando existe uma definida; caso contrário, pela descrição da transação. Definir entidades nos comerciantes recorrentes torna esta classificação mais precisa.",
+    "largest": "Maiores movimentos",
+    "recurring": "Recorrente vs. pontual",
+    "recurringHint": "A recorrência é detetada, não declarada: uma entidade conta como recorrente quando aparece em pelo menos {{min}} meses distintos nos {{months}} meses anteriores ao fim do período.",
+    "recurringLabel": "Recorrente",
+    "oneOffLabel": "Pontual",
+    "recurringBadge": "Detetado como recorrente",
+    "monthsSeen": "{{count}} meses",
+    "uncategorized": "Sem categoria",
+    "noData": "Nenhuma transação neste período.",
+    "accounts": "Contas e cartões",
+    "creditVsDebit": "Crédito vs. débito",
+    "creditVsDebitHint": "Com base no tipo de conta: tudo o que foi gasto através de um cartão de crédito conta como crédito; o restante passou por contas à ordem, carteiras e outras contas.",
+    "onCredit": "Em cartões de crédito",
+    "onOther": "Outras contas",
+    "accountsWithActivity": "{{count}} contas com movimentos neste período",
+    "otherCategories": "Outras",
+    "limitUsed": "{{pct}}% do limite utilizado",
+    "availableOfLimit": "{{available}} disponíveis de {{limit}}",
+    "closes": "Fecha a {{date}}",
+    "due": "Vence a {{date}}",
+    "range": {
+      "thisMonth": "Este mês",
+      "lastMonth": "Mês passado",
+      "last3": "Últimos 3 meses",
+      "thisYear": "Este ano",
+      "custom": "Personalizado"
     }
   }
 }

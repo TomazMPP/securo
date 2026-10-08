@@ -132,7 +132,8 @@
     "agents": "エージェント",
     "aiAgents": "AIエージェント",
     "collapseSidebar": "サイドバーを折りたたむ",
-    "expandSidebar": "サイドバーを展開する"
+    "expandSidebar": "サイドバーを展開する",
+    "analysis": "内訳"
   },
   "invoices": {
     "title": "請求書",
@@ -1282,7 +1283,23 @@
       },
       "reconnectTitle": "新しいトークンで再接続",
       "reconnectDescription": "新しいセットアップトークンを貼り付けて、この接続をその場で更新します。既存の口座、取引、カテゴリ、ルールは保持されます。",
-      "reconnect": "再接続"
+      "reconnect": "再接続",
+      "binance": {
+        "title": "Binanceで接続",
+        "description": "Binanceで読み取り専用のAPIキーを作成し（Enable Readingのみを有効にし、取引や出金は絶対に有効にしないでください）、下に{\"api_key\": \"...\", \"api_secret\": \"...\"}またはkey:secretの形式で貼り付けてください。残高は投資の保有として登録されます。口座や取引はインポートされません。"
+      },
+      "coinbase": {
+        "title": "Coinbaseで接続",
+        "description": "Coinbaseで読み取り専用のAPIキー（view権限のみ）を作成し、JSONをここに貼り付けてください。CDPキーはダウンロードしたまま使用できます: {\"name\": \"...\", \"privateKey\": \"...\"}。従来のキー: {\"api_key\": \"...\", \"api_secret\": \"...\"}。残高は投資の保有として登録されます。口座や取引はインポートされません。"
+      },
+      "kraken": {
+        "title": "Krakenで接続",
+        "description": "KrakenでQuery Funds権限のみを持つAPIキーを作成してください（取引や出金の権限は絶対に付与しないでください）。{\"api_key\": \"...\", \"api_secret\": \"...\"}またはkey:secretの形式で貼り付けてください。残高は投資の保有として登録されます。口座や取引はインポートされません。"
+      },
+      "bybit": {
+        "title": "Bybitで接続",
+        "description": "Bybitで読み取り専用のAPIキーを作成し（Read-Onlyモード。取引や出金は絶対に有効にしないでください）、下に{\"api_key\": \"...\", \"api_secret\": \"...\"}またはkey:secretの形式で貼り付けてください。残高は投資の保有として登録されます。口座や取引はインポートされません。"
+      }
     },
     "providers": {
       "pluggy": {
@@ -1300,7 +1317,8 @@
       "active": "有効",
       "error": "エラー",
       "expired": "期限切れ"
-    }
+    },
+    "typeLoan": "ローン"
   },
   "connections": {
     "settings": "接続設定",
@@ -1909,7 +1927,28 @@
     "total": "合計",
     "confirmRegenerateTitle": "価値を再生成しますか?",
     "confirmRegenerate": "増加パラメータが変更されました。自動生成されたすべての価値が削除され再計算されます。手動入力の価値は保持されます。",
-    "regenerate": "再生成"
+    "regenerate": "再生成",
+    "viewByWallet": "ウォレット別",
+    "viewConsolidated": "統合",
+    "concentration": "集中度",
+    "concentrationTotal": "対象合計",
+    "includeNonFinancial": "非金融資産を含める",
+    "dim_class": "資産クラス",
+    "dim_region": "地域",
+    "dim_currency": "通貨",
+    "class_fixedIncome": "債券",
+    "class_stocksBR": "ブラジル株",
+    "class_fiis": "不動産投資信託 (FIIs)",
+    "class_etfsBR": "ブラジルETF",
+    "class_stocksUS": "米国株",
+    "class_etfsUS": "米国ETF",
+    "class_crypto": "暗号資産",
+    "class_cash": "現金",
+    "class_vehicle": "車両",
+    "class_other": "その他",
+    "region_brazil": "ブラジル",
+    "region_unitedStates": "アメリカ合衆国",
+    "region_global": "グローバル"
   },
   "reports": {
     "section": "分析",
@@ -2860,6 +2899,48 @@
       "invoicesHint": "どの入金がどの請求書を消し込むかを判断する方法。",
       "recurring": "定期のルール",
       "recurringHint": "ある引き落としが予定していた支払いだと判断する方法。"
+    }
+  },
+  "analysis": {
+    "title": "期間別内訳",
+    "income": "収入",
+    "expenses": "支出",
+    "net": "純額",
+    "savingsRate": "貯蓄率",
+    "overDays": "{{count}}日間",
+    "total": "合計",
+    "dailyAverage": "1日平均",
+    "recurringShare": "定期の割合",
+    "transactionCount": "{{count}}件の取引",
+    "byCategory": "カテゴリ別",
+    "topPayees": "上位の取引相手",
+    "payeesHint": "取引相手が設定されている場合は取引相手ごとに、それ以外は取引の説明ごとにグループ化されます。定期的な店舗に取引相手を設定すると、このランキングがより正確になります。",
+    "largest": "最大の取引",
+    "recurring": "定期 vs 単発",
+    "recurringHint": "定期は申告ではなく検出されます: 期間終了前の{{months}}か月間のうち、少なくとも{{min}}つの異なる月に現れる取引相手は定期とみなされます。",
+    "recurringLabel": "定期",
+    "oneOffLabel": "単発",
+    "recurringBadge": "定期として検出",
+    "monthsSeen": "{{count}}か月",
+    "uncategorized": "未分類",
+    "noData": "この期間に取引はありません。",
+    "accounts": "口座とカード",
+    "creditVsDebit": "クレジット vs デビット",
+    "creditVsDebitHint": "口座の種類に基づきます: クレジットカード口座で支払った金額はすべてクレジットとして扱われ、それ以外は当座、ウォレット、その他の口座を通じたものです。",
+    "onCredit": "クレジットカード",
+    "onOther": "その他の口座",
+    "accountsWithActivity": "この期間に動きのあった口座: {{count}}件",
+    "otherCategories": "その他",
+    "limitUsed": "限度額の{{pct}}%を使用",
+    "availableOfLimit": "{{limit}}中{{available}}が利用可能",
+    "closes": "締め日 {{date}}",
+    "due": "支払期日 {{date}}",
+    "range": {
+      "thisMonth": "今月",
+      "lastMonth": "先月",
+      "last3": "過去3か月",
+      "thisYear": "今年",
+      "custom": "カスタム"
     }
   }
 }

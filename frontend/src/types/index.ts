@@ -1154,6 +1154,7 @@ export interface AccountsAnalysis {
   card_expense_share: number
   trend_months: number
   accounts: AnalysisAccount[]
+}
 
 // --- Invoices -------------------------------------------------------------
 // The ledger of what clients owe. Only reachable from a business

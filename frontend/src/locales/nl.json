@@ -132,7 +132,8 @@
     "agents": "Agents",
     "aiAgents": "AI-agents",
     "collapseSidebar": "Zijbalk inklappen",
-    "expandSidebar": "Zijbalk uitklappen"
+    "expandSidebar": "Zijbalk uitklappen",
+    "analysis": "Uitsplitsing"
   },
   "invoices": {
     "title": "Invoices",
@@ -1283,7 +1284,23 @@
       },
       "reconnectTitle": "Maak opnieuw verbinding met een nieuw token",
       "reconnectDescription": "Plak een nieuw installatietoken om deze verbinding te vernieuwen. Bestaande rekeningen, transacties, categorieën en regels blijven behouden.",
-      "reconnect": "Maak opnieuw verbinding"
+      "reconnect": "Maak opnieuw verbinding",
+      "binance": {
+        "title": "Maak verbinding via Binance",
+        "description": "Maak een alleen-lezen API-sleutel aan in Binance (schakel alleen Enable Reading in — nooit handelen of opnames), en plak deze hieronder als {\"api_key\": \"...\", \"api_secret\": \"...\"} of als key:secret. Uw saldi worden beleggingsbezit; er worden geen rekeningen of transacties geïmporteerd."
+      },
+      "coinbase": {
+        "title": "Maak verbinding via Coinbase",
+        "description": "Maak een alleen-lezen API-sleutel aan in Coinbase (alleen view-rechten) en plak de JSON hier. CDP-sleutels werken zoals gedownload: {\"name\": \"...\", \"privateKey\": \"...\"}. Oudere sleutels: {\"api_key\": \"...\", \"api_secret\": \"...\"}. Saldi worden beleggingsbezit; er worden geen rekeningen of transacties geïmporteerd."
+      },
+      "kraken": {
+        "title": "Maak verbinding via Kraken",
+        "description": "Maak in Kraken een API-sleutel aan met alleen de machtiging Query Funds — nooit handelen of opnames. Plak deze als {\"api_key\": \"...\", \"api_secret\": \"...\"} of als key:secret. Saldi worden beleggingsbezit; er worden geen rekeningen of transacties geïmporteerd."
+      },
+      "bybit": {
+        "title": "Maak verbinding via Bybit",
+        "description": "Maak een alleen-lezen API-sleutel aan in Bybit (Read-Only-modus — nooit handelen of opnames) en plak deze hieronder als {\"api_key\": \"...\", \"api_secret\": \"...\"} of als key:secret. Saldi worden beleggingsbezit; er worden geen rekeningen of transacties geïmporteerd."
+      }
     },
     "providers": {
       "pluggy": {
@@ -1302,7 +1319,8 @@
       "active": "Actief",
       "error": "Fout",
       "expired": "Verlopen"
-    }
+    },
+    "typeLoan": "Lening"
   },
   "connections": {
     "settings": "Verbindingsinstellingen",
@@ -1911,7 +1929,28 @@
     "total": "Totaal",
     "confirmRegenerateTitle": "Waarden opnieuw genereren?",
     "confirmRegenerate": "Groeiparameters veranderd. Alle automatisch gegenereerde waarden worden verwijderd en opnieuw berekend. Handmatige waarden blijven behouden.",
-    "regenerate": "Regenereer"
+    "regenerate": "Regenereer",
+    "viewByWallet": "Per portemonnee",
+    "viewConsolidated": "Geconsolideerd",
+    "concentration": "Concentratie",
+    "concentrationTotal": "Totaal meegeteld",
+    "includeNonFinancial": "Niet-financiële meenemen",
+    "dim_class": "Klasse",
+    "dim_region": "Regio",
+    "dim_currency": "Valuta",
+    "class_fixedIncome": "Vastrentend",
+    "class_stocksBR": "BR-aandelen",
+    "class_fiis": "Vastgoedfondsen (FIIs)",
+    "class_etfsBR": "BR-ETF's",
+    "class_stocksUS": "VS-aandelen",
+    "class_etfsUS": "VS-ETF's",
+    "class_crypto": "Crypto",
+    "class_cash": "Contant",
+    "class_vehicle": "Voertuig",
+    "class_other": "Overig",
+    "region_brazil": "Brazilië",
+    "region_unitedStates": "Verenigde Staten",
+    "region_global": "Wereldwijd"
   },
   "reports": {
     "section": "Analyses",
@@ -2862,6 +2901,48 @@
       "invoicesHint": "Hoe we bepalen welke betaling welke factuur voldoet.",
       "recurring": "Regels voor Terugkerend",
       "recurringHint": "Hoe we bepalen dat een afschrijving de rekening is die je al verwachtte."
+    }
+  },
+  "analysis": {
+    "title": "Uitsplitsing per periode",
+    "income": "Inkomen",
+    "expenses": "Kosten",
+    "net": "Netto",
+    "savingsRate": "Spaarquote",
+    "overDays": "over {{count}} dagen",
+    "total": "Totaal",
+    "dailyAverage": "Daggemiddelde",
+    "recurringShare": "Terugkerend aandeel",
+    "transactionCount": "{{count}} transacties",
+    "byCategory": "Per categorie",
+    "topPayees": "Grootste begunstigden",
+    "payeesHint": "Gegroepeerd per begunstigde als die is ingesteld, anders op transactieomschrijving. Door begunstigden in te stellen voor terugkerende verkopers wordt deze ranglijst nauwkeuriger.",
+    "largest": "Grootste bewegingen",
+    "recurring": "Terugkerend vs. eenmalig",
+    "recurringHint": "Terugkerend wordt gedetecteerd, niet opgegeven: een begunstigde telt als terugkerend wanneer deze in minstens {{min}} verschillende maanden voorkomt binnen de {{months}} maanden vóór het einde van de periode.",
+    "recurringLabel": "Terugkerend",
+    "oneOffLabel": "Eenmalig",
+    "recurringBadge": "Gedetecteerd als terugkerend",
+    "monthsSeen": "{{count}} maanden",
+    "uncategorized": "Niet gecategoriseerd",
+    "noData": "Geen transacties in deze periode.",
+    "accounts": "Rekeningen en kaarten",
+    "creditVsDebit": "Krediet vs. debet",
+    "creditVsDebitHint": "Gebaseerd op het rekeningtype: alles wat via een creditcardrekening is uitgegeven telt als krediet; de rest liep via betaalrekeningen, portemonnees en andere rekeningen.",
+    "onCredit": "Op creditcards",
+    "onOther": "Andere rekeningen",
+    "accountsWithActivity": "{{count}} rekeningen met activiteit in deze periode",
+    "otherCategories": "Overig",
+    "limitUsed": "{{pct}}% van de limiet gebruikt",
+    "availableOfLimit": "{{available}} beschikbaar van {{limit}}",
+    "closes": "Sluit {{date}}",
+    "due": "Vervalt {{date}}",
+    "range": {
+      "thisMonth": "Deze maand",
+      "lastMonth": "Vorige maand",
+      "last3": "Laatste 3 maanden",
+      "thisYear": "Dit jaar",
+      "custom": "Aangepast"
     }
   }
 }

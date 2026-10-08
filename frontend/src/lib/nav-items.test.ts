@@ -40,11 +40,17 @@ describe('nav catalog', () => {
 
   it('has a link for every module in the catalog', () => {
     const covered = navItems.filter((i) => i.type === 'link').map((i) => i.module)
-    expect([...covered].sort()).toEqual([...MODULE_IDS].sort())
+    expect([...new Set(covered)].sort()).toEqual([...MODULE_IDS].sort())
   })
 
-  it('gives every link a distinct module', () => {
-    const covered = navItems.filter((i) => i.type === 'link').map((i) => i.module)
+  // Fork: the Breakdown page (/analysis) is a second view of the reports
+  // module, so it shares that module rather than adding one of its own.
+  const SHARED_MODULE_LINKS = ['analysis']
+
+  it('gives every other link a distinct module', () => {
+    const covered = navItems
+      .filter((i) => i.type === 'link' && !SHARED_MODULE_LINKS.includes(i.key))
+      .map((i) => (i.type === 'link' ? i.module : null))
     expect(new Set(covered).size).toBe(covered.length)
   })
 })
@@ -57,6 +63,7 @@ describe('visibleNavItems', () => {
       'accounts',
       'import',
       'reports',
+      'analysis',
       'assets',
       'budgets',
       'goals',
