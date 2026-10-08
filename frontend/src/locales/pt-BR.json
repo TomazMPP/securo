@@ -628,6 +628,10 @@
         "title": "Conectar via Kraken",
         "description": "Crie uma chave de API na Kraken apenas com a permissão Query Funds — nunca negociação ou saque. Cole como {\"api_key\": \"...\", \"api_secret\": \"...\"} ou como chave:segredo. Os saldos viram ativos de investimento; nenhuma conta ou transação é importada."
       },
+      "bybit": {
+        "title": "Conectar via Bybit",
+        "description": "Crie uma chave de API somente leitura na Bybit (modo Read-Only — nunca negociação ou saques) e cole abaixo como {\"api_key\": \"...\", \"api_secret\": \"...\"} ou como chave:segredo. Os saldos viram ativos de investimento; nenhuma conta ou transação é importada."
+      },
       "reconnectTitle": "Reconectar com um novo token",
       "reconnectDescription": "Cole um novo token de configuração para atualizar esta conexão no lugar. Contas, transações, categorias e regras existentes são preservadas.",
       "reconnect": "Reconectar"

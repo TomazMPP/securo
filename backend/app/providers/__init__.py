@@ -65,6 +65,14 @@ KNOWN_PROVIDERS = [
         "requires_institution_select": False,
         "supports_asset_sync": True,
     },
+    {
+        "name": "bybit",
+        "display_name": "Bybit",
+        "description": "Crypto balances from Bybit (read-only API key)",
+        "flow_type": "token",
+        "requires_institution_select": False,
+        "supports_asset_sync": True,
+    },
 ]
 
 
@@ -129,6 +137,10 @@ def _auto_register_providers() -> None:
     if settings.kraken_enabled:
         from app.providers.kraken import KrakenProvider
         register_provider("kraken", KrakenProvider)
+
+    if settings.bybit_enabled:
+        from app.providers.bybit import BybitProvider
+        register_provider("bybit", BybitProvider)
 
 
 _auto_register_providers()

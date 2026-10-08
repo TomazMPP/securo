@@ -222,6 +222,28 @@ class CryptoExchangeProvider(BankProvider):
             if bal.quantity > 0 and bal.asset
         ]
 
+        # Merge entries that resolve to the same (wallet, symbol) — Kraken
+        # reports DOT.S and DOT.P separately but both are staked DOT — since
+        # one holding per external_id is a hard invariant downstream.
+        merged: dict[tuple[str, str], tuple[WalletBalance, ResolvedAsset]] = {}
+        for bal, resolved in resolved_balances:
+            key = (resolved.wallet_override or bal.wallet, resolved.symbol)
+            prev = merged.get(key)
+            if prev is None:
+                merged[key] = (bal, resolved)
+                continue
+            prev_bal, prev_resolved = prev
+            raw = prev_bal.asset if bal.asset == prev_bal.asset else f"{prev_bal.asset}+{bal.asset}"
+            merged[key] = (
+                WalletBalance(
+                    wallet=prev_bal.wallet,
+                    asset=raw,
+                    quantity=prev_bal.quantity + bal.quantity,
+                ),
+                prev_resolved,
+            )
+        resolved_balances = list(merged.values())
+
         # Only the leftovers reach the per-symbol oracle: fiat is at par,
         # stablecoins are pinned, and anything with a pair is already priced.
         fallback = await fetch_fallback_prices({

@@ -1010,6 +1010,7 @@ export default function AssetsPage() {
         currency: a.currency,
         type: a.type,
         walletName: a.group_id ? walletName.get(a.group_id) : null,
+        source: a.source,
       })
       byClass.set(cls, (byClass.get(cls) ?? 0) + value)
       byRegion.set(region, (byRegion.get(region) ?? 0) + value)

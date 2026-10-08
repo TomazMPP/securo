@@ -4,11 +4,14 @@ import asyncio
 import base64
 import hashlib
 import hmac
+import time
 import urllib.parse
+from contextlib import contextmanager
 from decimal import Decimal
 
 from app.providers.base import SessionExpiredError
 from app.providers.binance import BinanceProvider
+from app.providers.bybit import BybitProvider
 from app.providers.coinbase import CoinbaseProvider, _load_cdp_key, _looks_like_cdp
 from app.providers.crypto_exchange import (
     CryptoExchangeProvider,
@@ -159,7 +162,7 @@ def test_currency_is_always_iso_never_the_ticker():
 
 
 def test_exchanges_return_no_accounts_or_transactions():
-    for p in (BinanceProvider(), KrakenProvider(), CoinbaseProvider()):
+    for p in (BinanceProvider(), KrakenProvider(), CoinbaseProvider(), BybitProvider()):
         assert run(p.get_accounts({})) == []
         assert run(p.get_transactions({}, "x")) == []
         assert p.flow_type == "token"
@@ -196,6 +199,37 @@ def test_binance_funding_wallet_labelled():
     assert "Funding" in h["FUNDING:SOL"].name
 
 
+def test_binance_missing_funding_permission_degrades_to_spot_only():
+    p = BinanceProvider()
+
+    async def fake_signed(_creds, path, params=None, method="GET"):
+        if "funding" in path:
+            raise SessionExpiredError("no permission")
+        return {"balances": [{"asset": "BTC", "free": "1", "locked": "0"}]}
+
+    p._signed = fake_signed  # type: ignore[assignment]
+    balances = {(b.wallet, b.asset) for b in run(p.fetch_balances({}))}
+    assert balances == {("SPOT", "BTC")}
+
+
+def test_binance_transient_funding_failure_aborts_instead_of_dropping_wallets():
+    """Same archive hazard as Bybit: a shrunken list hides holdings for good."""
+    p = BinanceProvider()
+
+    async def fake_signed(_creds, path, params=None, method="GET"):
+        if "funding" in path:
+            raise RuntimeError("rate limited")
+        return {"balances": [{"asset": "BTC", "free": "1", "locked": "0"}]}
+
+    p._signed = fake_signed  # type: ignore[assignment]
+    try:
+        run(p.fetch_balances({}))
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("expected the transient funding failure to propagate")
+
+
 # --- Kraken ---------------------------------------------------------------
 
 def test_kraken_legacy_asset_codes():
@@ -224,6 +258,18 @@ def test_kraken_staked_and_spot_stay_separate_positions():
     ])
     assert set(h) == {"SPOT:DOT", "STAKING:DOT"}
     assert h["STAKING:DOT"].current_value == Decimal("20")
+
+
+def test_kraken_staking_variants_merge_into_one_position():
+    """DOT.S and DOT.P are both staked DOT; two holdings would collide on
+    the same STAKING:DOT external_id downstream."""
+    h = _holdings(KrakenProvider(), [
+        WalletBalance("SPOT", "DOT.S", Decimal("4")),
+        WalletBalance("SPOT", "DOT.P", Decimal("6")),
+    ])
+    assert set(h) == {"STAKING:DOT"}
+    assert h["STAKING:DOT"].quantity == Decimal("10")
+    assert h["STAKING:DOT"].current_value == Decimal("50")
 
 
 def test_kraken_signature_matches_documented_scheme():
@@ -317,6 +363,335 @@ def test_coinbase_rejects_credentials_without_any_secret():
         run(p.handle_oauth_callback('{"api_key": "only-a-name"}'))
     except ValueError as e:
         assert "private_key" in str(e)
+    else:
+        raise AssertionError("expected a ValueError")
+
+
+# --- Bybit ------------------------------------------------------------------
+
+def _bybit_router(payloads: dict[str, object], calls: list[str] | None = None):
+    """A fetch_balances-shaped _signed stub keyed on path (+earn category)."""
+    async def fake_signed(_creds, path, params=None):
+        key = path
+        if path == "/v5/earn/position":
+            key = f"{path}:{(params or {}).get('category')}"
+        if calls is not None:
+            calls.append(key)
+        payload = payloads.get(key)
+        if isinstance(payload, Exception):
+            raise payload
+        return payload or {}
+    return fake_signed
+
+
+def test_bybit_reads_all_three_wallets():
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": {
+            "list": [{"accountType": "UNIFIED", "coin": [
+                {"coin": "BTC", "walletBalance": "0.5", "locked": "0.1"},
+                {"coin": "USDT", "walletBalance": "1000"},
+            ]}],
+        },
+        "/v5/asset/transfer/query-account-coins-balance": {
+            "accountType": "FUND",
+            "balance": [{"coin": "SOL", "walletBalance": "2", "transferBalance": "2"}],
+        },
+        "/v5/earn/position:FlexibleSaving": {
+            "list": [{"coin": "USDT", "amount": "500"}],
+        },
+        "/v5/earn/position:OnChain": {
+            "list": [{"coin": "ETH", "amount": "1.5"}],
+        },
+    })
+    balances = {(b.wallet, b.asset): b.quantity for b in run(p.fetch_balances({}))}
+    # walletBalance already contains the locked slice — it must not be re-added.
+    assert balances[("SPOT", "BTC")] == Decimal("0.5")
+    assert balances[("SPOT", "USDT")] == Decimal("1000")
+    assert balances[("FUNDING", "SOL")] == Decimal("2")
+    assert balances[("EARN", "USDT")] == Decimal("500")
+    assert balances[("STAKING", "ETH")] == Decimal("1.5")
+
+
+def test_bybit_drops_zero_negative_and_redeemed_positions():
+    """Borrowed coins go negative and redeemed savings linger at zero."""
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": {
+            "list": [{"coin": [
+                {"coin": "USDC", "walletBalance": "-25"},
+                {"coin": "DUST", "walletBalance": "0"},
+                {"coin": "BTC", "walletBalance": "1"},
+            ]}],
+        },
+        "/v5/earn/position:FlexibleSaving": {
+            "list": [{"coin": "USDT", "amount": "0"}],
+        },
+    })
+    balances = {(b.wallet, b.asset) for b in run(p.fetch_balances({}))}
+    assert balances == {("SPOT", "BTC")}
+
+
+def test_bybit_sums_multiple_earn_positions_per_coin():
+    """Two products in one coin must merge, not collide on EARN:USDT."""
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": {"list": []},
+        "/v5/earn/position:FlexibleSaving": {
+            "list": [
+                {"coin": "USDT", "amount": "100", "productId": "1"},
+                {"coin": "USDT", "amount": "40", "productId": "2"},
+            ],
+        },
+    })
+    balances = run(p.fetch_balances({}))
+    earn = [b for b in balances if b.wallet == "EARN"]
+    assert len(earn) == 1
+    assert earn[0].quantity == Decimal("140")
+
+
+def test_bybit_missing_permissions_skip_funding_and_earn_only():
+    """A key without the Wallet/Earn boxes still syncs the unified wallet."""
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": {
+            "list": [{"coin": [{"coin": "BTC", "walletBalance": "1"}]}],
+        },
+        "/v5/asset/transfer/query-account-coins-balance": SessionExpiredError("no perm"),
+        "/v5/earn/position:FlexibleSaving": SessionExpiredError("no perm"),
+        "/v5/earn/position:OnChain": SessionExpiredError("no perm"),
+    })
+    balances = {(b.wallet, b.asset): b.quantity for b in run(p.fetch_balances({}))}
+    assert balances == {("SPOT", "BTC"): Decimal("1")}
+
+
+def test_bybit_transient_funding_failure_aborts_instead_of_dropping_wallets():
+    """A rate limit must not shrink the balance list — downstream, missing
+    external_ids are archived, and same-connection assets never auto-unarchive."""
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": {
+            "list": [{"coin": [{"coin": "BTC", "walletBalance": "1"}]}],
+        },
+        "/v5/asset/transfer/query-account-coins-balance": RuntimeError("rate limited"),
+    })
+    try:
+        run(p.fetch_balances({}))
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("expected the transient funding failure to propagate")
+
+
+def test_bybit_unified_wallet_failure_propagates():
+    """The primary read failing must abort the sync, not read as 'no holdings'."""
+    p = BybitProvider()
+    p._signed = _bybit_router({  # type: ignore[assignment]
+        "/v5/account/wallet-balance": SessionExpiredError("key revoked"),
+    })
+    try:
+        run(p.fetch_balances({}))
+    except SessionExpiredError:
+        pass
+    else:
+        raise AssertionError("expected SessionExpiredError to propagate")
+
+
+class _FakeBybitTransport:
+    """Stands in for httpx.AsyncClient; replays canned JSON bodies."""
+
+    def __init__(self, bodies: list[dict]):
+        self.bodies = bodies
+        self.requests: list[dict] = []
+
+    def __call__(self, **kwargs):
+        self.kwargs = kwargs
+        return self
+
+    async def __aenter__(self):
+        return self
+
+    async def __aexit__(self, *exc):
+        return False
+
+    async def get(self, url):
+        self.requests.append({"url": url, "headers": self.kwargs.get("headers") or {}})
+
+        class R:
+            status_code = 200
+            text = ""
+            def __init__(self, body): self._body = body
+            def json(self): return self._body
+            def raise_for_status(self): return None
+
+        return R(self.bodies[len(self.requests) - 1])
+
+
+@contextmanager
+def _bybit_transport(bodies: list[dict]):
+    """Swap httpx.AsyncClient for a canned transport, restoring on exit.
+
+    Also pins the module's clock-offset cache so no /v5/market/time request
+    sneaks in and consumes a canned body.
+    """
+    import time as _time
+
+    import app.providers.bybit as bybit_mod
+
+    transport = _FakeBybitTransport(bodies)
+    original_client = bybit_mod.httpx.AsyncClient
+    original_offset = (bybit_mod._clock_offset_ms, bybit_mod._clock_offset_at)
+    bybit_mod.httpx.AsyncClient = transport  # type: ignore[assignment]
+    bybit_mod._clock_offset_ms, bybit_mod._clock_offset_at = 0, _time.time()
+    try:
+        yield transport
+    finally:
+        bybit_mod.httpx.AsyncClient = original_client  # type: ignore[assignment]
+        bybit_mod._clock_offset_ms, bybit_mod._clock_offset_at = original_offset
+
+
+def test_bybit_signature_matches_documented_scheme():
+    """HMAC-SHA256 hex over timestamp + key + recvWindow + query, per docs."""
+    with _bybit_transport([{"retCode": 0, "result": {}}]) as transport:
+        creds = {"api_key": "test-key", "api_secret": "test-secret"}
+        run(BybitProvider()._signed(creds, "/v5/account/wallet-balance",
+                                    {"accountType": "UNIFIED"}))
+
+    req = transport.requests[0]
+    assert req["url"].endswith("/v5/account/wallet-balance?accountType=UNIFIED")
+    headers = req["headers"]
+    assert headers["X-BAPI-API-KEY"] == "test-key"
+    assert headers["X-BAPI-RECV-WINDOW"] == "10000"
+    # The timestamp must be epoch *milliseconds* — seconds would sign fine
+    # against ourselves but be rejected by Bybit, so pin the scale here.
+    assert abs(int(headers["X-BAPI-TIMESTAMP"]) - time.time() * 1000) < 60_000
+    expected = hmac.new(
+        b"test-secret",
+        f"{headers['X-BAPI-TIMESTAMP']}test-key10000accountType=UNIFIED".encode(),
+        hashlib.sha256,
+    ).hexdigest()
+    assert headers["X-BAPI-SIGN"] == expected
+
+
+def test_bybit_auth_retcode_raises_session_expired():
+    """Auth failures arrive as HTTP 200 + retCode and must expire the session."""
+    with _bybit_transport([{"retCode": 10003, "retMsg": "API key is invalid."}]):
+        try:
+            run(BybitProvider()._signed(
+                {"api_key": "k", "api_secret": "s"},
+                "/v5/account/wallet-balance", {"accountType": "UNIFIED"},
+            ))
+        except SessionExpiredError as e:
+            assert "10003" in str(e)
+        else:
+            raise AssertionError("expected SessionExpiredError for retCode 10003")
+
+
+def test_bybit_non_uta_account_gets_a_clear_error():
+    with _bybit_transport([{"retCode": 10028, "retMsg": "unified only"}]):
+        try:
+            run(BybitProvider()._signed(
+                {"api_key": "k", "api_secret": "s"},
+                "/v5/account/wallet-balance", {"accountType": "UNIFIED"},
+            ))
+        except RuntimeError as e:
+            assert "Unified Trading Account" in str(e)
+        else:
+            raise AssertionError("expected RuntimeError for retCode 10028")
+
+
+def test_bybit_resyncs_clock_and_retries_on_timestamp_drift():
+    """retCode 10002 earns exactly one retry after re-learning the offset."""
+    bodies = [
+        {"retCode": 10002, "retMsg": "timestamp outside recv window"},
+        # /v5/market/time resync — the ms timestamp sits at the TOP level.
+        {"retCode": 0, "retMsg": "OK", "result": {"timeSecond": "12"}, "time": 12_345},
+        {"retCode": 0, "result": {"list": []}},
+    ]
+    with _bybit_transport(bodies) as transport:
+        result = run(BybitProvider()._signed(
+            {"api_key": "k", "api_secret": "s"},
+            "/v5/account/wallet-balance", {"accountType": "UNIFIED"},
+        ))
+    assert result == {"list": []}
+    assert len(transport.requests) == 3
+    assert "/v5/market/time" in transport.requests[1]["url"]
+    # The retry must actually sign with the re-learned offset: server time is
+    # 12345ms, so the new timestamp collapses to ~12345, not wall-clock ms.
+    assert int(transport.requests[2]["headers"]["X-BAPI-TIMESTAMP"]) < 1_000_000
+
+
+def test_bybit_persistent_timestamp_drift_fails_after_one_retry():
+    """Two 10002s in a row must fail loudly, not loop against the API."""
+    bodies = [
+        {"retCode": 10002, "retMsg": "drift"},
+        {"retCode": 0, "retMsg": "OK", "result": {}, "time": 12_345},
+        {"retCode": 10002, "retMsg": "drift"},
+    ]
+    with _bybit_transport(bodies) as transport:
+        try:
+            run(BybitProvider()._signed(
+                {"api_key": "k", "api_secret": "s"},
+                "/v5/account/wallet-balance", {"accountType": "UNIFIED"},
+            ))
+        except RuntimeError as e:
+            assert "persisted" in str(e)
+        else:
+            raise AssertionError("expected RuntimeError for persistent drift")
+    assert len(transport.requests) == 3   # original + one resync + one retry
+
+
+def test_bybit_missing_retcode_is_an_error_not_an_empty_result():
+    """Envelope-less 200s (gateway junk) must not read as empty balances."""
+    with _bybit_transport([{"unexpected": "gateway junk"}]):
+        try:
+            run(BybitProvider()._signed(
+                {"api_key": "k", "api_secret": "s"},
+                "/v5/account/wallet-balance", {"accountType": "UNIFIED"},
+            ))
+        except RuntimeError as e:
+            assert "retCode" in str(e)
+        else:
+            raise AssertionError("expected RuntimeError for a body without retCode")
+
+
+def test_bybit_accepts_key_colon_secret_paste():
+    p = BybitProvider()
+    seen: list[str] = []
+
+    async def fake_signed(creds, path, params=None):
+        seen.append(path)
+        assert creds["api_key"] == "my-key"
+        return {}
+
+    p._signed = fake_signed  # type: ignore[assignment]
+    conn = run(p.handle_oauth_callback("my-key:my-secret"))
+    assert conn.external_id == "bybit:my-key"
+    assert conn.institution_name == "Bybit"
+    assert conn.accounts == []
+    assert "api_secret" not in conn.credentials       # only the encrypted form
+    assert conn.credentials.get("api_secret_enc")
+    assert seen == ["/v5/account/wallet-balance"]     # fail-fast validation ran
+
+
+def test_bybit_accepts_json_paste():
+    """The JSON shape is the one the dialog documents first — cover it too."""
+    p = BybitProvider()
+
+    async def fake_signed(creds, path, params=None):
+        return {}
+
+    p._signed = fake_signed  # type: ignore[assignment]
+    conn = run(p.handle_oauth_callback('{"api_key": "json-key", "api_secret": "sec"}'))
+    assert conn.external_id == "bybit:json-key"
+    assert conn.credentials.get("api_secret_enc")
+
+
+def test_bybit_rejects_unparseable_credentials():
+    try:
+        run(BybitProvider().handle_oauth_callback("just-a-key-no-secret"))
+    except ValueError as e:
+        assert "api_key" in str(e)
     else:
         raise AssertionError("expected a ValueError")
 

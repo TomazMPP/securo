@@ -108,7 +108,10 @@ async def _sync_holdings(
 
     Failures here are swallowed: not all Pluggy connectors expose
     investment data, and we don't want a brokerage hiccup to break the
-    bank-account sync that just succeeded.
+    bank-account sync that just succeeded. Expired credentials are the
+    exception — for exchange connectors this is the *only* authenticated
+    call in a sync, so swallowing them would leave a revoked key looking
+    healthy forever instead of flipping the connection to "expired".
     """
     # Tolerate provider-side failures (e.g. Pluggy returning 500 for a
     # specific connector, a bank that doesn't expose /investments).
@@ -117,6 +120,8 @@ async def _sync_holdings(
     try:
         provider = get_provider(connection.provider)
         holdings = await provider.get_holdings(credentials)
+    except SessionExpiredError:
+        raise
     except Exception:  # noqa: BLE001
         logger.exception(
             "Failed to fetch holdings for connection %s", connection.id

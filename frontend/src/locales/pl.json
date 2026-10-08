@@ -665,6 +665,10 @@
       "kraken": {
         "title": "Połącz przez Kraken",
         "description": "Utwórz w Kraken klucz API wyłącznie z uprawnieniem „Query Funds” — nigdy handel ani wypłaty. Wklej go jako {\"api_key\": \"...\", \"api_secret\": \"...\"} lub jako key:secret. Salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
+      },
+      "bybit": {
+        "title": "Połącz przez Bybit",
+        "description": "Utwórz w Bybit klucz API tylko do odczytu (tryb „Read-Only” — nigdy handel ani wypłaty), a następnie wklej go poniżej jako {\"api_key\": \"...\", \"api_secret\": \"...\"} lub jako key:secret. Salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
       }
     },
     "providers": {

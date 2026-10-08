@@ -566,6 +566,22 @@ async def test_provider_error_is_swallowed_without_side_effects(
 
 
 @pytest.mark.asyncio
+async def test_expired_credentials_propagate_out_of_holdings_sync(
+    session: AsyncSession, test_user: User, mock_connection: BankConnection
+):
+    """SessionExpiredError must escape the swallow: for exchange connectors
+    get_holdings is the only authenticated call in a sync, and swallowing it
+    would leave a revoked key looking healthy forever."""
+    from app.providers.base import SessionExpiredError
+
+    _MockProvider._raise = SessionExpiredError("key revoked")
+    with pytest.raises(SessionExpiredError):
+        await _sync_holdings(
+            session, test_user.id, mock_connection, mock_connection.credentials
+        )
+
+
+@pytest.mark.asyncio
 async def test_next_day_sync_appends_new_asset_value(
     session: AsyncSession, test_user: User, mock_connection: BankConnection
 ):

@@ -10,6 +10,7 @@ export interface ClassifiableAsset {
   currency?: string | null
   type?: string | null
   walletName?: string | null
+  source?: string | null
 }
 
 // Brazilian Treasury bonds are the same instrument under several names: the
@@ -114,6 +115,21 @@ const US_ETFS = new Set([
 
 const FIXED_INCOME = /\b(CDB|RDB|LCI|LCA|LTN|LFT|NTN-?B|NTN-?F|TESOURO|DEBENTURE|DEB[EÊ]NTURE|CRA|CRI|POUPAN|FIRF|FIC\b|RENDA FIXA)/i
 
+// Assets synced from these providers are exchange balances by construction.
+// `source` survives wallet renames, which the name sniff below does not.
+const CRYPTO_EXCHANGE_SOURCES = new Set(['binance', 'coinbase', 'kraken', 'bybit'])
+
+// Wallet-name fallback for manually grouped crypto (a hand-made "Binance"
+// wallet holding manual entries has source "manual").
+const CRYPTO_WALLET_HINT = /BINANCE|COINBASE|KRAKEN|BYBIT|CRYPTO/
+
+// Fiat an exchange may hold as cash. An allowlist, not a length test:
+// SOL, DOT, ADA and friends are three letters too.
+const EXCHANGE_FIAT = new Set([
+  'USD', 'EUR', 'GBP', 'BRL', 'ARS', 'AUD', 'CAD', 'CHF', 'JPY', 'MXN',
+  'COP', 'CLP', 'PEN', 'TRY', 'ZAR', 'NGN', 'UAH', 'PLN', 'RON', 'CZK',
+])
+
 /** Best-effort class + region. Heuristic by nature: Securo stores no asset
  *  class, so this reads tickers and names. Deliberately conservative — an
  *  unrecognized asset lands in `other` rather than being forced somewhere. */
@@ -122,17 +138,20 @@ export function classifyAsset(a: ClassifiableAsset): { cls: AssetClass; region: 
   const upper = name.toUpperCase()
   const ticker = (a.ticker ?? '').trim().toUpperCase()
   const currency = (a.currency ?? 'BRL').toUpperCase()
-  const isCryptoWallet = (a.walletName ?? '').toUpperCase().includes('BINANCE')
+  const isExchangeAsset =
+    CRYPTO_EXCHANGE_SOURCES.has((a.source ?? '').toLowerCase()) ||
+    CRYPTO_WALLET_HINT.test((a.walletName ?? '').toUpperCase())
 
   if (a.type === 'vehicle') return { cls: 'vehicle', region: 'brazil' }
   if (a.type === 'real_estate') return { cls: 'other', region: 'brazil' }
 
-  // Fiat parked at an exchange is cash, not crypto — check before the wallet
-  // rule, which would otherwise swallow it.
-  if (isCryptoWallet && /^[A-Z]{3}$/.test(upper) && upper !== 'BTC' && upper !== 'ETH') {
+  // Fiat parked at an exchange is cash, not crypto — check before the
+  // exchange rule, which would otherwise swallow it. Exchange fiat rows are
+  // named for the currency itself ("BRL", "BRL (Funding)").
+  if (isExchangeAsset && (EXCHANGE_FIAT.has(ticker) || EXCHANGE_FIAT.has(upper.split(' ')[0]))) {
     return { cls: 'cash', region: 'global' }
   }
-  if (isCryptoWallet || /\(EARN\)$/.test(upper)) {
+  if (isExchangeAsset || /\(EARN\)$/.test(upper)) {
     // Crypto is treated as international exposure regardless of custody.
     return { cls: 'crypto', region: 'global' }
   }

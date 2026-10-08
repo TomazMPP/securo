@@ -629,6 +629,10 @@
       "kraken": {
         "title": "Connetti tramite Kraken",
         "description": "Crea una chiave API in Kraken con il solo permesso «Query Funds» — mai trading o prelievi. Incollala come {\"api_key\": \"...\", \"api_secret\": \"...\"} o come key:secret. I saldi diventano posizioni di investimento; non vengono importati conti né transazioni."
+      },
+      "bybit": {
+        "title": "Connetti tramite Bybit",
+        "description": "Crea una chiave API di sola lettura in Bybit (modalità «Read-Only» — mai trading o prelievi), poi incollala qui sotto come {\"api_key\": \"...\", \"api_secret\": \"...\"} o come key:secret. I saldi diventano posizioni di investimento; non vengono importati conti né transazioni."
       }
     },
     "providers": {

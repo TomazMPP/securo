@@ -628,6 +628,10 @@
         "title": "Connect via Kraken",
         "description": "Create an API key in Kraken with the Query Funds permission only — never trading or withdrawal. Paste it as {\"api_key\": \"...\", \"api_secret\": \"...\"} or as key:secret. Balances become investment holdings; no accounts or transactions are imported."
       },
+      "bybit": {
+        "title": "Connect via Bybit",
+        "description": "Create a read-only API key in Bybit (Read-Only mode — never trading or withdrawals), then paste it below as {\"api_key\": \"...\", \"api_secret\": \"...\"} or as key:secret. Balances become investment holdings; no accounts or transactions are imported."
+      },
       "reconnectTitle": "Reconnect with a fresh token",
       "reconnectDescription": "Paste a new setup token to refresh this connection in place. Existing accounts, transactions, categories, and rules are preserved.",
       "reconnect": "Reconnect"

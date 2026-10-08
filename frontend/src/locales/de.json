@@ -629,6 +629,10 @@
       "kraken": {
         "title": "Über Kraken verbinden",
         "description": "Erstelle in Kraken einen API-Schlüssel nur mit der Berechtigung „Query Funds“ — niemals Handel oder Abhebungen. Füge ihn als {\"api_key\": \"...\", \"api_secret\": \"...\"} oder als key:secret ein. Bestände werden zu Anlagepositionen; es werden keine Konten oder Transaktionen importiert."
+      },
+      "bybit": {
+        "title": "Über Bybit verbinden",
+        "description": "Erstelle in Bybit einen API-Schlüssel mit Nur-Lese-Zugriff (Modus „Read-Only“ — niemals Handel oder Abhebungen), und füge ihn unten als {\"api_key\": \"...\", \"api_secret\": \"...\"} oder als key:secret ein. Bestände werden zu Anlagepositionen; es werden keine Konten oder Transaktionen importiert."
       }
     },
     "providers": {

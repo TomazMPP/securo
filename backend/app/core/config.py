@@ -48,6 +48,7 @@ class Settings(BaseSettings):
     binance_enabled: bool = False
     coinbase_enabled: bool = False
     kraken_enabled: bool = False
+    bybit_enabled: bool = False
 
     # Frontend
     frontend_url: str = "http://localhost:5173"

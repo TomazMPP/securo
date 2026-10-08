@@ -209,15 +209,19 @@ class BinanceProvider(CryptoExchangeProvider):
                     WalletBalance(wallet="SPOT", asset=str(row.get("asset") or ""), quantity=qty)
                 )
 
-        # The funding wallet is read via POST — Binance's choice, not ours. A
-        # failure here must not lose the spot balances, which are the bulk of
-        # most wallets.
+        # The funding wallet is read via POST — Binance's choice, not ours.
+        # A key that lacks the permission for it is a configuration, not an
+        # outage, so only that case degrades to spot-only. Transient failures
+        # propagate instead: a partial balance list reads as "positions gone"
+        # downstream and archives those holdings.
         try:
             funding = await self._signed(
                 credentials, "/sapi/v1/asset/get-funding-asset", method="POST"
             ) or []
-        except Exception:  # noqa: BLE001
-            logger.warning("Binance: funding wallet unavailable; reporting spot only")
+        except SessionExpiredError:
+            logger.warning(
+                "Binance: funding wallet not permitted for this key; reporting spot only"
+            )
             funding = []
 
         for row in funding:

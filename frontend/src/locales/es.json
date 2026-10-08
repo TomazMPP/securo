@@ -629,6 +629,10 @@
       "kraken": {
         "title": "Conectar vía Kraken",
         "description": "Crea una clave API en Kraken solo con el permiso «Query Funds»; nunca trading ni retiros. Pégala como {\"api_key\": \"...\", \"api_secret\": \"...\"} o como key:secret. Los saldos se convierten en posiciones de inversión; no se importan cuentas ni transacciones."
+      },
+      "bybit": {
+        "title": "Conectar vía Bybit",
+        "description": "Crea una clave API de solo lectura en Bybit (modo «Read-Only»; nunca trading ni retiros) y pégala abajo como {\"api_key\": \"...\", \"api_secret\": \"...\"} o como key:secret. Los saldos se convierten en posiciones de inversión; no se importan cuentas ni transacciones."
       }
     },
     "providers": {
