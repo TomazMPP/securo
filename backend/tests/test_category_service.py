@@ -7,6 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models.category import Category
 from app.models.category_group import CategoryGroup
 from app.schemas.category import CategoryCreate, CategoryUpdate
+from app.services.category_group_service import get_groups
 from app.services.category_service import (
     DEFAULT_CATEGORIES_I18N,
     create_category,
@@ -66,6 +67,22 @@ async def test_create_default_categories_french(session: AsyncSession, test_user
     assert "Alimentation & Restaurants" in names
     assert "Courses" in names
     assert "Autres" in names
+
+    for cat in categories:
+        assert cat.is_system is True
+
+
+@pytest.mark.asyncio
+async def test_create_default_categories_european_portuguese(session: AsyncSession, test_user, test_workspace):
+    categories = await create_default_categories(session, test_user.id, lang="pt-PT")
+
+    assert len(categories) == len(DEFAULT_CATEGORIES_I18N)
+
+    names = {c.name for c in categories}
+    assert "Habitação" in names
+    assert "Supermercado" in names
+    assert "Subscrições" in names
+    assert "Salário & Rendimentos" in names
 
     for cat in categories:
         assert cat.is_system is True
@@ -140,6 +157,17 @@ async def test_get_categories_ordered(session: AsyncSession, test_user, test_wor
         system_idx = categories.index(system_cats[0])
         custom_idx = categories.index(custom_cats[0])
         assert system_idx < custom_idx
+
+
+@pytest.mark.asyncio
+async def test_get_categories_group_ordered_by_name(session: AsyncSession, test_user, test_workspace):
+    await create_default_categories(session, test_user.id, lang="pt-BR")
+
+    groups = await get_groups(session, test_workspace.id)
+    food_group = [g for g in groups if g.name == "Alimentação"][0]
+
+    names = [c.name for c in food_group.categories]
+    assert names == sorted(names)
 
 
 @pytest.mark.asyncio
@@ -265,15 +293,16 @@ async def test_delete_custom_category(session: AsyncSession, test_user, test_wor
 
 
 @pytest.mark.asyncio
-async def test_delete_system_category_rejected(session: AsyncSession, test_user, test_workspace):
+async def test_delete_system_category(session: AsyncSession, test_user, test_workspace):
     categories = await create_default_categories(session, test_user.id)
     system_cat = categories[0]
 
     assert system_cat.is_system is True
-    assert await delete_category(session, system_cat.id, test_workspace.id) is False
-    assert await get_category(session, system_cat.id, test_workspace.id) is not None
+    assert await delete_category(session, system_cat.id, test_workspace.id) is True
+    assert await get_category(session, system_cat.id, test_workspace.id) is None
 
 
 @pytest.mark.asyncio
 async def test_delete_category_not_found(session: AsyncSession, test_user, test_workspace):
     assert await delete_category(session, uuid.uuid4(), test_workspace.id) is False
+

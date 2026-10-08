@@ -32,9 +32,6 @@ from app.agents.providers.openai import (
 )
 
 
-pytestmark = pytest.mark.asyncio
-
-
 def test_registry_lists_all_four_providers():
     assert set(list_providers()) == {"ollama", "openai", "anthropic", "openai_compatible"}
 
@@ -123,6 +120,7 @@ def test_anthropic_tool_result_block():
     ("http://lmstudio:1234/v1/", "http://lmstudio:1234/v1"),
     ("https://api.openai.com/v1", "https://api.openai.com/v1"),
     ("https://api.groq.com/openai/v1", "https://api.groq.com/openai/v1"),
+    ("https://generativelanguage.googleapis.com/v1beta/openai/", "https://generativelanguage.googleapis.com/v1beta/openai"),
     ("https://api.example.com/v2", "https://api.example.com/v2"),
     ("https://api.example.com/beta", "https://api.example.com/beta"),
     ("https://api.example.com/", "https://api.example.com/v1"),
@@ -178,7 +176,7 @@ async def test_openai_parser_handles_index_keyed_tool_call_chunks():
         def stream(self, *_a, **_kw): return _StreamResp()
 
     p = OpenAIProvider(api_key="x", base_url="http://lmstudio:1234")
-    chunks = []
+    chunks: list[ChatChunk] = []
     with patch("httpx.AsyncClient", return_value=_Client()):
         async for c in p.chat_stream([ChatMessage(role="user", content="hi")], model="m"):
             chunks.append(c)
@@ -188,7 +186,11 @@ async def test_openai_parser_handles_index_keyed_tool_call_chunks():
     assert starts[0].tool_name == "propose_categorize"
     assert starts[0].tool_call_id == "call_abc"
 
-    arg_deltas = [c.args_delta for c in chunks if c.type == "tool_call_args_delta"]
+    arg_deltas = [
+        c.args_delta for c in chunks
+        if c.type == "tool_call_args_delta"
+        and c.args_delta is not None
+    ]
     assert "".join(arg_deltas) == '{"transaction_ids":["abc"],"category_id":"def"}'
 
     ends = [c for c in chunks if c.type == "tool_call_end"]

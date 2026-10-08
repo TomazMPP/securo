@@ -14,6 +14,11 @@ from app.models.category import Category
 from app.models.category_group import CategoryGroup
 from app.models.import_log import ImportLog
 from app.models.payee import Payee, PayeeMapping
+from app.models.reconciliation import (
+    ReconciliationEvent,
+    ReconciliationRule,
+    ReconciliationSuggestion,
+)
 from app.models.recurring_transaction import RecurringTransaction
 from app.models.rule import Rule
 from app.models.transaction import Transaction
@@ -212,6 +217,8 @@ async def test_update_user_email(session: AsyncSession, clean_db):
     target = await _make_user(session, "target_upd@test.com")
     data = AdminUserUpdate(email="newemail@test.com")
     result = await update_user(session, target.id, data, admin.id)
+
+    assert result is not None
     assert result.email == "newemail@test.com"
 
 
@@ -230,6 +237,7 @@ async def test_update_user_password(session: AsyncSession, clean_db):
     old_hash = target.hashed_password
     data = AdminUserUpdate(password="newpassword123")
     result = await update_user(session, target.id, data, admin.id)
+
     assert result is not None
     # Password should have changed
     assert result.hashed_password != old_hash
@@ -241,6 +249,9 @@ async def test_update_user_preferences(session: AsyncSession, clean_db):
     new_prefs = {"language": "pt-BR", "currency_display": "BRL"}
     data = AdminUserUpdate(preferences=new_prefs)
     result = await update_user(session, target.id, data, admin.id)
+
+    assert result is not None
+    assert result.preferences is not None
     assert result.preferences["language"] == "pt-BR"
 
 
@@ -270,6 +281,8 @@ async def test_update_user_is_active_and_superuser(session: AsyncSession, clean_
     target = await _make_user(session, "target_flags@test.com")
     data = AdminUserUpdate(is_active=False, is_superuser=True)
     result = await update_user(session, target.id, data, admin.id)
+
+    assert result is not None
     assert result.is_active is False
     assert result.is_superuser is True
 
@@ -289,6 +302,55 @@ async def test_delete_user_cascade(session: AsyncSession, clean_db):
 
     # Verify user is gone
     assert await get_user(session, target.id) is None
+
+
+async def test_delete_user_keeps_reconciliation_history(postgres_sessions):
+    """SQLite runs without foreign keys, so only PostgreSQL shows the failure."""
+    async with postgres_sessions() as session:
+        admin = await _make_user(session, "admin_recon@test.com", is_superuser=True)
+        target = await _make_user(session, "recon_member@test.com")
+        # The admin owns the transaction: were it the member's, delete_user
+        # would remove it and the suggestion would cascade away with it.
+        acct = Account(
+            id=uuid.uuid4(), user_id=admin.id, name="Shared",
+            type="checking", balance=Decimal("0"), currency="BRL",
+        )
+        session.add(acct)
+        await session.flush()
+        txn = Transaction(
+            id=uuid.uuid4(), user_id=admin.id, account_id=acct.id,
+            description="Invoice payment", amount=Decimal("50"), date=date.today(),
+            type="credit", source="manual", currency="BRL",
+        )
+        session.add(txn)
+        await session.flush()
+        expectation_id = uuid.uuid4()
+        rule = ReconciliationRule(
+            workspace_id=acct.workspace_id, user_id=target.id,
+            node="reconciliation.match_invoice", strategy_id="same_client_exact",
+        )
+        suggestion = ReconciliationSuggestion(
+            workspace_id=acct.workspace_id, transaction_id=txn.id,
+            expectation_kind="invoice", expectation_id=expectation_id,
+            strategy_id="same_client_exact", node="reconciliation.match_invoice",
+            amount=Decimal("50"), status="accepted",
+            resolved_at=datetime.now(timezone.utc), resolved_by=target.id,
+        )
+        event = ReconciliationEvent(
+            workspace_id=acct.workspace_id, action="accepted", transaction_id=txn.id,
+            expectation_kind="invoice", expectation_id=expectation_id,
+            amount=Decimal("50"), user_id=target.id,
+        )
+        session.add_all([rule, suggestion, event])
+        await session.commit()
+
+        assert await delete_user(session, target.id, admin.id) is True
+
+        for row in (rule, suggestion, event):
+            await session.refresh(row)
+        assert rule.user_id is None
+        assert suggestion.resolved_by is None
+        assert event.user_id is None
 
 
 async def test_delete_user_self_protection(session: AsyncSession, clean_db):

@@ -1,5 +1,59 @@
+import type { Account } from '@/types'
+
 export function getAccountName(account: { name: string; display_name?: string | null }): string {
   return account.display_name ?? account.name
+}
+
+/**
+ * Total of the accounts' primary-currency balances. Cards on one shared credit
+ * line each report the whole line's balance, so each `shared_balance_group`
+ * counts once, the same way the backend totals it.
+ */
+export function sumAccountBalances(
+  accounts: readonly Pick<Account, 'balance_primary' | 'current_balance' | 'shared_balance_group'>[],
+): number {
+  const seenGroups = new Set<string>()
+  return accounts.reduce((sum, a) => {
+    if (a.shared_balance_group) {
+      if (seenGroups.has(a.shared_balance_group)) return sum
+      seenGroups.add(a.shared_balance_group)
+    }
+    return sum + Number(a.balance_primary ?? a.current_balance)
+  }, 0)
+}
+
+/**
+ * Return a presentation-only copy ordered by the name users see.
+ * The input is never mutated, which keeps React Query's cached account list intact.
+ */
+export function sortAccountsByDisplayName<
+  T extends { name: string; display_name?: string | null },
+>(accounts: readonly T[]): T[] {
+  return [...accounts].sort((left, right) =>
+    getAccountName(left).localeCompare(getAccountName(right), undefined, {
+      numeric: true,
+      sensitivity: 'base',
+    }),
+  )
+}
+
+/**
+ * Return a presentation-only copy with the largest account balances first.
+ * Debt accounts participate by magnitude, matching the balance list in the
+ * sidebar, while invalid/missing balances sort as zero.
+ * Pass a selector to compare multi-currency accounts in a common currency.
+ */
+export function sortAccountsByAbsoluteBalance<
+  T extends { current_balance?: number | string | null },
+>(
+  accounts: readonly T[],
+  getBalance: (account: T) => number | string | null | undefined = (account) => account.current_balance,
+): T[] {
+  return [...accounts].sort((left, right) => {
+    const leftBalance = Number(getBalance(left)) || 0
+    const rightBalance = Number(getBalance(right)) || 0
+    return Math.abs(rightBalance) - Math.abs(leftBalance)
+  })
 }
 
 /**
@@ -17,16 +71,18 @@ export function formatAccountMask(account: { masked_number?: string | null }): s
 /**
  * Account name with its mask appended, e.g. "Checking •••• 1234", for compact
  * single-line surfaces such as the account <select> options, where there is no
- * room for a secondary line. Unparenthesized so callers that already append
- * their own parenthetical (the transfer dialog appends the currency) don't end
- * up with two of them.
+ * room for a secondary line. When the account has an explicit display_name, the
+ * mask is omitted since the user-chosen label already distinguishes it.
  */
 export function getAccountLabel(account: {
   name: string
   display_name?: string | null
   masked_number?: string | null
 }): string {
-  const mask = formatAccountMask(account)
   const name = getAccountName(account)
+  // When the account has an explicit display_name the user set, it already
+  // distinguishes this account from others so the mask suffix is redundant.
+  if (account.display_name) return name
+  const mask = formatAccountMask(account)
   return mask ? `${name} ${mask}` : name
 }

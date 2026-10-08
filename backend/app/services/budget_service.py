@@ -3,9 +3,10 @@ from datetime import date
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import select, func, and_
+from sqlalchemy import select, func, and_, case
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.app_clock import app_today
 from app.models.budget import Budget
 from app.models.category import Category
 from app.models.category_group import CategoryGroup
@@ -18,7 +19,11 @@ from app.services._query_filters import (
     reporting_date_col,
 )
 from app.services.admin_service import get_credit_card_accounting_mode
-from app.services.dashboard_service import _get_recurring_projections
+from app.services.dashboard_service import (
+    _counts_as_user_pnl_row,
+    _get_forecast_transactions,
+    _get_recurring_projections,
+)
 from app.services.fx_rate_service import convert
 from app.core.config import get_settings
 
@@ -225,7 +230,7 @@ async def get_budget_vs_actual(
     month: Optional[date] = None,
 ) -> list[BudgetVsActual]:
     if not month:
-        month = date.today().replace(day=1)
+        month = app_today().replace(day=1)
 
     month_start = month.replace(day=1)
     if month.month == 12:
@@ -261,25 +266,35 @@ async def get_budget_vs_actual(
     report_date = reporting_date_col(accounting_mode)
 
     # Get actual spending by category for this month (exclude transfer pairs)
+    # Net spending = Debits - Credits (refunds offset expenses)
     # Use amount_primary for multi-currency support
     spending_result = await session.execute(
         select(
             Transaction.category_id,
-            func.sum(_primary_amount_expr()),
+            func.sum(
+                case(
+                    (Transaction.type == "debit", _primary_amount_expr()),
+                    (Transaction.type == "credit", -_primary_amount_expr()),
+                    else_=0,
+                )
+            ),
         )
         .where(
             Transaction.workspace_id == workspace_id,
-            Transaction.type == "debit",
             report_date >= month_start,
             report_date < month_end,
             Transaction.category_id.isnot(None),
+            report_date <= app_today(),
+            Transaction.status == "posted",
             counts_as_user_pnl(),
         )
         .group_by(Transaction.category_id)
     )
     spending_map: dict[str, Decimal] = {}
     for row in spending_result.all():
-        spending_map[str(row[0])] = abs(row[1] or Decimal("0"))
+        net = row[1] or Decimal("0")
+        if net > 0:
+            spending_map[str(row[0])] = net
 
     # Subtract non-owner shares of own splits — only the user's share counts.
     own_offset = await owner_split_offset_by_category(
@@ -314,6 +329,8 @@ async def get_budget_vs_actual(
         cat_id = str(cat_uuid)
         spending_map[cat_id] = spending_map.get(cat_id, Decimal("0")) + Decimal(str(total))
 
+    projected_spending_map = dict(spending_map)
+
     # Add projected recurring transactions for this month (converted to primary currency)
     projections = await _get_recurring_projections(session, workspace_id, month_start, month_end)
     for proj in projections:
@@ -323,28 +340,55 @@ async def get_budget_vs_actual(
         converted, _ = await convert(
             session, Decimal(str(proj["amount"])), proj["currency"], primary_currency,
         )
-        spending_map[cat_id] = spending_map.get(cat_id, Decimal("0")) + converted
+        projected_spending_map[cat_id] = projected_spending_map.get(cat_id, Decimal("0")) + converted
+
+    forecast_transactions = await _get_forecast_transactions(
+        session, workspace_id, month_start, month_end,
+        range_date_col=report_date,
+    )
+    for tx in forecast_transactions:
+        if tx.type != "debit" or not tx.category_id or not _counts_as_user_pnl_row(tx):
+            continue
+        cat_id = str(tx.category_id)
+        amount = tx.amount_primary
+        if amount is not None:
+            converted = abs(Decimal(str(amount)))
+        else:
+            converted, _ = await convert(
+                session, Decimal(str(abs(tx.amount))), tx.currency, primary_currency,
+            )
+        projected_spending_map[cat_id] = projected_spending_map.get(cat_id, Decimal("0")) + converted
 
     # Get previous month spending by category (exclude transfer pairs)
+    # Net spending = Debits - Credits (refunds offset expenses)
     # Use amount_primary for multi-currency support
     prev_spending_result = await session.execute(
         select(
             Transaction.category_id,
-            func.sum(_primary_amount_expr()),
+            func.sum(
+                case(
+                    (Transaction.type == "debit", _primary_amount_expr()),
+                    (Transaction.type == "credit", -_primary_amount_expr()),
+                    else_=0,
+                )
+            ),
         )
         .where(
             Transaction.workspace_id == workspace_id,
-            Transaction.type == "debit",
             report_date >= prev_month_start,
             report_date < prev_month_end,
             Transaction.category_id.isnot(None),
+            report_date <= app_today(),
+            Transaction.status == "posted",
             counts_as_user_pnl(),
         )
         .group_by(Transaction.category_id)
     )
     prev_spending_map: dict[str, Decimal] = {}
     for row in prev_spending_result.all():
-        prev_spending_map[str(row[0])] = abs(row[1] or Decimal("0"))
+        net = row[1] or Decimal("0")
+        if net > 0:
+            prev_spending_map[str(row[0])] = net
 
     prev_own_offset = await owner_split_offset_by_category(
         session, user_id, prev_month_start, prev_month_end,
@@ -374,6 +418,8 @@ async def get_budget_vs_actual(
         cat_id = str(cat_uuid)
         prev_spending_map[cat_id] = prev_spending_map.get(cat_id, Decimal("0")) + Decimal(str(total))
 
+    projected_prev_spending_map = dict(prev_spending_map)
+
     # Add projected recurring transactions for previous month (converted to primary currency)
     prev_projections = await _get_recurring_projections(session, workspace_id, prev_month_start, prev_month_end)
     for proj in prev_projections:
@@ -383,24 +429,43 @@ async def get_budget_vs_actual(
         converted, _ = await convert(
             session, Decimal(str(proj["amount"])), proj["currency"], primary_currency,
         )
-        prev_spending_map[cat_id] = prev_spending_map.get(cat_id, Decimal("0")) + converted
+        projected_prev_spending_map[cat_id] = projected_prev_spending_map.get(cat_id, Decimal("0")) + converted
+
+    prev_forecast_transactions = await _get_forecast_transactions(
+        session, workspace_id, prev_month_start, prev_month_end,
+        range_date_col=report_date,
+    )
+    for tx in prev_forecast_transactions:
+        if tx.type != "debit" or not tx.category_id or not _counts_as_user_pnl_row(tx):
+            continue
+        cat_id = str(tx.category_id)
+        amount = tx.amount_primary
+        if amount is not None:
+            converted = abs(Decimal(str(amount)))
+        else:
+            converted, _ = await convert(
+                session, Decimal(str(abs(tx.amount))), tx.currency, primary_currency,
+            )
+        projected_prev_spending_map[cat_id] = projected_prev_spending_map.get(cat_id, Decimal("0")) + converted
 
     comparisons = []
     for category, group in all_categories:
         cat_id = str(category.id)
         actual = spending_map.get(cat_id, Decimal("0"))
+        projected = projected_spending_map.get(cat_id, Decimal("0"))
         prev_actual = prev_spending_map.get(cat_id, Decimal("0"))
+        projected_prev = projected_prev_spending_map.get(cat_id, Decimal("0"))
         budget_entry = budget_map.get(cat_id)
         budget_amount = budget_entry[0] if budget_entry else None
         is_recurring = budget_entry[1] if budget_entry else False
 
         # Skip categories with no spending in either month and no budget
-        if actual == 0 and prev_actual == 0 and budget_amount is None:
+        if actual == 0 and projected == 0 and prev_actual == 0 and projected_prev == 0 and budget_amount is None:
             continue
 
         percentage = None
         if budget_amount and budget_amount > 0:
-            percentage = round(float(actual / budget_amount * 100), 1)
+            percentage = round(float(projected / budget_amount * 100), 1)
 
         comparisons.append(BudgetVsActual(
             category_id=category.id,
@@ -411,7 +476,9 @@ async def get_budget_vs_actual(
             group_name=group.name if group else None,
             budget_amount=budget_amount,
             actual_amount=actual,
+            projected_amount=projected,
             prev_month_amount=prev_actual,
+            projected_prev_month_amount=projected_prev,
             percentage_used=percentage,
             is_recurring=is_recurring,
         ))
