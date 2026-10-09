@@ -3291,7 +3291,14 @@
       "ratePlaceholder": "Calculada a partir de las condiciones",
       "hint": "Deja la tasa vacía para calcularla a partir del importe, la cuota y el plazo (sistema Price). Las cuotas ya pagadas con \"financiación\" en la descripción se vinculan automáticamente.",
       "save": "Guardar contrato"
-    }
+    },
+    "projected": "proyección",
+    "paidInMonth": "Cuota",
+    "balanceAfter": "Saldo después",
+    "includesExtra": "Incluye {{amount}} de amortización anticipada",
+    "interestShareLine": "{{share}} de ella son intereses",
+    "aheadBy": "{{amount}} por delante del contrato original",
+    "ofTotalCost": "{{share}} del costo total"
   },
   "notifications": {
     "menu": "Notificaciones por correo",
@@ -3404,6 +3411,9 @@
     "showAll_one": "Ver {{count}} plan más",
     "showAll_many": "Ver {{count}} planes más",
     "showAll_other": "Ver {{count}} planes más",
-    "remainingShort": "quedan {{amount}}"
+    "remainingShort": "quedan {{amount}}",
+    "tooltipTotal": "Total",
+    "segmentTitle": "{{name}}: {{used}} usados · {{share}} del límite total · {{ofUsed}} de lo usado",
+    "progressTitle": "{{paid}} de {{total}} cuotas pagadas ({{paidAmount}}) · faltan {{left}} de {{all}}"
   }
 }

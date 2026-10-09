@@ -3275,7 +3275,14 @@
       "ratePlaceholder": "条件から計算",
       "hint": "金利を空欄にすると、金額・返済額・期間から算出します（Price 方式）。説明に「融資」を含む支払済みの返済は自動で紐付けられます。",
       "save": "契約を保存"
-    }
+    },
+    "projected": "予測",
+    "paidInMonth": "返済額",
+    "balanceAfter": "返済後の残高",
+    "includesExtra": "繰上返済 {{amount}} を含む",
+    "interestShareLine": "うち{{share}}が利息",
+    "aheadBy": "当初契約より{{amount}}先行",
+    "ofTotalCost": "総コストの{{share}}"
   },
   "notifications": {
     "menu": "メール通知",
@@ -3381,6 +3388,9 @@
     "groupOngoing": "継続中",
     "showAll_one": "さらに {{count}} 件を表示",
     "showAll_other": "さらに {{count}} 件を表示",
-    "remainingShort": "残り {{amount}}"
+    "remainingShort": "残り {{amount}}",
+    "tooltipTotal": "合計",
+    "segmentTitle": "{{name}}: 利用 {{used}} · 総限度額の{{share}} · 利用額の{{ofUsed}}",
+    "progressTitle": "{{total}}回中{{paid}}回支払済み（{{paidAmount}}）· 残り{{left}}／{{all}}"
   }
 }

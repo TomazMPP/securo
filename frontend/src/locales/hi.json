@@ -3275,7 +3275,14 @@
       "ratePlaceholder": "शर्तों से गणना की गई",
       "hint": "राशि, किस्त और अवधि से दर निकालने के लिए दर खाली छोड़ दें (Price प्रणाली)। विवरण में \"फ़ाइनेंसिंग\" वाली पहले से चुकाई गई किस्तें अपने-आप जुड़ जाती हैं।",
       "save": "अनुबंध सहेजें"
-    }
+    },
+    "projected": "अनुमान",
+    "paidInMonth": "किस्त",
+    "balanceAfter": "बाद का शेष",
+    "includesExtra": "{{amount}} का अग्रिम भुगतान शामिल",
+    "interestShareLine": "इसमें {{share}} ब्याज है",
+    "aheadBy": "मूल अनुबंध से {{amount}} आगे",
+    "ofTotalCost": "कुल लागत का {{share}}"
   },
   "notifications": {
     "menu": "ईमेल सूचनाएँ",
@@ -3381,6 +3388,9 @@
     "groupOngoing": "जारी",
     "showAll_one": "{{count}} और योजना दिखाएँ",
     "showAll_other": "{{count}} और योजनाएँ दिखाएँ",
-    "remainingShort": "{{amount}} बाकी"
+    "remainingShort": "{{amount}} बाकी",
+    "tooltipTotal": "कुल",
+    "segmentTitle": "{{name}}: {{used}} उपयोग · कुल सीमा का {{share}} · उपयोग का {{ofUsed}}",
+    "progressTitle": "{{total}} में से {{paid}} किस्तें चुकाई गईं ({{paidAmount}}) · {{all}} में से {{left}} बाकी"
   }
 }

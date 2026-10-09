@@ -3326,7 +3326,14 @@
       "ratePlaceholder": "Розраховується за умовами",
       "hint": "Залиште ставку порожньою, щоб розрахувати її за сумою, внеском і строком (система Price). Уже сплачені внески зі словом «кредит» в описі прив'язуються автоматично.",
       "save": "Зберегти договір"
-    }
+    },
+    "projected": "прогноз",
+    "paidInMonth": "Внесок",
+    "balanceAfter": "Залишок після",
+    "includesExtra": "Включає {{amount}} дострокового погашення",
+    "interestShareLine": "{{share}} з нього — відсотки",
+    "aheadBy": "На {{amount}} випереджає початковий договір",
+    "ofTotalCost": "{{share}} загальної вартості"
   },
   "notifications": {
     "menu": "Сповіщення електронною поштою",
@@ -3446,6 +3453,9 @@
     "showAll_few": "Показати ще {{count}} розстрочки",
     "showAll_many": "Показати ще {{count}} розстрочок",
     "showAll_other": "Показати ще розстрочок: {{count}}",
-    "remainingShort": "залишилося {{amount}}"
+    "remainingShort": "залишилося {{amount}}",
+    "tooltipTotal": "Разом",
+    "segmentTitle": "{{name}}: використано {{used}} · {{share}} загального ліміту · {{ofUsed}} від використаного",
+    "progressTitle": "Сплачено {{paid}} з {{total}} внесків ({{paidAmount}}) · залишилось {{left}} з {{all}}"
   }
 }

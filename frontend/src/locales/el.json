@@ -3275,7 +3275,14 @@
       "ratePlaceholder": "Υπολογίζεται από τους όρους",
       "hint": "Αφήστε το επιτόκιο κενό για να υπολογιστεί από το ποσό, τη δόση και τη διάρκεια (σύστημα Price). Δόσεις που έχουν ήδη πληρωθεί με «χρηματοδότηση» στην περιγραφή συνδέονται αυτόματα.",
       "save": "Αποθήκευση σύμβασης"
-    }
+    },
+    "projected": "πρόβλεψη",
+    "paidInMonth": "Δόση",
+    "balanceAfter": "Υπόλοιπο μετά",
+    "includesExtra": "Περιλαμβάνει {{amount}} πρόωρης εξόφλησης",
+    "interestShareLine": "{{share}} είναι τόκοι",
+    "aheadBy": "{{amount}} μπροστά από την αρχική σύμβαση",
+    "ofTotalCost": "{{share}} του συνολικού κόστους"
   },
   "notifications": {
     "menu": "Ειδοποιήσεις μέσω email",
@@ -3381,6 +3388,9 @@
     "groupOngoing": "Σε εξέλιξη",
     "showAll_one": "Εμφάνιση {{count}} ακόμη προγράμματος",
     "showAll_other": "Εμφάνιση {{count}} ακόμη προγραμμάτων",
-    "remainingShort": "απομένουν {{amount}}"
+    "remainingShort": "απομένουν {{amount}}",
+    "tooltipTotal": "Σύνολο",
+    "segmentTitle": "{{name}}: {{used}} σε χρήση · {{share}} του συνολικού ορίου · {{ofUsed}} της χρήσης",
+    "progressTitle": "{{paid}} από {{total}} δόσεις πληρώθηκαν ({{paidAmount}}) · απομένουν {{left}} από {{all}}"
   }
 }

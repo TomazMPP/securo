@@ -3419,7 +3419,14 @@
       "ratePlaceholder": "Wyliczona z warunków",
       "hint": "Zostaw stopę pustą, aby wyliczyć ją z kwoty, raty i okresu (system Price). Już zapłacone raty ze słowem „finansowanie” w opisie są wiązane automatycznie.",
       "save": "Zapisz umowę"
-    }
+    },
+    "projected": "prognoza",
+    "paidInMonth": "Rata",
+    "balanceAfter": "Saldo po",
+    "includesExtra": "Zawiera {{amount}} nadpłaty",
+    "interestShareLine": "{{share}} to odsetki",
+    "aheadBy": "{{amount}} przed pierwotną umową",
+    "ofTotalCost": "{{share}} całkowitego kosztu"
   },
   "notifications": {
     "menu": "Powiadomienia e-mail",
@@ -3539,6 +3546,9 @@
     "showAll_few": "Pokaż jeszcze {{count}} plany",
     "showAll_many": "Pokaż jeszcze {{count}} planów",
     "showAll_other": "Pokaż więcej planów: {{count}}",
-    "remainingShort": "pozostało {{amount}}"
+    "remainingShort": "pozostało {{amount}}",
+    "tooltipTotal": "Suma",
+    "segmentTitle": "{{name}}: wykorzystano {{used}} · {{share}} łącznego limitu · {{ofUsed}} wykorzystania",
+    "progressTitle": "Zapłacono {{paid}} z {{total}} rat ({{paidAmount}}) · zostało {{left}} z {{all}}"
   }
 }

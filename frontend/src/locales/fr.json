@@ -3291,7 +3291,14 @@
       "ratePlaceholder": "Calculé à partir des conditions",
       "hint": "Laissez le taux vide pour le déduire du montant, de l'échéance et de la durée (système Price). Les échéances déjà payées avec « financement » dans le libellé sont liées automatiquement.",
       "save": "Enregistrer le contrat"
-    }
+    },
+    "projected": "projection",
+    "paidInMonth": "Échéance",
+    "balanceAfter": "Solde après",
+    "includesExtra": "Inclut {{amount}} de remboursement anticipé",
+    "interestShareLine": "{{share}} sont des intérêts",
+    "aheadBy": "{{amount}} d'avance sur le contrat initial",
+    "ofTotalCost": "{{share}} du coût total"
   },
   "notifications": {
     "menu": "Notifications par e-mail",
@@ -3404,6 +3411,9 @@
     "showAll_one": "Afficher {{count}} paiement de plus",
     "showAll_many": "Afficher {{count}} paiements de plus",
     "showAll_other": "Afficher {{count}} paiements de plus",
-    "remainingShort": "{{amount}} restant"
+    "remainingShort": "{{amount}} restant",
+    "tooltipTotal": "Total",
+    "segmentTitle": "{{name}} : {{used}} utilisés · {{share}} de la limite totale · {{ofUsed}} de l'utilisé",
+    "progressTitle": "{{paid}} sur {{total}} échéances payées ({{paidAmount}}) · reste {{left}} sur {{all}}"
   }
 }

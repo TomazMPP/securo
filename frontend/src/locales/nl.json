@@ -3277,7 +3277,14 @@
       "ratePlaceholder": "Berekend uit de voorwaarden",
       "hint": "Laat de rente leeg om die af te leiden uit bedrag, termijn en looptijd (Price-systeem). Al betaalde termijnen met \"financiering\" in de omschrijving worden automatisch gekoppeld.",
       "save": "Contract opslaan"
-    }
+    },
+    "projected": "prognose",
+    "paidInMonth": "Termijn",
+    "balanceAfter": "Saldo daarna",
+    "includesExtra": "Inclusief {{amount}} extra aflossing",
+    "interestShareLine": "{{share}} daarvan is rente",
+    "aheadBy": "{{amount}} voor op het oorspronkelijke contract",
+    "ofTotalCost": "{{share}} van de totale kosten"
   },
   "notifications": {
     "menu": "E-mailmeldingen",
@@ -3383,6 +3390,9 @@
     "groupOngoing": "Lopend",
     "showAll_one": "Nog {{count}} termijnbetaling tonen",
     "showAll_other": "Nog {{count}} termijnbetalingen tonen",
-    "remainingShort": "nog {{amount}}"
+    "remainingShort": "nog {{amount}}",
+    "tooltipTotal": "Totaal",
+    "segmentTitle": "{{name}}: {{used}} gebruikt · {{share}} van de totale limiet · {{ofUsed}} van het gebruik",
+    "progressTitle": "{{paid}} van {{total}} termijnen betaald ({{paidAmount}}) · nog {{left}} van {{all}}"
   }
 }

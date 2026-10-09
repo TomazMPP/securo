@@ -3276,7 +3276,14 @@
       "ratePlaceholder": "Aus den Bedingungen berechnet",
       "hint": "Lass den Zins leer, um ihn aus Betrag, Rate und Laufzeit abzuleiten (Price-System). Bereits gezahlte Raten mit „Finanzierung“ in der Beschreibung werden automatisch verknüpft.",
       "save": "Vertrag speichern"
-    }
+    },
+    "projected": "Prognose",
+    "paidInMonth": "Rate",
+    "balanceAfter": "Saldo danach",
+    "includesExtra": "Enthält {{amount}} Sondertilgung",
+    "interestShareLine": "{{share}} davon sind Zinsen",
+    "aheadBy": "{{amount}} vor dem ursprünglichen Vertrag",
+    "ofTotalCost": "{{share}} der Gesamtkosten"
   },
   "notifications": {
     "menu": "E-Mail-Benachrichtigungen",
@@ -3382,6 +3389,9 @@
     "groupOngoing": "Laufend",
     "showAll_one": "{{count}} weiteren Plan anzeigen",
     "showAll_other": "{{count}} weitere Pläne anzeigen",
-    "remainingShort": "noch {{amount}}"
+    "remainingShort": "noch {{amount}}",
+    "tooltipTotal": "Summe",
+    "segmentTitle": "{{name}}: {{used}} genutzt · {{share}} des Gesamtlimits · {{ofUsed}} der Nutzung",
+    "progressTitle": "{{paid}} von {{total}} Raten bezahlt ({{paidAmount}}) · noch {{left}} von {{all}}"
   }
 }

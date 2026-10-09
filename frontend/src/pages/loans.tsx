@@ -22,6 +22,7 @@ import { sumAccountBalances } from '@/lib/account-utils'
 import { cn } from '@/lib/utils'
 import { simulatePrepayment, type PrepayMode } from '@/lib/loan-math'
 import { costBreakdown, monthlyBars, originalVsActual } from '@/lib/loan-charts'
+import { ChartTooltip } from '@/components/chart-tooltip'
 
 const PRINCIPAL = '#18A058'
 const INTEREST = '#E5484D'
@@ -291,7 +292,6 @@ function ScheduleCharts({ loan, schedule }: { loan: Loan; schedule: LoanSchedule
   const slices = useMemo(() => costBreakdown(schedule), [schedule])
   const todayKey = new Date().toISOString().slice(0, 7)
   const sliceColors: Record<string, string> = { principalPaid: PRINCIPAL, interestPaid: INTEREST, principalLeft: '#B7E4C7', interestLeft: '#F6B7B9' }
-  const tooltipMoney = (v: unknown) => f.money(Number(v))
 
   return (
     <>
@@ -307,7 +307,26 @@ function ScheduleCharts({ loan, schedule }: { loan: Loan; schedule: LoanSchedule
               <XAxis dataKey="key" tickFormatter={f.month} tickLine={false} axisLine={false} fontSize={12} minTickGap={16} />
               <YAxis yAxisId="pay" tickLine={false} axisLine={false} fontSize={12} width={56} tickFormatter={f.compact} />
               <YAxis yAxisId="bal" orientation="right" tickLine={false} axisLine={false} fontSize={12} width={56} tickFormatter={f.compact} />
-              <Tooltip formatter={tooltipMoney} labelFormatter={(k) => f.month(String(k))} />
+              <Tooltip
+                cursor={{ fill: 'var(--secondary)', opacity: 0.6 }}
+                content={({ active, label }) => {
+                  const bar = active ? bars.find((b) => b.key === label) : undefined
+                  if (!bar) return null
+                  return (
+                    <ChartTooltip
+                      title={`${f.month(bar.key)}${bar.projected ? ` · ${t('loans.projected')}` : ''}`}
+                      format={f.money}
+                      totalLabel={t('loans.paidInMonth')}
+                      rows={[
+                        { key: 'principal', label: t('loans.principal'), value: bar.principal, color: PRINCIPAL },
+                        { key: 'interest', label: t('loans.interest'), value: bar.interest, color: INTEREST },
+                        { key: 'balance', label: t('loans.balanceAfter'), value: bar.balance, color: BALANCE, extra: true },
+                      ]}
+                      footer={bar.extra > 0 ? t('loans.includesExtra', { amount: f.money(bar.extra) }) : t('loans.interestShareLine', { share: f.pct(bar.interestShare, 0) })}
+                    />
+                  )
+                }}
+              />
               <Legend wrapperStyle={{ fontSize: 12 }} />
               <ReferenceLine yAxisId="pay" x={todayKey} stroke={MUTED} strokeDasharray="4 4" label={{ value: t('loans.today'), fontSize: 11, fill: MUTED, position: 'top' }} />
               <Bar yAxisId="pay" dataKey="principal" name={t('loans.principal')} stackId="p" fill={PRINCIPAL} radius={[0, 0, 0, 0]}>
@@ -331,7 +350,21 @@ function ScheduleCharts({ loan, schedule }: { loan: Loan; schedule: LoanSchedule
                 <Pie data={slices} dataKey="value" nameKey="key" innerRadius="62%" outerRadius="92%" stroke="none" paddingAngle={1.5}>
                   {slices.map((s) => <Cell key={s.key} fill={sliceColors[s.key]} />)}
                 </Pie>
-                <Tooltip formatter={tooltipMoney} labelFormatter={() => ''} />
+                <Tooltip
+                  content={({ active, payload }) => {
+                    const key = active ? String(payload?.[0]?.name ?? '') : ''
+                    const slice = slices.find((x) => x.key === key)
+                    if (!slice) return null
+                    const total = slices.reduce((sum, x) => sum + x.value, 0) || 1
+                    return (
+                      <ChartTooltip
+                        title={t(`loans.slice.${slice.key}`)}
+                        format={f.money}
+                        rows={[{ key: slice.key, label: t('loans.ofTotalCost', { share: f.pct(slice.value / total, 0) }), value: slice.value, color: sliceColors[slice.key] }]}
+                      />
+                    )
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
             <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
@@ -357,7 +390,24 @@ function ScheduleCharts({ loan, schedule }: { loan: Loan; schedule: LoanSchedule
               <LineChart data={compare} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
                 <XAxis dataKey="key" tickFormatter={f.month} tickLine={false} axisLine={false} fontSize={11} minTickGap={28} />
                 <YAxis hide />
-                <Tooltip formatter={tooltipMoney} labelFormatter={(k) => f.month(String(k))} />
+                <Tooltip
+                  content={({ active, label }) => {
+                    const row = active ? compare.find((r) => r.key === label) : undefined
+                    if (!row) return null
+                    const diff = row.original != null && row.actual != null ? row.original - row.actual : null
+                    return (
+                      <ChartTooltip
+                        title={f.month(row.key)}
+                        format={f.money}
+                        rows={[
+                          ...(row.original != null ? [{ key: 'o', label: t('loans.original'), value: row.original, color: MUTED }] : []),
+                          ...(row.actual != null ? [{ key: 'a', label: t('loans.actual'), value: row.actual, color: BALANCE }] : []),
+                        ]}
+                        footer={diff != null && diff > 1 ? t('loans.aheadBy', { amount: f.money(diff) }) : undefined}
+                      />
+                    )
+                  }}
+                />
                 <Line dataKey="original" name={t('loans.original')} stroke={MUTED} strokeDasharray="5 5" strokeWidth={2} dot={false} connectNulls />
                 <Line dataKey="actual" name={t('loans.actual')} stroke={BALANCE} strokeWidth={2.5} dot={false} connectNulls />
               </LineChart>

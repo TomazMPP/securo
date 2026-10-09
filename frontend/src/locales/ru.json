@@ -3326,7 +3326,14 @@
       "ratePlaceholder": "Рассчитывается по условиям",
       "hint": "Оставьте ставку пустой, чтобы рассчитать её по сумме, платежу и сроку (система Price). Уже внесённые платежи со словом «кредит» в описании привязываются автоматически.",
       "save": "Сохранить договор"
-    }
+    },
+    "projected": "прогноз",
+    "paidInMonth": "Платёж",
+    "balanceAfter": "Остаток после",
+    "includesExtra": "Включает {{amount}} досрочного погашения",
+    "interestShareLine": "{{share}} из него — проценты",
+    "aheadBy": "На {{amount}} опережает исходный договор",
+    "ofTotalCost": "{{share}} от общей стоимости"
   },
   "notifications": {
     "menu": "Уведомления по email",
@@ -3446,6 +3453,9 @@
     "showAll_few": "Показать ещё {{count}} рассрочки",
     "showAll_many": "Показать ещё {{count}} рассрочек",
     "showAll_other": "Показать ещё рассрочек: {{count}}",
-    "remainingShort": "осталось {{amount}}"
+    "remainingShort": "осталось {{amount}}",
+    "tooltipTotal": "Итого",
+    "segmentTitle": "{{name}}: использовано {{used}} · {{share}} общего лимита · {{ofUsed}} от использованного",
+    "progressTitle": "Оплачено {{paid}} из {{total}} платежей ({{paidAmount}}) · осталось {{left}} из {{all}}"
   }
 }

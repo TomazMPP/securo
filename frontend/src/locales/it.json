@@ -3291,7 +3291,14 @@
       "ratePlaceholder": "Calcolato dalle condizioni",
       "hint": "Lascia vuoto il tasso per ricavarlo da importo, rata e durata (sistema Price). Le rate già pagate con \"finanziamento\" nella descrizione vengono collegate automaticamente.",
       "save": "Salva contratto"
-    }
+    },
+    "projected": "proiezione",
+    "paidInMonth": "Rata",
+    "balanceAfter": "Saldo dopo",
+    "includesExtra": "Include {{amount}} di rimborso anticipato",
+    "interestShareLine": "{{share}} sono interessi",
+    "aheadBy": "{{amount}} avanti rispetto al contratto originale",
+    "ofTotalCost": "{{share}} del costo totale"
   },
   "notifications": {
     "menu": "Notifiche via email",
@@ -3404,6 +3411,9 @@
     "showAll_one": "Mostra {{count}} altro piano",
     "showAll_many": "Mostra altri {{count}} piani",
     "showAll_other": "Mostra altri {{count}} piani",
-    "remainingShort": "mancano {{amount}}"
+    "remainingShort": "mancano {{amount}}",
+    "tooltipTotal": "Totale",
+    "segmentTitle": "{{name}}: {{used}} usati · {{share}} del limite totale · {{ofUsed}} dell'utilizzato",
+    "progressTitle": "{{paid}} di {{total}} rate pagate ({{paidAmount}}) · mancano {{left}} su {{all}}"
   }
 }

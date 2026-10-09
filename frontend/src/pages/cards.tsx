@@ -10,6 +10,7 @@ import { PageHeader } from '@/components/page-header'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { CategoryIcon } from '@/components/category-icon'
+import { ChartTooltip } from '@/components/chart-tooltip'
 import { useDisplayLocale } from '@/hooks/use-display-locale'
 import { usePrivacyMode } from '@/hooks/use-privacy-mode'
 import { formatCurrency } from '@/lib/format'
@@ -65,6 +66,7 @@ function CardsContent({ data }: { data: CardsOverview }) {
   const [filter, setFilter] = useState<string | null>(null)
   const plans = filter ? data.plans.filter((p) => p.card_id === filter) : data.plans
   const committedShare = data.total_limit ? data.future_installments / data.total_limit : null
+  const categoriesTotal = data.categories.reduce((sum, c) => sum + c.amount, 0) || 1
 
   return (
     <div className="flex flex-col gap-5">
@@ -76,9 +78,13 @@ function CardsContent({ data }: { data: CardsOverview }) {
               <span className="text-[34px] font-bold tracking-tight tabular-nums">{f.money(data.total_available)}</span>
               <span className="text-sm text-muted-foreground">{t('cards.availableOf', { limit: f.money(data.total_limit) })}</span>
             </div>
-            <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-secondary" aria-hidden>
+            <div className="mt-4 flex h-3 overflow-hidden rounded-full bg-secondary">
               {data.cards.map((c) => data.total_limit > 0 && (
-                <span key={c.id} style={{ width: `${(c.used / data.total_limit) * 100}%`, background: colorOf[c.id] }} />
+                <span
+                  key={c.id}
+                  title={t('cards.segmentTitle', { name: c.name, used: f.money(c.used), share: f.pct(c.used / data.total_limit), ofUsed: f.pct(data.total_used ? c.used / data.total_used : null) })}
+                  style={{ width: `${(c.used / data.total_limit) * 100}%`, background: colorOf[c.id] }}
+                />
               ))}
             </div>
             <div className="mt-2 flex flex-wrap justify-between gap-2 text-[13px] text-muted-foreground">
@@ -125,7 +131,8 @@ function CardsContent({ data }: { data: CardsOverview }) {
                 <div className="flex items-center gap-2.5 text-sm">
                   <CategoryIcon icon={c.icon} color={c.color} size="sm" />
                   <span className="flex-1 truncate font-medium">{c.name || t('cards.uncategorized')}</span>
-                  <span className="font-semibold tabular-nums">{f.money(c.amount)}</span>
+                  <span className="text-[12px] text-muted-foreground tabular-nums">{f.pct(c.amount / categoriesTotal)}</span>
+                  <span className="w-28 text-right font-semibold tabular-nums">{f.money(c.amount)}</span>
                 </div>
                 <div className="mt-1.5 ml-8 h-1.5 overflow-hidden rounded-full bg-secondary"><span className="block h-full rounded-full" style={{ width: `${(c.amount / max) * 100}%`, background: c.color }} /></div>
               </li>
@@ -169,7 +176,25 @@ function MonthChart({ title, hint, rows, cards, colorOf, f }: { title: string; h
               <CartesianGrid vertical={false} stroke="var(--border)" />
               <XAxis dataKey="month" tickFormatter={f.month} tickLine={false} axisLine={false} fontSize={12} minTickGap={8} />
               <YAxis tickLine={false} axisLine={false} fontSize={12} width={52} tickFormatter={f.compact} />
-              <Tooltip formatter={(v, name) => [f.money(Number(v)), cards.find((c) => c.id === name)?.name ?? String(name)]} labelFormatter={(k) => f.monthLong(String(k))} />
+              <Tooltip
+                cursor={{ fill: 'var(--secondary)', opacity: 0.6 }}
+                content={({ active, payload, label }) =>
+                  active && payload?.length ? (
+                    <ChartTooltip
+                      title={f.monthLong(String(label))}
+                      format={f.money}
+                      totalLabel={t('cards.tooltipTotal')}
+                      shares
+                      rows={[...payload].reverse().map((p) => ({
+                        key: String(p.dataKey),
+                        label: cards.find((c) => c.id === p.dataKey)?.name ?? String(p.dataKey),
+                        value: Number(p.value) || 0,
+                        color: colorOf[String(p.dataKey)],
+                      }))}
+                    />
+                  ) : null
+                }
+              />
               <Legend formatter={(id) => cards.find((c) => c.id === id)?.name ?? id} wrapperStyle={{ fontSize: 12 }} />
               {used.map((c, i) => <Bar key={c.id} dataKey={c.id} stackId="c" fill={colorOf[c.id]} radius={i === used.length - 1 ? [4, 4, 0, 0] : [0, 0, 0, 0]} />)}
             </BarChart>
@@ -324,7 +349,10 @@ function PlanRow({ plan, cardName, color, f, highlight }: { plan: InstallmentPla
         </div>
       </div>
       <div className="text-right text-sm font-semibold tabular-nums md:order-3">{f.money(plan.installment)}</div>
-      <div className="col-span-2 flex items-center gap-2.5 md:order-2 md:col-span-1">
+      <div
+        className="col-span-2 flex items-center gap-2.5 md:order-2 md:col-span-1"
+        title={t('cards.progressTitle', { paid: plan.paid, total: plan.total, paidAmount: f.money(plan.installment * plan.paid), left: f.money(plan.remaining_amount), all: f.money(plan.total_amount) })}
+      >
         <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-secondary"><span className="block h-full rounded-full" style={{ width: `${progress * 100}%`, background: highlight ? '#18A058' : color }} /></div>
         <span className="w-11 text-right text-[12px] font-semibold tabular-nums text-muted-foreground">{plan.paid}/{plan.total}</span>
       </div>

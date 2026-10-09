@@ -3291,7 +3291,14 @@
       "ratePlaceholder": "Calculada a partir dos termos",
       "hint": "Deixe a taxa em branco para a calcular a partir do valor, da prestação e do prazo (sistema Price). As prestações já pagas com \"financiamento\" na descrição são associadas automaticamente.",
       "save": "Guardar contrato"
-    }
+    },
+    "projected": "projeção",
+    "paidInMonth": "Prestação",
+    "balanceAfter": "Saldo depois",
+    "includesExtra": "Inclui {{amount}} de amortização antecipada",
+    "interestShareLine": "{{share}} dela é juros",
+    "aheadBy": "{{amount}} à frente do contrato original",
+    "ofTotalCost": "{{share}} do custo total"
   },
   "notifications": {
     "menu": "Notificações por e-mail",
@@ -3404,6 +3411,9 @@
     "showAll_one": "Ver mais {{count}} plano",
     "showAll_many": "Ver mais {{count}} planos",
     "showAll_other": "Ver mais {{count}} planos",
-    "remainingShort": "faltam {{amount}}"
+    "remainingShort": "faltam {{amount}}",
+    "tooltipTotal": "Total",
+    "segmentTitle": "{{name}}: {{used}} usados · {{share}} do limite total · {{ofUsed}} do que está usado",
+    "progressTitle": "{{paid}} de {{total}} prestações pagas ({{paidAmount}}) · faltam {{left}} de {{all}}"
   }
 }

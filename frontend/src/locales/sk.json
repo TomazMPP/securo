@@ -3453,7 +3453,14 @@
       "ratePlaceholder": "Vypočítaná z podmienok",
       "hint": "Nechajte sadzbu prázdnu a odvodí sa zo sumy, splátky a doby splácania (systém Price). Už zaplatené splátky so slovom „financovanie“ v popise sa prepoja automaticky.",
       "save": "Uložiť zmluvu"
-    }
+    },
+    "projected": "prognóza",
+    "paidInMonth": "Splátka",
+    "balanceAfter": "Zostatok potom",
+    "includesExtra": "Zahŕňa {{amount}} mimoriadnej splátky",
+    "interestShareLine": "{{share}} z nej tvoria úroky",
+    "aheadBy": "{{amount}} pred pôvodnou zmluvou",
+    "ofTotalCost": "{{share}} celkových nákladov"
   },
   "notifications": {
     "menu": "E-mailové upozornenia",
@@ -3573,6 +3580,9 @@
     "showAll_few": "Zobraziť ešte {{count}} plány",
     "showAll_many": "Zobraziť ešte {{count}} plánu",
     "showAll_other": "Zobraziť ešte {{count}} plánov",
-    "remainingShort": "zostáva {{amount}}"
+    "remainingShort": "zostáva {{amount}}",
+    "tooltipTotal": "Spolu",
+    "segmentTitle": "{{name}}: využité {{used}} · {{share}} celkového limitu · {{ofUsed}} z využitia",
+    "progressTitle": "Zaplatené {{paid}} z {{total}} splátok ({{paidAmount}}) · zostáva {{left}} z {{all}}"
   }
 }

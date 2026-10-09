@@ -3275,7 +3275,14 @@
       "ratePlaceholder": "Worked out from the terms",
       "hint": "Leave the rate empty to derive it from the amount, installment and term (Price system). Installments already paid with financing in the description are linked automatically.",
       "save": "Save contract"
-    }
+    },
+    "projected": "projection",
+    "paidInMonth": "Installment",
+    "balanceAfter": "Balance after",
+    "includesExtra": "Includes {{amount}} of early repayment",
+    "interestShareLine": "{{share}} of it is interest",
+    "aheadBy": "{{amount}} ahead of the signed contract",
+    "ofTotalCost": "{{share}} of the total cost"
   },
   "notifications": {
     "menu": "Email notifications",
@@ -3381,6 +3388,9 @@
     "groupOngoing": "Ongoing",
     "showAll_one": "Show {{count}} more plan",
     "showAll_other": "Show {{count}} more plans",
-    "remainingShort": "{{amount}} left"
+    "remainingShort": "{{amount}} left",
+    "tooltipTotal": "Total",
+    "segmentTitle": "{{name}}: {{used}} used · {{share}} of the total limit · {{ofUsed}} of what's used",
+    "progressTitle": "{{paid}} of {{total}} installments paid ({{paidAmount}}) · {{left}} left of {{all}}"
   }
 }

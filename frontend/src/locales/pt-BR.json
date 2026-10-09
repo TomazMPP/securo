@@ -3287,7 +3287,14 @@
       "ratePlaceholder": "Calculada pelos termos",
       "hint": "Deixe a taxa em branco para calcular pelo valor, parcela e prazo (sistema Price). Parcelas já pagas com \"financiamento\" na descrição são vinculadas sozinhas.",
       "save": "Salvar contrato"
-    }
+    },
+    "projected": "projeção",
+    "paidInMonth": "Parcela",
+    "balanceAfter": "Saldo depois",
+    "includesExtra": "Inclui {{amount}} de amortização extra",
+    "interestShareLine": "{{share}} dela é juros",
+    "aheadBy": "{{amount}} à frente do contrato original",
+    "ofTotalCost": "{{share}} do custo total"
   },
   "notifications": {
     "menu": "Notificações por email",
@@ -3393,6 +3400,9 @@
     "groupOngoing": "Em andamento",
     "showAll_one": "Ver mais {{count}} parcelamento",
     "showAll_other": "Ver mais {{count}} parcelamentos",
-    "remainingShort": "faltam {{amount}}"
+    "remainingShort": "faltam {{amount}}",
+    "tooltipTotal": "Total",
+    "segmentTitle": "{{name}}: {{used}} usados · {{share}} do limite total · {{ofUsed}} do que está usado",
+    "progressTitle": "{{paid}} de {{total}} parcelas pagas ({{paidAmount}}) · faltam {{left}} de {{all}}"
   }
 }
