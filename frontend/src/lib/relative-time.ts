@@ -15,3 +15,22 @@ export function formatRelative(iso: string): string {
   if (diffD < 7) return `${diffD}d ago`
   return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
+
+/** Localized "1 hour ago" / "há 1 hora" for a past timestamp, at the
+ *  coarsest unit that is at least 1 (minutes, hours, then days).
+ *  Empty for an unparseable date. */
+export function formatTimeAgo(iso: string, locale: string, now = Date.now()): string {
+  const diffMs = now - new Date(iso).getTime()
+  if (Number.isNaN(diffMs)) return ''
+  let rtf: Intl.RelativeTimeFormat
+  try {
+    rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' })
+  } catch {
+    rtf = new Intl.RelativeTimeFormat('en', { numeric: 'auto' })
+  }
+  const minutes = Math.max(0, Math.floor(diffMs / 60000))
+  if (minutes < 60) return rtf.format(-minutes, 'minute')
+  const hours = Math.floor(minutes / 60)
+  if (hours < 24) return rtf.format(-hours, 'hour')
+  return rtf.format(-Math.floor(hours / 24), 'day')
+}
