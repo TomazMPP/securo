@@ -62,6 +62,7 @@ const NAV_ITEMS: StaticItem[] = [
   { id: 'nav-import', labelKey: 'nav.import', icon: Upload, path: '/import', keywords: ['csv', 'ofx', 'importar'], module: 'import' },
   { id: 'nav-reports', labelKey: 'nav.reports', icon: BarChart3, path: '/reports', keywords: ['relatorios', 'relatórios', 'charts'], module: 'reports' },
   { id: 'nav-analysis', labelKey: 'nav.analysis', icon: PieChart, path: '/analysis', keywords: ['analise', 'análise', 'spending', 'gastos'], module: 'reports' },
+  { id: 'nav-loans', labelKey: 'nav.loans', icon: Landmark, path: '/loans', keywords: ['emprestimos', 'empréstimos', 'financiamento', 'financing', 'loan'], module: 'accounts' },
   { id: 'nav-assets', labelKey: 'nav.assets', icon: Landmark, path: '/assets', keywords: ['patrimonio', 'patrimônio'], module: 'assets' },
   { id: 'nav-budgets', labelKey: 'nav.budgets', icon: PiggyBank, path: '/budgets', keywords: ['orcamentos', 'orçamentos'], module: 'budgets' },
   { id: 'nav-goals', labelKey: 'nav.goals', icon: Target, path: '/goals', keywords: ['metas'], module: 'goals' },

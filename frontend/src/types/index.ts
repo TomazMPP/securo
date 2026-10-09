@@ -1878,3 +1878,49 @@ export interface ReconciliationHistoryEvent {
   transaction_id?: string | null
   transaction_description?: string | null
 }
+
+// --- Loans ----------------------------------------------------------------
+// Loan and financing contracts pulled from Open Finance (Pluggy /loans).
+// Money and rates arrive as decimal strings; rates are fractions
+// ("0.0129" = 1.29%).
+
+export type LoanKind = 'LOAN' | 'FINANCING' | 'INVOICE_FINANCING' | 'UNARRANGED_ACCOUNT_OVERDRAFT'
+
+export interface LoanPayment {
+  date: string
+  amount: string
+  installment_id: string | null
+  over_parcel: boolean
+}
+
+export interface Loan {
+  id: string
+  connection_id: string | null
+  source: string
+  institution_name: string | null
+  contract_number: string | null
+  product_name: string | null
+  loan_type: string | null
+  kind: LoanKind | string | null
+  currency: string
+  contract_amount: string | null
+  outstanding_balance: string | null
+  cet: string | null
+  monthly_rate: string | null
+  amortization_system: string | null
+  installment_periodicity: string | null
+  total_installments: number | null
+  paid_installments: number | null
+  remaining_installments: number | null
+  overdue_installments: number | null
+  installment_amount: string | null
+  contract_date: string | null
+  first_installment_date: string | null
+  final_due_date: string | null
+  next_due_date: string | null
+  payments: LoanPayment[]
+  warranties: Record<string, unknown>[]
+  contracted_fees: Record<string, unknown>[]
+  is_active: boolean
+  last_synced_at: string | null
+}

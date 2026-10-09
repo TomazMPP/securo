@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { NumberFormat, DateFormat } from '@/lib/format'
 import type {
   User,
+  Loan,
   AdminUser,
   AdminUserList,
   Passkey,
@@ -1476,6 +1477,17 @@ export const collections = {
 }
 
 // Period analysis — where the money in one date range went
+export const loans = {
+  list: async (includeInactive = false): Promise<Loan[]> => {
+    const { data } = await api.get('/loans', { params: includeInactive ? { include_inactive: true } : {} })
+    return data
+  },
+  get: async (id: string): Promise<Loan> => {
+    const { data } = await api.get(`/loans/${id}`)
+    return data
+  },
+}
+
 export const analysis = {
   period: async (start: string, end: string, accountIds?: string[]): Promise<PeriodAnalysis> => {
     const extra = acctIdsParam(accountIds)
