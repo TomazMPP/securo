@@ -1896,6 +1896,7 @@ export interface LoanPayment {
 export interface Loan {
   id: string
   connection_id: string | null
+  account_id: string | null
   source: string
   institution_name: string | null
   contract_number: string | null
@@ -1923,4 +1924,94 @@ export interface Loan {
   contracted_fees: Record<string, unknown>[]
   is_active: boolean
   last_synced_at: string | null
+}
+
+// --- Email notifications ---------------------------------------------------
+
+export type NotificationKind = 'monthly' | 'weekly' | 'bills' | 'alerts'
+
+export interface NotificationPrefs {
+  enabled: boolean
+  email: string | null
+  monthly_report: boolean
+  weekly_digest: boolean
+  bill_reminders: boolean
+  bill_reminder_days: number
+  spend_alerts: boolean
+  large_transaction_threshold: number
+  budget_alerts: boolean
+  category_spike_alerts: boolean
+  connection_alerts: boolean
+  send_hour: number
+}
+
+export interface NotificationSettings {
+  preferences: NotificationPrefs
+  email_configured: boolean
+  recipient: string
+}
+
+export interface ManualLoanInput {
+  account_id?: string | null
+  product_name: string
+  institution_name?: string | null
+  kind?: string
+  contract_amount: number
+  installment_amount: number
+  total_installments: number
+  contract_date: string
+  first_installment_date: string
+  monthly_rate?: number | null
+}
+
+export interface LoanScheduledPayment {
+  date: string
+  amount: number
+  kind: 'installment' | 'extra'
+  interest: number
+  principal: number
+  balance_after: number
+  payment_id: string | null
+  transaction_id: string | null
+  description: string | null
+}
+
+export interface LoanProjectedInstallment {
+  date: string
+  payment: number
+  interest: number
+  principal: number
+  balance_after: number
+}
+
+export interface LoanSchedule {
+  rate: number
+  installment: number
+  principal: number
+  balance: number
+  balance_today: number
+  interest_paid: number
+  principal_paid: number
+  projected_interest: number
+  total_interest: number
+  baseline_interest: number
+  interest_saved: number
+  months_saved: number
+  paid_installments: number
+  remaining_installments: number
+  next_due: string | null
+  payoff_date: string | null
+  baseline_end: string | null
+  payments: LoanScheduledPayment[]
+  projected: LoanProjectedInstallment[]
+}
+
+export interface LoanPaymentSuggestion {
+  transaction_id: string
+  date: string
+  description: string
+  amount: number
+  account_name: string
+  kind: 'installment' | 'extra'
+  reason: string
 }

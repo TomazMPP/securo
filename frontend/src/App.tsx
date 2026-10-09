@@ -32,6 +32,7 @@ const AssetsPage = lazy(() => import('@/pages/assets'))
 const ReportsPage = lazy(() => import('@/pages/reports'))
 const AnalysisPage = lazy(() => import('@/pages/analysis'))
 const LoansPage = lazy(() => import('@/pages/loans'))
+const NotificationsPage = lazy(() => import('@/pages/notifications'))
 const PayeesPage = lazy(() => import('@/pages/payees'))
 const GroupsPage = lazy(() => import('@/pages/groups'))
 const GroupDetailPage = lazy(() => import('@/pages/group-detail'))
@@ -125,6 +126,7 @@ function App() {
                   <Route path="/invoices/products" element={<ModuleRoute module="invoices"><ProductsPage /></ModuleRoute>} />
                   <Route path="/invoices/:id" element={<ModuleRoute module="invoices"><InvoiceDetailPage /></ModuleRoute>} />
                   <Route path="/workspace/settings" element={<WorkspaceSettingsPage />} />
+                  <Route path="/settings/notifications" element={<NotificationsPage />} />
                   <Route path="/admin" element={<AdminRoute><AdminSettingsPage /></AdminRoute>} />
                   <Route path="/agents" element={<AgentsRoute><AgentsListPage /></AgentsRoute>} />
                   <Route path="/agents/connections" element={<AgentsRoute><AgentConnectionsPage /></AgentsRoute>} />

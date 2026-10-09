@@ -3,6 +3,12 @@ import type { NumberFormat, DateFormat } from '@/lib/format'
 import type {
   User,
   Loan,
+  LoanPaymentSuggestion,
+  LoanSchedule,
+  ManualLoanInput,
+  NotificationKind,
+  NotificationPrefs,
+  NotificationSettings,
   AdminUser,
   AdminUserList,
   Passkey,
@@ -1477,6 +1483,25 @@ export const collections = {
 }
 
 // Period analysis — where the money in one date range went
+export const notifications = {
+  get: async (): Promise<NotificationSettings> => {
+    const { data } = await api.get('/notifications/preferences')
+    return data
+  },
+  update: async (prefs: NotificationPrefs): Promise<NotificationSettings> => {
+    const { data } = await api.put('/notifications/preferences', prefs)
+    return data
+  },
+  sendTest: async (kind: NotificationKind): Promise<{ sent: boolean; to: string }> => {
+    const { data } = await api.post(`/notifications/test/${kind}`)
+    return data
+  },
+  preview: async (kind: NotificationKind): Promise<string> => {
+    const { data } = await api.get(`/notifications/preview/${kind}`, { responseType: 'text' })
+    return data
+  },
+}
+
 export const loans = {
   list: async (includeInactive = false): Promise<Loan[]> => {
     const { data } = await api.get('/loans', { params: includeInactive ? { include_inactive: true } : {} })
@@ -1484,6 +1509,33 @@ export const loans = {
   },
   get: async (id: string): Promise<Loan> => {
     const { data } = await api.get(`/loans/${id}`)
+    return data
+  },
+  createManual: async (body: ManualLoanInput): Promise<Loan> => {
+    const { data } = await api.post('/loans/manual', body)
+    return data
+  },
+  update: async (id: string, body: Partial<ManualLoanInput>): Promise<Loan> => {
+    const { data } = await api.patch(`/loans/${id}`, body)
+    return data
+  },
+  remove: async (id: string): Promise<void> => {
+    await api.delete(`/loans/${id}`)
+  },
+  schedule: async (id: string): Promise<LoanSchedule> => {
+    const { data } = await api.get(`/loans/${id}/schedule`)
+    return data
+  },
+  suggestions: async (id: string): Promise<LoanPaymentSuggestion[]> => {
+    const { data } = await api.get(`/loans/${id}/suggestions`)
+    return data
+  },
+  linkPayment: async (id: string, transactionId: string, kind: 'installment' | 'extra'): Promise<Loan> => {
+    const { data } = await api.post(`/loans/${id}/payments`, { transaction_id: transactionId, kind })
+    return data
+  },
+  unlinkPayment: async (id: string, transactionId: string): Promise<Loan> => {
+    const { data } = await api.delete(`/loans/${id}/payments/${transactionId}`)
     return data
   },
 }

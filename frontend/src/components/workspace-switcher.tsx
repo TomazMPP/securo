@@ -39,6 +39,7 @@ import {
   KeyRound,
   Languages,
   LogOut,
+  Mail,
   Plus,
   Settings,
   Shield,
@@ -244,6 +245,13 @@ export function WorkspaceSwitcher({
           )}
 
           {/* Account actions */}
+          <DropdownMenuItem
+            onClick={() => navigate('/settings/notifications')}
+            className="flex items-center gap-2"
+          >
+            <Mail size={14} />
+            {t('notifications.menu')}
+          </DropdownMenuItem>
           {localAuthEnabled && (
             <DropdownMenuItem
               onClick={onChangePassword}
