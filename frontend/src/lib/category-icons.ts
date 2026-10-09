@@ -147,6 +147,8 @@ export const CATEGORY_ICONS: CategoryIconEntry[] = [
   { name: 'cat', label: 'Pet / Gato', icon: Cat },
   { name: 'paw-print', label: 'Pet shop / Veterinário', icon: PawPrint },
   { name: 'hand-heart', label: 'Doações', icon: HandHeart },
+  // Seeded by the backend for the default "Donations" category.
+  { name: 'heart-handshake', label: 'Caridade / Doação', icon: Handshake },
   { name: 'church', label: 'Igreja / Dízimo', icon: Church },
   // Serviços & Outros
   { name: 'hammer', label: 'Construção / Reforma', icon: Hammer },
