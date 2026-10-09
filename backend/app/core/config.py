@@ -60,6 +60,11 @@ class Settings(BaseSettings):
     # Frontend
     frontend_url: str = "http://localhost:5173"
 
+    # Email notifications (monthly report, weekly digest, alerts). Sent through
+    # Resend's HTTP API; with no key the notification jobs log and skip.
+    resend_api_key: str = ""
+    email_from: str = ""
+
     # WebAuthn / passkeys
     webauthn_rp_name: str = "Securo"
     # Empty means the RP ID follows the domain the browser is on, which is what

@@ -46,6 +46,12 @@ celery_app.conf.beat_schedule = {
         # AssetValue so history stays at one row per day per asset.
         "schedule": 60 * 60 * 24,
     },
+    "send-due-notifications-hourly": {
+        "task": "app.tasks.notification_tasks.send_due_notifications",
+        # Hourly; each email kind has a local-time window and a dedupe key,
+        # so a run only sends what is due and not yet sent.
+        "schedule": 60 * 60,
+    },
     "sync-fx-rates-daily": {
         "task": "app.tasks.fx_rate_tasks.sync_fx_rates",
         "schedule": 60 * 60 * 12,  # twice daily (~60 API calls/month)
@@ -68,6 +74,7 @@ celery_app.conf.include = [
     "app.tasks.invoice_schedule_tasks",
     "app.tasks.asset_tasks",
     "app.tasks.fx_rate_tasks",
+    "app.tasks.notification_tasks",
     # Optional agents module — registering the import is harmless when
     # AGENTS_ENABLED=false (the task just won't be dispatched).
     "app.agents.tasks.ingest",

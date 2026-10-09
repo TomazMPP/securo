@@ -72,6 +72,8 @@ ALLOWLIST: dict[tuple[str, str], str] = {
     ("PATCH", "/api/workspaces/{workspace_id}/members/{member_user_id}"): "owner floor inside the handler",
     ("DELETE", "/api/workspaces/{workspace_id}/members/{member_user_id}"): "owner floor inside the handler",
     # Deliberate: a POST that persists nothing. See the comment on the route.
+    ("PUT", "/api/notifications/preferences"): "the requester's own notification preferences",
+    ("POST", "/api/notifications/test/{kind}"): "emails the requester their own report; writes nothing",
     ("POST", "/api/transactions/import/preview"): "parses an upload and returns a preview; writes nothing",
     # Same shape for investment orders: the upload has to be a body, and the
     # dry run only reports what an import would do.
