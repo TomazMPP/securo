@@ -46,7 +46,7 @@ describe('nav catalog', () => {
   // Fork: the Breakdown page (/analysis) is a second view of the reports
   // module and Loans one of the accounts module, so they share those
   // modules rather than adding their own.
-  const SHARED_MODULE_LINKS = ['analysis', 'loans']
+  const SHARED_MODULE_LINKS = ['analysis', 'loans', 'cards']
 
   it('gives every other link a distinct module', () => {
     const covered = navItems
@@ -64,6 +64,7 @@ describe('visibleNavItems', () => {
       'recurring',
       'import',
       'accounts',
+      'cards',
       'loans',
       'categories',
       'budgets',

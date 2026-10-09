@@ -2,6 +2,7 @@ import axios from 'axios'
 import type { NumberFormat, DateFormat } from '@/lib/format'
 import type {
   User,
+  CardsOverview,
   Loan,
   LoanPaymentSuggestion,
   LoanSchedule,
@@ -1498,6 +1499,13 @@ export const notifications = {
   },
   preview: async (kind: NotificationKind): Promise<string> => {
     const { data } = await api.get(`/notifications/preview/${kind}`, { responseType: 'text' })
+    return data
+  },
+}
+
+export const cards = {
+  overview: async (): Promise<CardsOverview> => {
+    const { data } = await api.get('/cards/overview')
     return data
   },
 }

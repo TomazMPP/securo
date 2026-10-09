@@ -2015,3 +2015,69 @@ export interface LoanPaymentSuggestion {
   kind: 'installment' | 'extra'
   reason: string
 }
+
+// --- Credit cards overview -------------------------------------------------
+
+export interface CardSummary {
+  id: string
+  name: string
+  institution: string | null
+  logo_url: string | null
+  limit: number | null
+  used: number
+  available: number | null
+  utilization: number | null
+  close_day: number | null
+  due_day: number | null
+  next_close: string | null
+  next_due: string | null
+  best_day: number | null
+  current_bill: number
+  bill_month: string | null
+  closed_bill: number | null
+  closed_due: string | null
+  installments_in_bill: number
+  active_plans: number
+}
+
+export interface InstallmentPlan {
+  key: string
+  card_id: string
+  description: string
+  category: string | null
+  category_color: string | null
+  category_icon: string | null
+  installment: number
+  total: number
+  paid: number
+  remaining: number
+  remaining_amount: number
+  total_amount: number
+  purchase_date: string | null
+  first_month: string
+  last_month: string
+}
+
+export interface CardsMonth {
+  month: string
+  by_card: Record<string, number>
+  total: number
+}
+
+export interface CardsOverview {
+  currency: string
+  total_limit: number
+  total_used: number
+  total_available: number
+  utilization: number | null
+  open_bills: number
+  closed_bills: number
+  future_installments: number
+  monthly_installments: number
+  freed_next_3_months: number
+  cards: CardSummary[]
+  plans: InstallmentPlan[]
+  commitments: CardsMonth[]
+  history: CardsMonth[]
+  categories: { name: string; color: string; icon: string; amount: number }[]
+}
