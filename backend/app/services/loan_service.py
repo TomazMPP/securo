@@ -124,6 +124,7 @@ async def recompute(session: AsyncSession, loan: Loan) -> Optional[Schedule]:
         await session.execute(delete(Transaction).where(Transaction.id.in_(old_mirrors)))
 
     account = await session.get(Account, loan.account_id) if loan.account_id else None
+    links: list[tuple[LoanPayment, Transaction]] = []
     for split in sched.payments:
         lp, tx = by_id[split.ref]
         lp.principal = Decimal(str(split.principal))
@@ -146,6 +147,11 @@ async def recompute(session: AsyncSession, loan: Loan) -> Optional[Schedule]:
             notes="Principal part of a payment matched to this loan. Managed by Securo.",
         )
         session.add(mirror)
+        links.append((lp, mirror))
+    # The mirror ids are plain FK values (no relationship), so the unit of
+    # work can't order the inserts for us: write the mirrors first.
+    await session.flush()
+    for lp, mirror in links:
         lp.mirror_transaction_id = mirror.id
     await session.flush()
     return sched

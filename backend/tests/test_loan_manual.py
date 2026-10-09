@@ -210,3 +210,41 @@ async def test_schedule_needs_terms(client: AsyncClient, auth_headers, session, 
     await session.commit()
     assert (await client.get(f"/api/loans/{loan.id}/schedule", headers=auth_headers)).status_code == 404
     assert loan_service.can_schedule(loan) is False
+
+
+async def test_mirrors_respect_foreign_keys_on_postgres(postgres_sessions):
+    """SQLite doesn't enforce the mirror foreign key; PostgreSQL does, and
+    the payment rows must not point at a mirror before it is inserted."""
+    from app.models.user import User
+    from app.models.workspace import Workspace
+
+    async with postgres_sessions() as session:
+        user = User(id=uuid.uuid4(), email="pg@example.com", hashed_password="x", is_active=True,
+                    is_superuser=False, is_verified=True)
+        session.add(user)
+        await session.flush()
+        ws = Workspace(id=uuid.uuid4(), name="W", created_by_user_id=user.id)
+        session.add(ws)
+        await session.flush()
+        checking = Account(id=uuid.uuid4(), user_id=user.id, workspace_id=ws.id, name="itau", type="checking",
+                           balance=Decimal("0"), currency="BRL")
+        loan_acct = Account(id=uuid.uuid4(), user_id=user.id, workspace_id=ws.id, name="Fin", type="loan",
+                            balance=Decimal("0"), currency="BRL")
+        session.add_all([checking, loan_acct])
+        await session.flush()
+        for d, desc in [(date(2026, 8, 21), "PAGTO FINANC VEIC 01/24"), (date(2026, 9, 21), "PAGTO FINANC VEIC 02/24")]:
+            session.add(Transaction(id=uuid.uuid4(), user_id=user.id, workspace_id=ws.id, account_id=checking.id,
+                                    description=desc, amount=Decimal("3956.54"), currency="BRL", type="debit",
+                                    date=d, source="sync", status="posted"))
+        loan = Loan(workspace_id=ws.id, user_id=user.id, source="manual", external_id="m", account_id=loan_acct.id,
+                    currency="BRL", contract_amount=Decimal(str(PRINCIPAL)), installment_amount=Decimal(str(INSTALLMENT)),
+                    total_installments=N, contract_date=CONTRACT, first_installment_date=FIRST_DUE, is_active=True)
+        session.add(loan)
+        await session.flush()
+        assert await loan_service.auto_link(session, loan) == 2
+        await loan_service.recompute(session, loan)  # rewriting existing mirrors must work too
+        await session.commit()
+        mirrors = (await session.execute(
+            select(Transaction).where(Transaction.account_id == loan_acct.id, Transaction.source == "loan_payment")
+        )).scalars().all()
+        assert len(mirrors) == 2
