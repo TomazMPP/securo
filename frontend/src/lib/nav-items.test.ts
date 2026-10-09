@@ -44,8 +44,9 @@ describe('nav catalog', () => {
   })
 
   // Fork: the Breakdown page (/analysis) is a second view of the reports
-  // module, so it shares that module rather than adding one of its own.
-  const SHARED_MODULE_LINKS = ['analysis']
+  // module and Loans one of the accounts module, so they share those
+  // modules rather than adding their own.
+  const SHARED_MODULE_LINKS = ['analysis', 'loans']
 
   it('gives every other link a distinct module', () => {
     const covered = navItems
@@ -60,21 +61,22 @@ describe('visibleNavItems', () => {
     const personal = visibleNavItems(navItems, (id) => PERSONAL_MODULES.includes(id))
     expect(linkKeys(personal)).toEqual([
       'transactions',
-      'accounts',
+      'recurring',
       'import',
+      'accounts',
+      'loans',
+      'categories',
+      'budgets',
+      'goals',
       'reports',
       'analysis',
       'assets',
-      'budgets',
-      'goals',
-      'recurring',
-      'categories',
       'payees',
       'splitGroups',
       'rules',
     ])
-    // All three section headers survive.
-    expect(personal.filter((i) => i.type === 'separator')).toHaveLength(3)
+    // All four section headers survive.
+    expect(personal.filter((i) => i.type === 'separator')).toHaveLength(4)
   })
 
   it('adds invoices for a workspace that has it', () => {
@@ -101,7 +103,7 @@ describe('visibleNavItems', () => {
   it('keeps a section header while any of its links remain', () => {
     const result = visibleNavItems(navItems, allExcept('transactions', 'invoices'))
     const labels = result.filter((i) => i.type === 'separator').map((i) => i.labelKey)
-    expect(labels).toContain('nav.groupAccounts')
+    expect(labels).toContain('nav.groupControl')
     expect(linkKeys(result)).toContain('accounts')
   })
 

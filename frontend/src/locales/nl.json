@@ -133,7 +133,11 @@
     "aiAgents": "AI-agents",
     "collapseSidebar": "Zijbalk inklappen",
     "expandSidebar": "Zijbalk uitklappen",
-    "analysis": "Uitsplitsing"
+    "analysis": "Uitsplitsing",
+    "groupDaily": "Dagelijks",
+    "groupControl": "Beheer",
+    "groupStrategy": "Strategie",
+    "loans": "Leningen"
   },
   "invoices": {
     "title": "Invoices",

@@ -133,7 +133,11 @@
     "aiAgents": "Agentes IA",
     "collapseSidebar": "Contraer barra lateral",
     "expandSidebar": "Expandir barra lateral",
-    "analysis": "Desglose"
+    "analysis": "Desglose",
+    "groupDaily": "Día a día",
+    "groupControl": "Control",
+    "groupStrategy": "Estrategia",
+    "loans": "Préstamos"
   },
   "invoices": {
     "title": "Invoices",

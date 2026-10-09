@@ -133,7 +133,11 @@
     "aiAgents": "KI-Agenten",
     "collapseSidebar": "Seitenleiste einklappen",
     "expandSidebar": "Seitenleiste ausklappen",
-    "analysis": "Aufschlüsselung"
+    "analysis": "Aufschlüsselung",
+    "groupDaily": "Alltag",
+    "groupControl": "Kontrolle",
+    "groupStrategy": "Strategie",
+    "loans": "Kredite"
   },
   "invoices": {
     "title": "Invoices",

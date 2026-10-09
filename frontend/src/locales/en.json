@@ -133,7 +133,11 @@
     "aiAgents": "AI Agents",
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar",
-    "analysis": "Breakdown"
+    "analysis": "Breakdown",
+    "groupDaily": "Day to day",
+    "groupControl": "Control",
+    "groupStrategy": "Strategy",
+    "loans": "Loans"
   },
   "invoices": {
     "title": "Invoices",

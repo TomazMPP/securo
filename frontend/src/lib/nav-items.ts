@@ -3,6 +3,7 @@ import {
   BarChart3,
   Building2,
   Landmark,
+  Layers,
   PieChart,
   PiggyBank,
   Receipt,
@@ -31,24 +32,24 @@ export type NavItem =
   | { type: 'separator'; labelKey: string }
 
 export const navItems: NavItem[] = [
-  // The dashboard ("Painel") is now reachable by clicking the Securo
-  // logo + name in the sidebar header — no dedicated menu item to keep
-  // the sidebar focused on the main destinations. Transactions sits
-  // inside the ACCOUNTS section since it's account-scoped data.
-  { type: 'separator', labelKey: 'nav.groupAccounts' },
+  // The dashboard ("Visão geral") is reachable by clicking the Securo
+  // logo + name in the sidebar header — no dedicated menu item.
+  { type: 'separator', labelKey: 'nav.groupDaily' },
   { type: 'link', key: 'transactions', path: '/transactions', icon: ArrowLeftRight, module: 'transactions' },
   { type: 'link', key: 'invoices', path: '/invoices', icon: Receipt, module: 'invoices' },
-  { type: 'link', key: 'accounts', path: '/accounts', icon: Building2, module: 'accounts' },
+  { type: 'link', key: 'recurring', path: '/recurring', icon: Repeat, module: 'recurring' },
   { type: 'link', key: 'import', path: '/import', icon: Upload, module: 'import' },
-  { type: 'separator', labelKey: 'nav.groupAnalysis' },
-  { type: 'link', key: 'reports', path: '/reports', icon: BarChart3, module: 'reports' },
-  { type: 'link', key: 'analysis', path: '/analysis', icon: PieChart, module: 'reports' },
-  { type: 'link', key: 'assets', path: '/assets', icon: Landmark, module: 'assets' },
-  { type: 'separator', labelKey: 'nav.groupSetup' },
+  { type: 'separator', labelKey: 'nav.groupControl' },
+  { type: 'link', key: 'accounts', path: '/accounts', icon: Building2, module: 'accounts' },
+  { type: 'link', key: 'loans', path: '/loans', icon: Landmark, module: 'accounts' },
+  { type: 'link', key: 'categories', path: '/categories', icon: Tag, module: 'categories' },
   { type: 'link', key: 'budgets', path: '/budgets', icon: PiggyBank, module: 'budgets' },
   { type: 'link', key: 'goals', path: '/goals', icon: Target, module: 'goals' },
-  { type: 'link', key: 'recurring', path: '/recurring', icon: Repeat, module: 'recurring' },
-  { type: 'link', key: 'categories', path: '/categories', icon: Tag, module: 'categories' },
+  { type: 'separator', labelKey: 'nav.groupStrategy' },
+  { type: 'link', key: 'reports', path: '/reports', icon: BarChart3, module: 'reports' },
+  { type: 'link', key: 'analysis', path: '/analysis', icon: PieChart, module: 'reports' },
+  { type: 'link', key: 'assets', path: '/assets', icon: Layers, module: 'assets' },
+  { type: 'separator', labelKey: 'nav.groupSetup' },
   { type: 'link', key: 'payees', path: '/payees', icon: Users, module: 'payees' },
   { type: 'link', key: 'splitGroups', path: '/groups', icon: Split, module: 'split_groups' },
   { type: 'link', key: 'rules', path: '/rules', icon: SlidersHorizontal, module: 'rules' },

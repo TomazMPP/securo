@@ -133,7 +133,11 @@
     "aiAgents": "Βοηθοί AI",
     "collapseSidebar": "Σύμπτυξη πλευρικής γραμμής",
     "expandSidebar": "Ανάπτυξη πλευρικής γραμμής",
-    "analysis": "Κατανομή"
+    "analysis": "Κατανομή",
+    "groupDaily": "Καθημερινά",
+    "groupControl": "Έλεγχος",
+    "groupStrategy": "Στρατηγική",
+    "loans": "Δάνεια"
   },
   "invoices": {
     "title": "Τιμολόγια",

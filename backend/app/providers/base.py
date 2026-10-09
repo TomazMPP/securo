@@ -175,6 +175,41 @@ class HoldingData:
 
 
 @dataclass
+class LoanData:
+    """A normalized loan / financing contract, provider-agnostic.
+
+    Rates are fractions (0.0129 = 1.29%). `installment_amount` and
+    `next_due_date` are best-effort derivations: Open Finance reports the
+    counts and the payment history but not the value or date of the next
+    installment.
+    """
+
+    external_id: str
+    currency: str = "BRL"
+    contract_number: Optional[str] = None
+    product_name: Optional[str] = None
+    loan_type: Optional[str] = None
+    kind: Optional[str] = None
+    contract_amount: Optional[Decimal] = None
+    outstanding_balance: Optional[Decimal] = None
+    cet: Optional[Decimal] = None
+    monthly_rate: Optional[Decimal] = None
+    amortization_system: Optional[str] = None
+    installment_periodicity: Optional[str] = None
+    total_installments: Optional[int] = None
+    paid_installments: Optional[int] = None
+    remaining_installments: Optional[int] = None
+    overdue_installments: Optional[int] = None
+    installment_amount: Optional[Decimal] = None
+    contract_date: Optional[date] = None
+    first_installment_date: Optional[date] = None
+    final_due_date: Optional[date] = None
+    next_due_date: Optional[date] = None
+    payments: Optional[list] = None
+    raw_data: Optional[dict] = None
+
+
+@dataclass
 class InstitutionData:
     """One ASPSP/bank offered by an OAuth provider."""
 
@@ -381,6 +416,14 @@ class BankProvider(ABC):
         Providers that don't expose holdings (cash-only accounts, custom
         script providers without brokerage data, etc.) can rely on the
         default empty list.
+        """
+        return []
+
+    async def get_loans(self, credentials: dict) -> list["LoanData"]:
+        """Fetch loan and financing contracts for a connection.
+
+        Only Open Finance aggregators expose credit operations; every other
+        provider keeps the default empty list.
         """
         return []
 

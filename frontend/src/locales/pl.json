@@ -133,7 +133,11 @@
     "collapseSidebar": "Zwiń pasek boczny",
     "expandSidebar": "Rozwiń pasek boczny",
     "collections": "Kolekcje",
-    "analysis": "Zestawienie"
+    "analysis": "Zestawienie",
+    "groupDaily": "Na co dzień",
+    "groupControl": "Kontrola",
+    "groupStrategy": "Strategia",
+    "loans": "Kredyty"
   },
   "invoices": {
     "title": "Invoices",

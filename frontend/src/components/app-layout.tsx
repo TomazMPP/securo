@@ -1,11 +1,7 @@
 import { useState, useCallback, useEffect, useMemo, lazy, Suspense } from 'react'
-import { getAccountName, sortAccountsByAbsoluteBalance, sumAccountBalances } from '@/lib/account-utils'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
-import { useDisplayLocale } from '@/hooks/use-display-locale'
-import { useQuery } from '@tanstack/react-query'
 import { useAuth } from '@/contexts/auth-context'
-import { useCollectionFilter } from '@/contexts/collection-filter-context'
 import { useWorkspace } from '@/contexts/workspace-context'
 import { useSidebarState } from '@/contexts/sidebar-state-context'
 import { CollectionSelector } from '@/components/collection-selector'
@@ -13,7 +9,6 @@ import { auth as authApi, admin as adminApi } from '@/lib/api'
 import { resolveSupportedLang } from '@/lib/i18n'
 import { OnboardingTour } from '@/components/onboarding-tour'
 import { useTheme } from 'next-themes'
-import { accounts as accountsApi } from '@/lib/api'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import {
@@ -63,7 +58,6 @@ import { useFeatureFlags } from '@/hooks/use-feature-flags'
 import { Bot, Plus, Search, Sparkles } from 'lucide-react'
 import { setThemeBasedOnSystem } from '@/lib/theme-utils'
 import { useLocalAuthEnabled } from '@/hooks/use-local-auth'
-import { formatCurrency } from '@/lib/format'
 
 const QuickAddTransaction = lazy(() => import('@/components/quick-add-transaction'))
 
@@ -91,17 +85,12 @@ function NavSkeleton() {
 export function AppLayout() {
   const { t } = useTranslation()
   const { user, logout, updateUser } = useAuth()
-  const { activeAccountIds } = useCollectionFilter()
-  const userCurrency = user?.preferences?.currency_display ?? 'USD'
-  const locale = useDisplayLocale()
   const { theme, setTheme, resolvedTheme } = useTheme()
   const location = useLocation()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [quickAddOpen, setQuickAddOpen] = useState(false)
   const { collapsed: desktopSidebarCollapsed, toggleCollapsed: toggleDesktopSidebar } = useSidebarState()
-  const [accountsExpanded, setAccountsExpanded] = useState(true)
-  const [accountsShowAll, setAccountsShowAll] = useState(false)
-  const { privacyMode, togglePrivacyMode, mask } = usePrivacyMode()
+  const { privacyMode, togglePrivacyMode } = usePrivacyMode()
   const [changePasswordOpen, setChangePasswordOpen] = useState(false)
   const [twoFactorOpen, setTwoFactorOpen] = useState(false)
   const [passkeysOpen, setPasskeysOpen] = useState(false)
@@ -184,18 +173,6 @@ export function AppLayout() {
       window.matchMedia?.('(prefers-color-scheme: dark)').matches
   const toggleTheme = () => setTheme(isDark ? 'light' : 'dark')
 
-  const { data: accountsList } = useQuery({
-    queryKey: ['accounts'],
-    queryFn: () => accountsApi.list(),
-  })
-
-  const allAccounts = accountsList ?? []
-  // When a collection is active, the sidebar list + total reflect only its
-  // accounts (issue #105). null = all accounts.
-  const visibleAccounts = activeAccountIds
-    ? allAccounts.filter((a) => activeAccountIds.includes(a.id))
-    : allAccounts
-  const totalBalance = sumAccountBalances(visibleAccounts)
   const versionA11yLabel = t('app.versionAriaLabel', { version: APP_VERSION })
 
   return (
@@ -287,9 +264,9 @@ export function AppLayout() {
         <aside
           data-collapsed={desktopSidebarCollapsed}
           className={cn(
-            'group/sidebar fixed inset-y-0 left-0 z-50 w-60 bg-sidebar border-r border-sidebar-border flex flex-col transform transition-[transform,width] duration-300 ease-in-out motion-reduce:transition-none lg:translate-x-0 shrink-0',
+            'group/sidebar fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-sidebar-border flex flex-col transform transition-[transform,width] duration-300 ease-in-out motion-reduce:transition-none lg:translate-x-0 shrink-0',
             sidebarOpen ? 'translate-x-0' : '-translate-x-full',
-            desktopSidebarCollapsed ? 'lg:w-16' : 'lg:w-60',
+            desktopSidebarCollapsed ? 'lg:w-16' : 'lg:w-64',
           )}
         >
           {/* Logo — clickable link to the dashboard. Replaces the
@@ -300,7 +277,7 @@ export function AppLayout() {
               so nothing the expanded header offers goes missing in the
               rail. */}
           <div className={cn(
-            'flex h-16 min-h-16 items-center justify-between px-5 border-b border-sidebar-border shrink-0',
+            'flex h-16 min-h-16 items-center justify-between px-5 shrink-0',
             desktopSidebarCollapsed && 'lg:h-auto lg:min-h-0 lg:flex-col lg:justify-center lg:gap-2 lg:px-0 lg:py-3',
           )}>
             <Link
@@ -388,14 +365,14 @@ export function AppLayout() {
               type="button"
               onClick={() => setPaletteOpen(true)}
               className={cn(
-                'group flex w-full items-center gap-2 rounded-lg border border-sidebar-border/80 bg-sidebar-accent/40 px-3 py-2',
-                'text-[12.5px] text-sidebar-muted transition-all',
-                'hover:bg-sidebar-accent hover:text-sidebar-foreground hover:border-sidebar-border',
+                'group flex h-11 w-full items-center gap-2.5 rounded-xl border border-sidebar-border bg-card px-3',
+                'text-sm text-sidebar-muted transition-colors',
+                'hover:text-sidebar-foreground hover:border-input',
                 desktopSidebarCollapsed && 'lg:justify-center lg:px-0',
               )}
               aria-label={t('cmdk.triggerAria')}
             >
-              <Search size={13} className="shrink-0" />
+              <Search size={16} className="shrink-0" />
               <span className={cn('flex-1 text-left', desktopSidebarCollapsed && 'lg:hidden')}>{t('cmdk.triggerLabel')}</span>
               <kbd className={cn('hidden lg:inline-flex h-[17px] items-center rounded border border-sidebar-border bg-sidebar px-1 font-mono text-[9.5px] font-semibold text-sidebar-muted/80', desktopSidebarCollapsed && 'lg:hidden')}>
                 {isMac ? '⌘' : 'Ctrl'}&nbsp;K
@@ -419,10 +396,10 @@ export function AppLayout() {
                 const isFirstSep = idx === 0
                 return (
                   <div key={`sep-${idx}`} className={cn(
-                    isFirstSep ? 'pt-1 pb-1 px-3' : 'pt-3 pb-1 px-3',
+                    isFirstSep ? 'pt-3 pb-1.5 px-3' : 'pt-5 pb-1.5 px-3',
                     desktopSidebarCollapsed && 'lg:hidden',
                   )}>
-                    <span className="text-[10px] uppercase tracking-[0.12em] font-semibold text-sidebar-muted/50">
+                    <span className="text-[11px] uppercase tracking-[0.06em] font-semibold text-sidebar-muted">
                       {t(item.labelKey)}
                     </span>
                   </div>
@@ -444,18 +421,18 @@ export function AppLayout() {
                   title={t(`nav.${item.key}`)}
                   aria-label={t(`nav.${item.key}`)}
                   className={cn(
-                    'flex items-center gap-3 text-[13px] font-medium transition-all rounded-lg px-3 py-2',
+                    'flex min-h-11 items-center gap-3 rounded-xl px-3 text-[14.5px] font-medium transition-colors',
                     isActive
-                      ? 'bg-primary/[0.08] text-primary border-l-[3px] border-primary pl-[9px]'
-                      : 'text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground',
-                    desktopSidebarCollapsed && 'lg:h-10 lg:w-10 lg:justify-center lg:border-l-0 lg:px-0 lg:pl-0',
+                      ? 'bg-sidebar-accent text-sidebar-accent-foreground font-semibold'
+                      : 'text-foreground/75 hover:bg-secondary hover:text-sidebar-foreground',
+                    desktopSidebarCollapsed && 'lg:h-10 lg:min-h-10 lg:w-10 lg:justify-center lg:px-0',
                   )}
                 >
                   <Icon
-                    size={17}
+                    size={18}
                     className={cn(
                       'shrink-0',
-                      isActive ? 'text-primary' : 'text-sidebar-muted',
+                      isActive ? 'text-sidebar-accent-foreground' : 'text-sidebar-muted',
                       desktopSidebarCollapsed && 'lg:h-5 lg:w-5',
                     )}
                   />
@@ -486,77 +463,6 @@ export function AppLayout() {
             })}
           </nav>
 
-          {/* Account list in sidebar */}
-          {allAccounts.length > 0 && (
-            <div className={cn('px-3 pb-2 mt-2', desktopSidebarCollapsed && 'lg:hidden')}>
-              <button
-                onClick={() => setAccountsExpanded(!accountsExpanded)}
-                className="flex items-center justify-between w-full px-3 py-2 hover:text-sidebar-foreground transition-colors"
-              >
-                <span className="text-[11px] uppercase tracking-[0.12em] font-semibold text-sidebar-muted">
-                  {t('accounts.title')}
-                </span>
-                <div className="flex items-center gap-2">
-                  <span
-                    className={`tabular-nums font-medium text-xs ${totalBalance < 0 ? 'text-rose-400' : 'text-sidebar-muted'}`}
-                  >
-                    {mask(formatCurrency(totalBalance, userCurrency, locale))}
-                  </span>
-                  <ChevronRight
-                    size={12}
-                    className={cn(
-                      'text-sidebar-muted transition-transform',
-                      accountsExpanded && 'rotate-90',
-                    )}
-                  />
-                </div>
-              </button>
-              {accountsExpanded && (
-                <div className="mt-1 space-y-0.5">
-                  {sortAccountsByAbsoluteBalance(visibleAccounts, (a) => a.balance_primary ?? a.current_balance).slice(0, accountsShowAll ? visibleAccounts.length : 3).map((acc) => {
-                    const balance = Number(acc.balance_primary ?? acc.current_balance) || 0
-                    const balanceCurrency = acc.balance_primary != null ? userCurrency : acc.currency
-                    const typeKey = acc.type.replace(/_([a-z])/g, (_, c: string) => c.toUpperCase()).replace(/^./, c => c.toUpperCase())
-
-                    return (
-                      <Link
-                        key={acc.id}
-                        to={`/accounts/${acc.id}`}
-                        onClick={() => setSidebarOpen(false)}
-                        className="flex items-center justify-between px-3 py-1.5 rounded-lg text-xs text-sidebar-muted hover:bg-sidebar-accent hover:text-sidebar-foreground transition-all"
-                      >
-                        <div className="truncate min-w-0">
-                          <span className="block truncate font-medium">{getAccountName(acc)}</span>
-                          <span className="block text-[10px] text-sidebar-muted/60">
-                            {t(`accounts.type${typeKey}`)}
-                            {acc.shared_balance_group && ` · ${t('accounts.sharedCreditBalance')}`}
-                          </span>
-                        </div>
-                        <div className="text-right shrink-0 ml-2">
-                          <span className={`block tabular-nums font-medium text-xs ${balance < 0 ? 'text-rose-400' : 'text-sidebar-foreground'}`}>
-                            {mask(formatCurrency(balance, balanceCurrency, locale))}
-                          </span>
-                        </div>
-                      </Link>
-                    )
-                  })}
-                  {visibleAccounts.length > 3 && (
-                    <button
-                      onClick={() => setAccountsShowAll(!accountsShowAll)}
-                      className="w-full px-3 py-1.5 text-[11px] font-medium text-sidebar-muted/70 hover:text-sidebar-foreground transition-colors text-center"
-                    >
-                      {accountsShowAll
-                        ? t('common.showLess', { defaultValue: 'Show less' })
-                        : t('common.showMore', {
-                            count: visibleAccounts.length - 3,
-                            defaultValue: `+${visibleAccounts.length - 3} more`,
-                          })}
-                    </button>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
           </div>
 
           <div className={cn(desktopSidebarCollapsed && 'lg:hidden')}>
@@ -597,9 +503,9 @@ export function AppLayout() {
         {/* Main content */}
         <main className={cn(
           'flex-1 min-h-screen overflow-x-hidden transition-[margin] duration-300 ease-in-out motion-reduce:transition-none',
-          desktopSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-60',
+          desktopSidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64',
         )}>
-          <div className="p-6 max-w-7xl mx-auto">
+          <div className="mx-auto max-w-[1440px] px-4 py-5 sm:px-6 lg:px-8 lg:py-6">
             {/* Active-collection filter (issue #105): sticky bar above the
                 content so the scope is visible right where the data is. */}
             <CollectionSelector variant="header" />

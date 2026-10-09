@@ -133,7 +133,11 @@
     "aiAgents": "ИИ-агенты",
     "collapseSidebar": "Свернуть боковую панель",
     "expandSidebar": "Развернуть боковую панель",
-    "analysis": "Детализация"
+    "analysis": "Детализация",
+    "groupDaily": "Каждый день",
+    "groupControl": "Контроль",
+    "groupStrategy": "Стратегия",
+    "loans": "Кредиты"
   },
   "invoices": {
     "title": "Invoices",

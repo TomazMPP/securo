@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,70 +6,70 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  --background: #F8F9FB;
-  --foreground: #0F172A;
+  --background: #F5F6F8;
+  --foreground: #14161A;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #14161A;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #6366F1;
+  --popover-foreground: #14161A;
+  --primary: #2456E6;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #EEF2FF;
-  --accent-foreground: #4F46E5;
-  --destructive: #F43F5E;
+  --secondary: #F1F3F6;
+  --secondary-foreground: #14161A;
+  --muted: #F1F3F6;
+  --muted-foreground: #5F6672;
+  --accent: #E6EDFF;
+  --accent-foreground: #1F4BD8;
+  --destructive: #D63A3A;
   --destructive-foreground: #FFFFFF;
-  --border: #E8ECF1;
-  --input: #E8ECF1;
-  --ring: #6366F1;
-  --radius: 0.625rem;
-  --chart-1: #6366F1;
-  --chart-2: #8B5CF6;
-  --chart-3: #10B981;
-  --chart-4: #F59E0B;
-  --chart-5: #F43F5E;
-  --sidebar: #FFFFFF;
-  --sidebar-foreground: #0F172A;
-  --sidebar-primary: #6366F1;
+  --border: #E8EAEE;
+  --input: #E1E4E9;
+  --ring: #2456E6;
+  --radius: 0.875rem;
+  --chart-1: #2456E6;
+  --chart-2: #18A58A;
+  --chart-3: #F2A93B;
+  --chart-4: #E8608A;
+  --chart-5: #8B5CF6;
+  --sidebar: #FBFBFC;
+  --sidebar-foreground: #14161A;
+  --sidebar-primary: #2456E6;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #F1F5F9;
-  --sidebar-accent-foreground: #4F46E5;
-  --sidebar-border: #E8ECF1;
-  --sidebar-ring: #6366F1;
-  --sidebar-muted: #64748B;
+  --sidebar-accent: #E6EDFF;
+  --sidebar-accent-foreground: #1F4BD8;
+  --sidebar-border: #E8EAEE;
+  --sidebar-ring: #2456E6;
+  --sidebar-muted: #6B7280;
 }
 
 .dark {
-  --background: #0C0D12;
-  --foreground: #F0F0F5;
-  --card: #16171F;
-  --card-foreground: #F0F0F5;
-  --popover: #16171F;
-  --popover-foreground: #F0F0F5;
-  --primary: #818CF8;
+  --background: #0E1014;
+  --foreground: #F1F3F6;
+  --card: #171A20;
+  --card-foreground: #F1F3F6;
+  --popover: #171A20;
+  --popover-foreground: #F1F3F6;
+  --primary: #5B85FF;
   --primary-foreground: #FFFFFF;
-  --secondary: #252836;
+  --secondary: #232730;
   --secondary-foreground: #F0F0F5;
-  --muted: #252836;
-  --muted-foreground: #8A8F9E;
-  --accent: #1E1B4B;
-  --accent-foreground: #A5B4FC;
+  --muted: #232730;
+  --muted-foreground: #9AA1AD;
+  --accent: #1B2645;
+  --accent-foreground: #A9BEFF;
   --destructive: #FB7185;
   --destructive-foreground: #0C0D12;
-  --border: #2A2D3A;
-  --input: #2A2D3A;
-  --ring: #818CF8;
-  --sidebar: #16171F;
+  --border: #2A2E37;
+  --input: #2A2E37;
+  --ring: #5B85FF;
+  --sidebar: #13161B;
   --sidebar-foreground: #F0F0F5;
-  --sidebar-primary: #818CF8;
+  --sidebar-primary: #5B85FF;
   --sidebar-primary-foreground: #FFFFFF;
-  --sidebar-accent: #252836;
-  --sidebar-accent-foreground: #A5B4FC;
-  --sidebar-border: #2A2D3A;
-  --sidebar-ring: #818CF8;
+  --sidebar-accent: #1B2645;
+  --sidebar-accent-foreground: #A9BEFF;
+  --sidebar-border: #2A2E37;
+  --sidebar-ring: #5B85FF;
   --sidebar-muted: #8A8F9E;
 }
 
@@ -121,13 +121,16 @@
   }
   body {
     @apply bg-background text-foreground;
-    font-family: 'Geist', 'Inter', system-ui, -apple-system, sans-serif;
-    font-feature-settings: "cv02","cv03","cv04","cv11";
+    font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   h1, h2, h3 {
-    letter-spacing: -0.035em;
+    letter-spacing: -0.02em;
+  }
+  /* Money columns line up: every figure is tabular across the app. */
+  .tabular-nums, [data-money] {
+    font-variant-numeric: tabular-nums;
   }
 }
 

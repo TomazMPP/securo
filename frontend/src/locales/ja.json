@@ -133,7 +133,11 @@
     "aiAgents": "AIエージェント",
     "collapseSidebar": "サイドバーを折りたたむ",
     "expandSidebar": "サイドバーを展開する",
-    "analysis": "内訳"
+    "analysis": "内訳",
+    "groupDaily": "日々",
+    "groupControl": "管理",
+    "groupStrategy": "戦略",
+    "loans": "ローン"
   },
   "invoices": {
     "title": "請求書",

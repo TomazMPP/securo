@@ -23,6 +23,7 @@ from app.models.institution import Institution
 from app.models.goal import Goal
 from app.models.collection import collection_asset_groups
 from app.models.credit_card_bill import CreditCardBill
+from app.models.loan import Loan
 from app.models.payee import Payee, PayeeMapping
 from app.models.transaction import Transaction
 from app.models.user import User
@@ -244,6 +245,75 @@ def _sync_assets_enabled(settings: Optional[dict]) -> bool:
     connection via Connection settings without disabling account/transaction sync.
     """
     return (settings or {}).get("sync_assets", True) is not False
+
+
+async def _sync_loans(
+    session: AsyncSession,
+    user_id: uuid.UUID,
+    connection: BankConnection,
+    credentials: dict,
+) -> None:
+    """Fetch loan / financing contracts and upsert them as Loan rows.
+
+    Keyed by (workspace_id, source, external_id). A contract that stops
+    coming back (settled, or the consent no longer covers it) is marked
+    inactive rather than deleted, so its history stays visible.
+
+    Provider failures are swallowed like holdings: credit operations are an
+    optional Open Finance product and must not break the account sync.
+    """
+    try:
+        provider = get_provider(connection.provider)
+        loans = await provider.get_loans(credentials)
+    except SessionExpiredError:
+        raise
+    except Exception:  # noqa: BLE001
+        logger.exception("Failed to fetch loans for connection %s", connection.id)
+        return
+
+    now = datetime.now(timezone.utc)
+    source = connection.provider
+    seen: set[str] = set()
+    for data in loans:
+        seen.add(data.external_id)
+        loan = await session.scalar(
+            select(Loan).where(
+                Loan.workspace_id == connection.workspace_id,
+                Loan.source == source,
+                Loan.external_id == data.external_id,
+            )
+        )
+        if loan is None:
+            loan = Loan(
+                workspace_id=connection.workspace_id,
+                user_id=user_id,
+                source=source,
+                external_id=data.external_id,
+            )
+            session.add(loan)
+        loan.connection_id = connection.id
+        loan.institution_name = connection.display_name or connection.institution_name
+        for field in (
+            "currency", "contract_number", "product_name", "loan_type", "kind",
+            "contract_amount", "outstanding_balance", "cet", "monthly_rate",
+            "amortization_system", "installment_periodicity", "total_installments",
+            "paid_installments", "remaining_installments", "overdue_installments",
+            "installment_amount", "contract_date", "first_installment_date",
+            "final_due_date", "next_due_date", "payments", "raw_data",
+        ):
+            setattr(loan, field, getattr(data, field))
+        loan.is_active = True
+        loan.last_synced_at = now
+
+    stale = select(Loan).where(
+        Loan.connection_id == connection.id,
+        Loan.is_active.is_(True),
+    )
+    if seen:
+        stale = stale.where(Loan.external_id.not_in(seen))
+    for loan in (await session.execute(stale)).scalars():
+        loan.is_active = False
+    await session.flush()
 
 
 async def _sync_holdings(
@@ -1294,6 +1364,7 @@ async def handle_oauth_callback(
     # available on the Assets page immediately after the widget closes.
     if _sync_assets_enabled(connection.settings):
         await _sync_holdings(session, user_id, connection, connection_data.credentials)
+    await _sync_loans(session, user_id, connection, connection_data.credentials)
 
     connection.last_sync_at = datetime.now(timezone.utc)
     await session.commit()
@@ -2412,6 +2483,7 @@ async def sync_connection(
         # /investments shouldn't block the transaction sync that just succeeded.
         if _sync_assets_enabled(conn_settings):
             await _sync_holdings(session, user_id, connection, credentials)
+        await _sync_loans(session, user_id, connection, credentials)
 
         # Reap institution rows referenced by nothing. Id-carrying servers
         # never orphan a row (renames update in place), but a name-only

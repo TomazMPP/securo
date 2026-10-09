@@ -18,6 +18,7 @@ from app.providers.base import (
     ConnectionData,
     ConnectTokenData,
     HoldingData,
+    LoanData,
     RefreshOutcome,
     TransactionData,
     mask_last4,
@@ -302,6 +303,139 @@ def _build_holding_data(inv: dict) -> HoldingData:
         maturity_date=_date_or_none(inv.get("dueDate")),
         is_withdrawn=pluggy_status == "TOTAL_WITHDRAWAL",
         metadata=metadata or None,
+    )
+
+
+_MONTHLY_PERIODICITIES = {"MENSAL", "MONTHLY"}
+
+
+def _rate_fraction(value) -> Optional[Decimal]:
+    """Open Finance reports rates as fractions (0.0129); some institutions
+    send percentages (1.29). Anything above 1 is read as a percentage."""
+    rate = _decimal_or_none(value)
+    if rate is None:
+        return None
+    return rate / 100 if rate > 1 else rate
+
+
+def _monthly_rate(interest_rates: list) -> Optional[Decimal]:
+    """The contract's fixed rate expressed per month, when it has one.
+
+    Annual rates (taxPeriodicity "AA") are converted with compound
+    interest; post-fixed (indexed) contracts return None, since their
+    monthly cost isn't known in advance.
+    """
+    for entry in interest_rates or []:
+        rate = _rate_fraction(entry.get("preFixedRate"))
+        if not rate:
+            continue
+        periodicity = str(entry.get("taxPeriodicity") or "").upper()
+        if periodicity in {"AA", "ANUAL", "YEARLY", "ANNUAL"}:
+            return Decimal(str((1 + float(rate)) ** (1 / 12) - 1)).quantize(Decimal("0.000001"))
+        return rate
+    return None
+
+
+def _add_months(start: date, months: int) -> date:
+    year = start.year + (start.month - 1 + months) // 12
+    month = (start.month - 1 + months) % 12 + 1
+    # Clamp to the month's last day (a 31st due date in a 30-day month).
+    for day in (start.day, 30, 29, 28):
+        try:
+            return date(year, month, day)
+        except ValueError:
+            continue
+    return date(year, month, 28)
+
+
+def _build_loan_data(raw: dict) -> Optional[LoanData]:
+    """Normalize a Pluggy /loans entry.
+
+    Open Finance gives counts (paid, due, overdue) and the payment history
+    but no "next installment" — the value comes from the latest regular
+    payment, falling back to the Price formula for fixed-rate contracts,
+    and the date from the first due date advanced by the paid count.
+    """
+    external_id = raw.get("id")
+    if not external_id:
+        return None
+    installments = raw.get("installments") or {}
+    payments_block = raw.get("payments") or {}
+
+    payments = []
+    for rel in payments_block.get("releases") or []:
+        paid_on = _date_or_none(rel.get("paidDate"))
+        amount = _decimal_or_none(rel.get("paidAmount"))
+        if paid_on is None or amount is None:
+            continue
+        payments.append({
+            "date": paid_on.isoformat(),
+            "amount": str(amount),
+            "installment_id": rel.get("installmentId"),
+            "over_parcel": bool(rel.get("isOverParcelPayment")),
+        })
+    payments.sort(key=lambda p: p["date"], reverse=True)
+
+    def _int(value) -> Optional[int]:
+        try:
+            return int(value) if value is not None else None
+        except (TypeError, ValueError):
+            return None
+
+    total = _int(installments.get("totalNumberOfInstallments"))
+    paid = _int(installments.get("paidInstallments"))
+    remaining = _int(installments.get("dueInstallments"))
+    if remaining is None:
+        remaining = _int(installments.get("contractRemainingNumber"))
+    overdue = _int(installments.get("pastDueInstallments"))
+    outstanding = _decimal_or_none(payments_block.get("contractOutstandingBalance"))
+    monthly_rate = _monthly_rate(raw.get("interestRates") or [])
+    amortization = raw.get("amortizationScheduled")
+
+    installment_amount: Optional[Decimal] = None
+    regular = [p for p in payments if not p["over_parcel"]]
+    if regular:
+        installment_amount = Decimal(regular[0]["amount"])
+    elif outstanding and remaining and monthly_rate and str(amortization).upper() == "PRICE":
+        i = float(monthly_rate)
+        pmt = float(outstanding) * i / (1 - (1 + i) ** -remaining)
+        installment_amount = Decimal(str(round(pmt, 2)))
+
+    first_due = _date_or_none(raw.get("firstInstallmentDueDate"))
+    periodicity = raw.get("installmentPeriodicity")
+    next_due: Optional[date] = None
+    if first_due and paid is not None and str(periodicity or "").upper() in _MONTHLY_PERIODICITIES:
+        if total is None or paid < total:
+            next_due = _add_months(first_due, paid)
+
+    return LoanData(
+        external_id=str(external_id),
+        currency=raw.get("currencyCode") or "BRL",
+        contract_number=raw.get("contractNumber") or raw.get("ipocCode"),
+        product_name=raw.get("productName"),
+        loan_type=raw.get("type"),
+        kind=raw.get("kind"),
+        contract_amount=_decimal_or_none(raw.get("contractAmount")),
+        outstanding_balance=outstanding,
+        cet=_rate_fraction(raw.get("CET")),
+        monthly_rate=monthly_rate,
+        amortization_system=amortization,
+        installment_periodicity=periodicity,
+        total_installments=total,
+        paid_installments=paid,
+        remaining_installments=remaining,
+        overdue_installments=overdue,
+        installment_amount=installment_amount,
+        contract_date=_date_or_none(raw.get("contractDate")),
+        first_installment_date=first_due,
+        final_due_date=_date_or_none(raw.get("dueDate")),
+        next_due_date=next_due,
+        payments=payments,
+        raw_data={
+            k: raw.get(k)
+            for k in ("warranties", "contractedFees", "contractedFinanceCharges", "interestRates", "disbursementDates", "settlementDate", "cnpjConsignee")
+            if raw.get(k) is not None
+        },
     )
 
 
@@ -811,6 +945,42 @@ class PluggyProvider(BankProvider):
                 page += 1
 
         return holdings
+
+    async def get_loans(self, credentials: dict) -> list[LoanData]:
+        """Fetch loan and financing contracts from Pluggy /loans.
+
+        Only Open Finance items whose consent covers credit operations
+        return anything; for the rest the list is empty. Items created
+        through MeuPluggy can't be refreshed from here, so new contracts
+        appear after MeuPluggy's own sync collects the LOANS product.
+        """
+        item_id = credentials["item_id"]
+        headers = await self._headers()
+        loans: list[LoanData] = []
+        page = 1
+
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            while True:
+                resp = await client.get(
+                    f"{PLUGGY_API_BASE}/loans",
+                    headers=headers,
+                    params={"itemId": item_id, "pageSize": 500, "page": page},
+                )
+                resp.raise_for_status()
+                data = resp.json()
+
+                results = data.get("results", [])
+                for raw in results:
+                    loan = _build_loan_data(raw)
+                    if loan is not None:
+                        loans.append(loan)
+
+                total_pages = data.get("totalPages", 1)
+                if page >= total_pages or not results:
+                    break
+                page += 1
+
+        return loans
 
     async def get_bills(self, credentials: dict, account_external_id: str) -> list[BillData]:
         """Fetch credit-card bills from Pluggy /bills.

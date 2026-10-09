@@ -108,7 +108,7 @@
     }
   },
   "nav": {
-    "dashboard": "Painel",
+    "dashboard": "Visão geral",
     "transactions": "Transações",
     "invoices": "Cobranças",
     "accounts": "Contas",
@@ -133,7 +133,11 @@
     "aiAgents": "Agentes IA",
     "collapseSidebar": "Recolher barra lateral",
     "expandSidebar": "Expandir barra lateral",
-    "analysis": "Detalhamento"
+    "analysis": "Breakdown",
+    "groupDaily": "Dia a dia",
+    "groupControl": "Controle",
+    "groupStrategy": "Estratégia",
+    "loans": "Empréstimos"
   },
   "invoices": {
     "title": "Cobranças",
