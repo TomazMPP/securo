@@ -3368,6 +3368,19 @@
     "remainingUntil": "απομένουν {{amount}} · έως {{month}}",
     "categoriesTitle": "Ανοιχτοί λογαριασμοί ανά κατηγορία",
     "noSpending": "Καμία αγορά ακόμη στους ανοιχτούς λογαριασμούς.",
-    "seeTransactions": "Προβολή συναλλαγών"
+    "seeTransactions": "Προβολή συναλλαγών",
+    "uncategorized": "Χωρίς κατηγορία",
+    "billInstallmentsLine_one": "εκ των οποίων {{amount}} σε δόσεις ({{count}} πρόγραμμα)",
+    "billInstallmentsLine_other": "εκ των οποίων {{amount}} σε δόσεις ({{count}} προγράμματα)",
+    "colPurchase": "Αγορά",
+    "colProgress": "Πληρωμένες",
+    "colInstallment": "Ανά μήνα",
+    "colRemaining": "Υπόλοιπο",
+    "colEnds": "Τελευταίος λογαριασμός",
+    "groupEnding": "Λήγουν στους επόμενους 3 λογαριασμούς · αποδεσμεύουν {{amount}} τον μήνα",
+    "groupOngoing": "Σε εξέλιξη",
+    "showAll_one": "Εμφάνιση {{count}} ακόμη προγράμματος",
+    "showAll_other": "Εμφάνιση {{count}} ακόμη προγραμμάτων",
+    "remainingShort": "απομένουν {{amount}}"
   }
 }

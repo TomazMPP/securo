@@ -3522,6 +3522,23 @@
     "remainingUntil": "pozostało {{amount}} · do {{month}}",
     "categoriesTitle": "Otwarte rachunki według kategorii",
     "noSpending": "Brak zakupów na otwartych rachunkach.",
-    "seeTransactions": "Zobacz transakcje"
+    "seeTransactions": "Zobacz transakcje",
+    "uncategorized": "Nieskategoryzowane",
+    "billInstallmentsLine_one": "w tym {{amount}} w ratach ({{count}} plan)",
+    "billInstallmentsLine_few": "w tym {{amount}} w ratach ({{count}} plany)",
+    "billInstallmentsLine_many": "w tym {{amount}} w ratach ({{count}} planów)",
+    "billInstallmentsLine_other": "w tym {{amount}} w ratach (plany: {{count}})",
+    "colPurchase": "Zakup",
+    "colProgress": "Zapłacone",
+    "colInstallment": "Miesięcznie",
+    "colRemaining": "Do zapłaty",
+    "colEnds": "Ostatni rachunek",
+    "groupEnding": "Kończą się w ciągu najbliższych 3 rachunków · zwolnią {{amount}} miesięcznie",
+    "groupOngoing": "W trakcie",
+    "showAll_one": "Pokaż jeszcze {{count}} plan",
+    "showAll_few": "Pokaż jeszcze {{count}} plany",
+    "showAll_many": "Pokaż jeszcze {{count}} planów",
+    "showAll_other": "Pokaż więcej planów: {{count}}",
+    "remainingShort": "pozostało {{amount}}"
   }
 }

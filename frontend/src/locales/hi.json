@@ -3368,6 +3368,19 @@
     "remainingUntil": "{{amount}} बाकी · {{month}} तक",
     "categoriesTitle": "श्रेणी के अनुसार खुले बिल",
     "noSpending": "खुले बिलों में अभी कोई ख़रीद नहीं।",
-    "seeTransactions": "लेन-देन देखें"
+    "seeTransactions": "लेन-देन देखें",
+    "uncategorized": "अवर्गीकृत",
+    "billInstallmentsLine_one": "इसमें से {{amount}} किस्तों में ({{count}} योजना)",
+    "billInstallmentsLine_other": "इसमें से {{amount}} किस्तों में ({{count}} योजनाएँ)",
+    "colPurchase": "खरीद",
+    "colProgress": "चुकाई गईं",
+    "colInstallment": "प्रति माह",
+    "colRemaining": "बाकी भुगतान",
+    "colEnds": "अंतिम बिल",
+    "groupEnding": "अगले 3 बिलों में ख़त्म · हर महीने {{amount}} खाली करेंगी",
+    "groupOngoing": "जारी",
+    "showAll_one": "{{count}} और योजना दिखाएँ",
+    "showAll_other": "{{count}} और योजनाएँ दिखाएँ",
+    "remainingShort": "{{amount}} बाकी"
   }
 }

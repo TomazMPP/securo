@@ -125,3 +125,14 @@ async def test_api_overview(client: AsyncClient, auth_headers, cards_data):
 async def test_api_without_cards(client: AsyncClient, auth_headers, test_workspace):
     body = (await client.get("/api/cards/overview", headers=auth_headers)).json()
     assert body["cards"] == [] and body["total_limit"] == 0
+
+
+async def test_open_bill_counts_installments_the_bank_has_not_booked_yet(session, test_workspace, cards_data):
+    _, xp = cards_data
+    o = await _overview(session, test_workspace)
+    card = next(c for c in o.cards if c.id == xp.id)
+    # XP booked only installment 2/3 (Nov bill); the open bill is Nov, so
+    # nothing is missing there.
+    assert card.projected_in_bill == 0
+    plan = next(p for p in o.plans if p.description.startswith("INSIDER"))
+    assert plan.booked == {"2026-11"}

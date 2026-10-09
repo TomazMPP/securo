@@ -3429,6 +3429,23 @@
     "remainingUntil": "залишилося {{amount}} · до {{month}}",
     "categoriesTitle": "Відкриті рахунки за категоріями",
     "noSpending": "У відкритих рахунках поки немає покупок.",
-    "seeTransactions": "Переглянути транзакції"
+    "seeTransactions": "Переглянути транзакції",
+    "uncategorized": "Без категорії",
+    "billInstallmentsLine_one": "з них {{amount}} у розстрочку ({{count}} розстрочка)",
+    "billInstallmentsLine_few": "з них {{amount}} у розстрочку ({{count}} розстрочки)",
+    "billInstallmentsLine_many": "з них {{amount}} у розстрочку ({{count}} розстрочок)",
+    "billInstallmentsLine_other": "з них {{amount}} у розстрочку (розстрочок: {{count}})",
+    "colPurchase": "Покупка",
+    "colProgress": "Сплачено",
+    "colInstallment": "На місяць",
+    "colRemaining": "Залишилося",
+    "colEnds": "Останній рахунок",
+    "groupEnding": "Завершаться в найближчі 3 рахунки · звільнять {{amount}} на місяць",
+    "groupOngoing": "Поточні",
+    "showAll_one": "Показати ще {{count}} розстрочку",
+    "showAll_few": "Показати ще {{count}} розстрочки",
+    "showAll_many": "Показати ще {{count}} розстрочок",
+    "showAll_other": "Показати ще розстрочок: {{count}}",
+    "remainingShort": "залишилося {{amount}}"
   }
 }

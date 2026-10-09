@@ -3380,6 +3380,19 @@
     "remainingUntil": "faltam {{amount}} · até {{month}}",
     "categoriesTitle": "Faturas abertas por categoria",
     "noSpending": "Nenhuma compra nas faturas abertas ainda.",
-    "seeTransactions": "Ver transações"
+    "seeTransactions": "Ver transações",
+    "uncategorized": "Sem categoria",
+    "billInstallmentsLine_one": "{{amount}} dela em parcelas ({{count}} parcelamento)",
+    "billInstallmentsLine_other": "{{amount}} dela em parcelas ({{count}} parcelamentos)",
+    "colPurchase": "Compra",
+    "colProgress": "Pagas",
+    "colInstallment": "Por mês",
+    "colRemaining": "Falta pagar",
+    "colEnds": "Última fatura",
+    "groupEnding": "Terminam nas próximas 3 faturas · liberam {{amount}} por mês",
+    "groupOngoing": "Em andamento",
+    "showAll_one": "Ver mais {{count}} parcelamento",
+    "showAll_other": "Ver mais {{count}} parcelamentos",
+    "remainingShort": "faltam {{amount}}"
   }
 }

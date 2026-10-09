@@ -3368,6 +3368,19 @@
     "remainingUntil": "残り {{amount}} · {{month}}まで",
     "categoriesTitle": "カテゴリ別の未確定請求",
     "noSpending": "未確定の請求にはまだ購入がありません。",
-    "seeTransactions": "取引を表示"
+    "seeTransactions": "取引を表示",
+    "uncategorized": "未分類",
+    "billInstallmentsLine_one": "うち分割払い {{amount}}（{{count}} 件）",
+    "billInstallmentsLine_other": "うち分割払い {{amount}}（{{count}} 件）",
+    "colPurchase": "購入",
+    "colProgress": "支払済み",
+    "colInstallment": "月額",
+    "colRemaining": "残額",
+    "colEnds": "最終請求",
+    "groupEnding": "今後 3 回の請求で終了 · 毎月 {{amount}} が空きます",
+    "groupOngoing": "継続中",
+    "showAll_one": "さらに {{count}} 件を表示",
+    "showAll_other": "さらに {{count}} 件を表示",
+    "remainingShort": "残り {{amount}}"
   }
 }

@@ -46,7 +46,7 @@ async def cards_overview(
                 available=c.available, utilization=round(c.utilization, 4) if c.utilization is not None else None,
                 close_day=c.close_day, due_day=c.due_day, next_close=c.next_close, next_due=c.next_due,
                 best_day=c.best_day, current_bill=c.current_bill, bill_month=c.bill_key,
-                closed_bill=c.closed_bill, closed_due=c.closed_due,
+                closed_bill=c.closed_bill, closed_due=c.closed_due, projected_in_bill=round(c.projected_in_bill, 2),
                 installments_in_bill=round(in_bill.get(str(c.id), 0.0), 2), active_plans=plans_per_card.get(str(c.id), 0),
             )
             for c in o.cards

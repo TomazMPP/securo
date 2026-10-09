@@ -3389,6 +3389,21 @@
     "remainingUntil": "mancano {{amount}} · fino a {{month}}",
     "categoriesTitle": "Estratti conto aperti per categoria",
     "noSpending": "Ancora nessun acquisto sugli estratti conto aperti.",
-    "seeTransactions": "Vedi transazioni"
+    "seeTransactions": "Vedi transazioni",
+    "uncategorized": "Senza categoria",
+    "billInstallmentsLine_one": "di cui {{amount}} a rate ({{count}} piano)",
+    "billInstallmentsLine_many": "di cui {{amount}} a rate ({{count}} piani)",
+    "billInstallmentsLine_other": "di cui {{amount}} a rate ({{count}} piani)",
+    "colPurchase": "Acquisto",
+    "colProgress": "Pagate",
+    "colInstallment": "Al mese",
+    "colRemaining": "Da pagare",
+    "colEnds": "Ultimo estratto",
+    "groupEnding": "Terminano nei prossimi 3 estratti conto · liberano {{amount}} al mese",
+    "groupOngoing": "In corso",
+    "showAll_one": "Mostra {{count}} altro piano",
+    "showAll_many": "Mostra altri {{count}} piani",
+    "showAll_other": "Mostra altri {{count}} piani",
+    "remainingShort": "mancano {{amount}}"
   }
 }

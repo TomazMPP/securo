@@ -3389,6 +3389,21 @@
     "remainingUntil": "{{amount}} restant · jusqu'en {{month}}",
     "categoriesTitle": "Relevés en cours par catégorie",
     "noSpending": "Aucun achat sur les relevés en cours pour le moment.",
-    "seeTransactions": "Voir les transactions"
+    "seeTransactions": "Voir les transactions",
+    "uncategorized": "Non catégorisé",
+    "billInstallmentsLine_one": "dont {{amount}} en échéances ({{count}} paiement échelonné)",
+    "billInstallmentsLine_many": "dont {{amount}} en échéances ({{count}} paiements échelonnés)",
+    "billInstallmentsLine_other": "dont {{amount}} en échéances ({{count}} paiements échelonnés)",
+    "colPurchase": "Achat",
+    "colProgress": "Payées",
+    "colInstallment": "Par mois",
+    "colRemaining": "Reste à payer",
+    "colEnds": "Dernier relevé",
+    "groupEnding": "Se terminent dans les 3 prochains relevés · libèrent {{amount}} par mois",
+    "groupOngoing": "En cours",
+    "showAll_one": "Afficher {{count}} paiement de plus",
+    "showAll_many": "Afficher {{count}} paiements de plus",
+    "showAll_other": "Afficher {{count}} paiements de plus",
+    "remainingShort": "{{amount}} restant"
   }
 }

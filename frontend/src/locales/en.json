@@ -3368,6 +3368,19 @@
     "remainingUntil": "{{amount}} left · until {{month}}",
     "categoriesTitle": "Open bills by category",
     "noSpending": "No purchases on the open bills yet.",
-    "seeTransactions": "See transactions"
+    "seeTransactions": "See transactions",
+    "uncategorized": "Uncategorized",
+    "billInstallmentsLine_one": "{{amount}} of it in installments ({{count}} plan)",
+    "billInstallmentsLine_other": "{{amount}} of it in installments ({{count}} plans)",
+    "colPurchase": "Purchase",
+    "colProgress": "Paid",
+    "colInstallment": "Per month",
+    "colRemaining": "Left to pay",
+    "colEnds": "Last bill",
+    "groupEnding": "Ending in the next 3 bills · frees {{amount}} a month",
+    "groupOngoing": "Ongoing",
+    "showAll_one": "Show {{count}} more plan",
+    "showAll_other": "Show {{count}} more plans",
+    "remainingShort": "{{amount}} left"
   }
 }

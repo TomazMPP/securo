@@ -3429,6 +3429,23 @@
     "remainingUntil": "осталось {{amount}} · до {{month}}",
     "categoriesTitle": "Открытые счета по категориям",
     "noSpending": "В открытых счетах пока нет покупок.",
-    "seeTransactions": "Показать транзакции"
+    "seeTransactions": "Показать транзакции",
+    "uncategorized": "Без категории",
+    "billInstallmentsLine_one": "из них {{amount}} в рассрочку ({{count}} рассрочка)",
+    "billInstallmentsLine_few": "из них {{amount}} в рассрочку ({{count}} рассрочки)",
+    "billInstallmentsLine_many": "из них {{amount}} в рассрочку ({{count}} рассрочек)",
+    "billInstallmentsLine_other": "из них {{amount}} в рассрочку (рассрочек: {{count}})",
+    "colPurchase": "Покупка",
+    "colProgress": "Оплачено",
+    "colInstallment": "В месяц",
+    "colRemaining": "Осталось",
+    "colEnds": "Последний счёт",
+    "groupEnding": "Закончатся в ближайшие 3 счёта · освободят {{amount}} в месяц",
+    "groupOngoing": "Текущие",
+    "showAll_one": "Показать ещё {{count}} рассрочку",
+    "showAll_few": "Показать ещё {{count}} рассрочки",
+    "showAll_many": "Показать ещё {{count}} рассрочек",
+    "showAll_other": "Показать ещё рассрочек: {{count}}",
+    "remainingShort": "осталось {{amount}}"
   }
 }

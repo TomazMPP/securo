@@ -66,6 +66,7 @@ class CardInfo:
     bill_key: Optional[str] = None  # YYYY-MM of the open (still accumulating) bill's due date
     closed_bill: Optional[float] = None  # closed bill the bank published, still to pay
     closed_due: Optional[date] = None
+    projected_in_bill: float = 0.0  # plan installments due on the open bill but not booked yet
 
     @property
     def utilization(self) -> Optional[float]:
@@ -95,6 +96,7 @@ class InstallmentPlan:
     first_month: str
     last_month: str
     months: dict[str, float] = field(default_factory=dict)  # bill month -> amount
+    booked: set[str] = field(default_factory=set)  # bill months that have a real transaction
 
     @property
     def remaining(self) -> int:
@@ -276,9 +278,15 @@ async def overview(session: AsyncSession, workspace_id: uuid.UUID, today: Option
             paid=paid, purchase_date=tx0.installment_purchase_date or min(it[0].date for it in items),
             first_month=first, last_month=shift_month(first, total - 1), months=months,
         )
+        plan.booked = {month_key(it[0].effective_date) for it in items}
         if plan.remaining <= 0:
             continue
         plans.append(plan)
+        # Some banks only book the current installment; the open bill must
+        # still count the ones it will carry.
+        if open_key in months and open_key not in plan.booked:
+            card.projected_in_bill += value
+            card.current_bill = round(card.current_bill + value, 2)
         for m, v in months.items():
             if m >= open_key:
                 commitments[m][str(tx0.account_id)] += v
@@ -300,7 +308,7 @@ async def overview(session: AsyncSession, workspace_id: uuid.UUID, today: Option
     by_cat: dict[tuple, float] = defaultdict(float)
     for acc_id, eff, name, color, icon, total in cat_rows.all():
         if month_key(eff) == cards[acc_id].bill_key:
-            by_cat[(name or "—", color or "#6B7280", icon or "circle-help")] += float(total or 0)
+            by_cat[(name or "", color or "#6B7280", icon or "circle-help")] += float(total or 0)
     categories = sorted(((n, c, i, round(v, 2)) for (n, c, i), v in by_cat.items() if v > 0), key=lambda x: -x[3])
 
     return CardsOverview(

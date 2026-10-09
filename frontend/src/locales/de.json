@@ -3369,6 +3369,19 @@
     "remainingUntil": "noch {{amount}} · bis {{month}}",
     "categoriesTitle": "Offene Abrechnungen nach Kategorie",
     "noSpending": "Noch keine Käufe auf den offenen Abrechnungen.",
-    "seeTransactions": "Transaktionen anzeigen"
+    "seeTransactions": "Transaktionen anzeigen",
+    "uncategorized": "Nicht kategorisiert",
+    "billInstallmentsLine_one": "davon {{amount}} in Raten ({{count}} Plan)",
+    "billInstallmentsLine_other": "davon {{amount}} in Raten ({{count}} Pläne)",
+    "colPurchase": "Kauf",
+    "colProgress": "Bezahlt",
+    "colInstallment": "Pro Monat",
+    "colRemaining": "Noch offen",
+    "colEnds": "Letzte Abrechnung",
+    "groupEnding": "Enden in den nächsten 3 Abrechnungen · machen {{amount}} pro Monat frei",
+    "groupOngoing": "Laufend",
+    "showAll_one": "{{count}} weiteren Plan anzeigen",
+    "showAll_other": "{{count}} weitere Pläne anzeigen",
+    "remainingShort": "noch {{amount}}"
   }
 }

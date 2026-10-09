@@ -3389,6 +3389,21 @@
     "remainingUntil": "quedan {{amount}} · hasta {{month}}",
     "categoriesTitle": "Facturas abiertas por categoría",
     "noSpending": "Aún no hay compras en las facturas abiertas.",
-    "seeTransactions": "Ver transacciones"
+    "seeTransactions": "Ver transacciones",
+    "uncategorized": "Sin categorizar",
+    "billInstallmentsLine_one": "{{amount}} en cuotas ({{count}} plan)",
+    "billInstallmentsLine_many": "{{amount}} en cuotas ({{count}} planes)",
+    "billInstallmentsLine_other": "{{amount}} en cuotas ({{count}} planes)",
+    "colPurchase": "Compra",
+    "colProgress": "Pagadas",
+    "colInstallment": "Al mes",
+    "colRemaining": "Por pagar",
+    "colEnds": "Última factura",
+    "groupEnding": "Terminan en las próximas 3 facturas · liberan {{amount}} al mes",
+    "groupOngoing": "En curso",
+    "showAll_one": "Ver {{count}} plan más",
+    "showAll_many": "Ver {{count}} planes más",
+    "showAll_other": "Ver {{count}} planes más",
+    "remainingShort": "quedan {{amount}}"
   }
 }

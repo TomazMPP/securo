@@ -23,6 +23,7 @@ class CardSummary(BaseModel):
     bill_month: Optional[str] = None
     closed_bill: Optional[float] = None
     closed_due: Optional[date] = None
+    projected_in_bill: float = 0.0
     installments_in_bill: float = 0.0
     active_plans: int = 0
 

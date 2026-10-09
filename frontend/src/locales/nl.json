@@ -3370,6 +3370,19 @@
     "remainingUntil": "nog {{amount}} · tot {{month}}",
     "categoriesTitle": "Openstaande afschriften per categorie",
     "noSpending": "Nog geen aankopen op de openstaande afschriften.",
-    "seeTransactions": "Transacties bekijken"
+    "seeTransactions": "Transacties bekijken",
+    "uncategorized": "Niet gecategoriseerd",
+    "billInstallmentsLine_one": "waarvan {{amount}} in termijnen ({{count}} termijnbetaling)",
+    "billInstallmentsLine_other": "waarvan {{amount}} in termijnen ({{count}} termijnbetalingen)",
+    "colPurchase": "Aankoop",
+    "colProgress": "Betaald",
+    "colInstallment": "Per maand",
+    "colRemaining": "Nog te betalen",
+    "colEnds": "Laatste afschrift",
+    "groupEnding": "Lopen af in de volgende 3 afschriften · maken {{amount}} per maand vrij",
+    "groupOngoing": "Lopend",
+    "showAll_one": "Nog {{count}} termijnbetaling tonen",
+    "showAll_other": "Nog {{count}} termijnbetalingen tonen",
+    "remainingShort": "nog {{amount}}"
   }
 }

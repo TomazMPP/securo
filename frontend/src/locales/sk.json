@@ -3556,6 +3556,23 @@
     "remainingUntil": "zostáva {{amount}} · do {{month}}",
     "categoriesTitle": "Otvorené výpisy podľa kategórií",
     "noSpending": "Na otvorených výpisoch zatiaľ nie sú žiadne nákupy.",
-    "seeTransactions": "Zobraziť transakcie"
+    "seeTransactions": "Zobraziť transakcie",
+    "uncategorized": "Bez kategórie",
+    "billInstallmentsLine_one": "z toho {{amount}} v splátkach ({{count}} plán)",
+    "billInstallmentsLine_few": "z toho {{amount}} v splátkach ({{count}} plány)",
+    "billInstallmentsLine_many": "z toho {{amount}} v splátkach ({{count}} plánu)",
+    "billInstallmentsLine_other": "z toho {{amount}} v splátkach ({{count}} plánov)",
+    "colPurchase": "Nákup",
+    "colProgress": "Zaplatené",
+    "colInstallment": "Mesačne",
+    "colRemaining": "Zostáva zaplatiť",
+    "colEnds": "Posledný výpis",
+    "groupEnding": "Končia v najbližších 3 výpisoch · uvoľnia {{amount}} mesačne",
+    "groupOngoing": "Prebiehajúce",
+    "showAll_one": "Zobraziť ešte {{count}} plán",
+    "showAll_few": "Zobraziť ešte {{count}} plány",
+    "showAll_many": "Zobraziť ešte {{count}} plánu",
+    "showAll_other": "Zobraziť ešte {{count}} plánov",
+    "remainingShort": "zostáva {{amount}}"
   }
 }
