@@ -47,13 +47,14 @@ export function IconPicker({ value, color, onChange }: IconPickerProps) {
                   ? 'ring-2 ring-offset-1 ring-primary'
                   : 'hover:bg-muted'
               )}
-              style={isSelected ? { backgroundColor: color || '#6B7280' } : undefined}
+              style={isSelected ? { backgroundColor: `color-mix(in srgb, ${color || '#6B7280'} 16%, transparent)` } : undefined}
               onClick={() => onChange(entry.name)}
             >
               <Icon
-                size={18}
-                className={isSelected ? 'text-white' : 'text-muted-foreground'}
-                strokeWidth={2}
+                size={20}
+                weight="duotone"
+                color={isSelected ? color || '#6B7280' : undefined}
+                className={isSelected ? undefined : 'text-muted-foreground'}
               />
             </button>
           )
