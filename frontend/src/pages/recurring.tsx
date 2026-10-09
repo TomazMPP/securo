@@ -17,6 +17,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { MonthStepper } from '@/components/month-stepper'
 import { RecurringForm } from '@/components/recurring/recurring-form'
 import { RecurringHeroCard } from '@/components/recurring/recurring-hero-card'
+import { RecurringSuggestionsCard } from '@/components/recurring/recurring-suggestions-card'
 import { RecurringForecastCard } from '@/components/recurring/recurring-forecast-card'
 import { RecurringByAccount, RecurringMonthSummary } from '@/components/recurring/recurring-summary-cards'
 import { RecurringScheduleCard } from '@/components/recurring/recurring-schedule-card'
@@ -212,6 +213,14 @@ export default function RecurringPage() {
           )}
         </div>
       </div>
+
+      {kind === 'debit' && (
+        <RecurringSuggestionsCard
+          canWrite={canWrite}
+          formatMoney={(value, currency) => mask(formatCurrency(value, currency ?? userCurrency, locale))}
+          onCreated={afterRuleChange}
+        />
+      )}
 
       {isLoading ? (
         <div className="grid gap-5 lg:grid-cols-2">

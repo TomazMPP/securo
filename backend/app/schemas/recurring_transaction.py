@@ -63,3 +63,21 @@ class RecurringTransactionRead(BaseModel):
     fx_rate_used: Optional[float] = None
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class RecurringSuggestionRead(BaseModel):
+    key: str
+    description: str
+    type: str
+    amount: float
+    last_amount: float
+    day_of_month: int
+    months: int
+    last_date: _Date
+    variable: bool
+    account_id: uuid.UUID
+    account_name: str
+    category_id: Optional[uuid.UUID] = None
+    category_name: Optional[str] = None
+    payee_name: Optional[str] = None
+    currency: str

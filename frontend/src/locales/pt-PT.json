@@ -1698,7 +1698,16 @@
     "pause": "Pausar",
     "resume": "Retomar",
     "pausedToast": "Recorrência pausada",
-    "resumedToast": "Recorrência retomada"
+    "resumedToast": "Recorrência retomada",
+    "suggestionsTitle_one": "{{count}} conta parece fixa",
+    "suggestionsTitle_other": "{{count}} contas parecem fixas",
+    "suggestionsTitle_many": "{{count}} contas parecem fixas",
+    "suggestionsBody": "Pagas cerca de uma vez por mês, com valor semelhante, e ainda não registadas. Adicione-as para as ver na agenda e na previsão.",
+    "suggestionMeta": "Por volta do dia {{day}} · {{months}} meses seguidos · {{account}}",
+    "suggestionVariable": "valor varia",
+    "suggestionAdd": "Adicionar",
+    "suggestionDismiss": "Não é uma conta fixa",
+    "suggestionAdded": "{{name}} adicionada às recorrentes"
   },
   "rules": {
     "searchPlaceholder": "Procurar regras...",

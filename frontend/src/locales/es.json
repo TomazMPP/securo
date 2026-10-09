@@ -1698,7 +1698,16 @@
     "pause": "Pausar",
     "resume": "Reanudar",
     "pausedToast": "Recurrencia pausada",
-    "resumedToast": "Recurrencia reanudada"
+    "resumedToast": "Recurrencia reanudada",
+    "suggestionsTitle_one": "{{count}} cuenta parece fija",
+    "suggestionsTitle_other": "{{count}} cuentas parecen fijas",
+    "suggestionsTitle_many": "{{count}} cuentas parecen fijas",
+    "suggestionsBody": "Pagadas aproximadamente una vez al mes, con un importe similar, y aún no registradas. Agrégalas para verlas en la agenda y la previsión.",
+    "suggestionMeta": "Alrededor del día {{day}} · {{months}} meses seguidos · {{account}}",
+    "suggestionVariable": "el importe varía",
+    "suggestionAdd": "Agregar",
+    "suggestionDismiss": "No es un gasto fijo",
+    "suggestionAdded": "{{name}} agregada a recurrentes"
   },
   "rules": {
     "searchPlaceholder": "Buscar reglas...",

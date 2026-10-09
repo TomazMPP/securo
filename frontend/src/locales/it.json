@@ -1698,7 +1698,16 @@
     "pause": "Metti in pausa",
     "resume": "Riprendi",
     "pausedToast": "Ricorrenza in pausa",
-    "resumedToast": "Ricorrenza ripresa"
+    "resumedToast": "Ricorrenza ripresa",
+    "suggestionsTitle_one": "{{count}} spesa sembra ricorrente",
+    "suggestionsTitle_other": "{{count}} spese sembrano ricorrenti",
+    "suggestionsTitle_many": "{{count}} spese sembrano ricorrenti",
+    "suggestionsBody": "Pagate circa una volta al mese, con importo simile, e non ancora registrate. Aggiungile per vederle nel calendario e nella previsione.",
+    "suggestionMeta": "Intorno al giorno {{day}} · {{months}} mesi di fila · {{account}}",
+    "suggestionVariable": "importo variabile",
+    "suggestionAdd": "Aggiungi",
+    "suggestionDismiss": "Non è una spesa ricorrente",
+    "suggestionAdded": "{{name}} aggiunta alle ricorrenti"
   },
   "rules": {
     "searchPlaceholder": "Cerca regole...",

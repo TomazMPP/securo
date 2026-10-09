@@ -2081,3 +2081,21 @@ export interface CardsOverview {
   history: CardsMonth[]
   categories: { name: string; color: string; icon: string; amount: number }[]
 }
+
+export interface RecurringSuggestion {
+  key: string
+  description: string
+  type: 'debit' | 'credit'
+  amount: number
+  last_amount: number
+  day_of_month: number
+  months: number
+  last_date: string
+  variable: boolean
+  account_id: string
+  account_name: string
+  category_id: string | null
+  category_name: string | null
+  payee_name: string | null
+  currency: string
+}

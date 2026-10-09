@@ -1686,7 +1686,15 @@
     "pause": "一時停止",
     "resume": "再開",
     "pausedToast": "定期項目を一時停止しました",
-    "resumedToast": "定期項目を再開しました"
+    "resumedToast": "定期項目を再開しました",
+    "suggestionsTitle_one": "{{count}}件の支払いが定期的のようです",
+    "suggestionsTitle_other": "{{count}}件の支払いが定期的のようです",
+    "suggestionsBody": "ほぼ毎月、同程度の金額で支払われていて、まだ登録されていません。追加すると予定と予測に表示されます。",
+    "suggestionMeta": "毎月{{day}}日頃 · {{months}}か月連続 · {{account}}",
+    "suggestionVariable": "金額は変動",
+    "suggestionAdd": "追加",
+    "suggestionDismiss": "定期的な支払いではない",
+    "suggestionAdded": "{{name}}を定期支払いに追加しました"
   },
   "rules": {
     "searchPlaceholder": "ルールを検索...",

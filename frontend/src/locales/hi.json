@@ -1686,7 +1686,15 @@
     "pause": "रोकें",
     "resume": "फिर शुरू करें",
     "pausedToast": "आवर्ती रोका गया",
-    "resumedToast": "आवर्ती फिर शुरू हुआ"
+    "resumedToast": "आवर्ती फिर शुरू हुआ",
+    "suggestionsTitle_one": "{{count}} भुगतान नियमित लगता है",
+    "suggestionsTitle_other": "{{count}} भुगतान नियमित लगते हैं",
+    "suggestionsBody": "लगभग हर महीने मिलती-जुलती राशि में भुगतान हुआ है और अभी दर्ज नहीं है। शेड्यूल और पूर्वानुमान में देखने के लिए जोड़ें।",
+    "suggestionMeta": "लगभग {{day}} तारीख · लगातार {{months}} महीने · {{account}}",
+    "suggestionVariable": "राशि बदलती है",
+    "suggestionAdd": "जोड़ें",
+    "suggestionDismiss": "नियमित भुगतान नहीं",
+    "suggestionAdded": "{{name}} नियमित भुगतानों में जोड़ा गया"
   },
   "rules": {
     "searchPlaceholder": "नियम खोजें...",

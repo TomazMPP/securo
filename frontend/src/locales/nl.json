@@ -1688,7 +1688,15 @@
     "pause": "Pauzeren",
     "resume": "Hervatten",
     "pausedToast": "Terugkerende post gepauzeerd",
-    "resumedToast": "Terugkerende post hervat"
+    "resumedToast": "Terugkerende post hervat",
+    "suggestionsTitle_one": "{{count}} betaling lijkt terugkerend",
+    "suggestionsTitle_other": "{{count}} betalingen lijken terugkerend",
+    "suggestionsBody": "Ongeveer eens per maand betaald met een vergelijkbaar bedrag en nog niet vastgelegd. Voeg ze toe om ze in de planning en prognose te zien.",
+    "suggestionMeta": "Rond dag {{day}} · {{months}} maanden op rij · {{account}}",
+    "suggestionVariable": "bedrag varieert",
+    "suggestionAdd": "Toevoegen",
+    "suggestionDismiss": "Geen terugkerende betaling",
+    "suggestionAdded": "{{name}} toegevoegd aan terugkerend"
   },
   "rules": {
     "searchPlaceholder": "Regels zoeken...",

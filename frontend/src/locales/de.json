@@ -1687,7 +1687,15 @@
     "pause": "Pausieren",
     "resume": "Fortsetzen",
     "pausedToast": "Wiederholung pausiert",
-    "resumedToast": "Wiederholung fortgesetzt"
+    "resumedToast": "Wiederholung fortgesetzt",
+    "suggestionsTitle_one": "{{count}} Zahlung wirkt wiederkehrend",
+    "suggestionsTitle_other": "{{count}} Zahlungen wirken wiederkehrend",
+    "suggestionsBody": "Etwa einmal im Monat mit ähnlichem Betrag bezahlt und noch nicht erfasst. Fügen Sie sie hinzu, um sie im Zeitplan und in der Prognose zu sehen.",
+    "suggestionMeta": "Um den {{day}}. · {{months}} Monate in Folge · {{account}}",
+    "suggestionVariable": "Betrag schwankt",
+    "suggestionAdd": "Hinzufügen",
+    "suggestionDismiss": "Keine wiederkehrende Zahlung",
+    "suggestionAdded": "{{name}} zu den wiederkehrenden hinzugefügt"
   },
   "rules": {
     "searchPlaceholder": "Regeln suchen...",

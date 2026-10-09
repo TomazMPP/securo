@@ -1698,7 +1698,16 @@
     "pause": "Mettre en pause",
     "resume": "Reprendre",
     "pausedToast": "Récurrence mise en pause",
-    "resumedToast": "Récurrence reprise"
+    "resumedToast": "Récurrence reprise",
+    "suggestionsTitle_one": "{{count}} dépense semble récurrente",
+    "suggestionsTitle_other": "{{count}} dépenses semblent récurrentes",
+    "suggestionsTitle_many": "{{count}} dépenses semblent récurrentes",
+    "suggestionsBody": "Payées environ une fois par mois, pour un montant similaire, et pas encore enregistrées. Ajoutez-les pour les voir dans l'échéancier et la prévision.",
+    "suggestionMeta": "Vers le {{day}} · {{months}} mois d'affilée · {{account}}",
+    "suggestionVariable": "montant variable",
+    "suggestionAdd": "Ajouter",
+    "suggestionDismiss": "Pas une dépense récurrente",
+    "suggestionAdded": "{{name}} ajoutée aux récurrents"
   },
   "rules": {
     "searchPlaceholder": "Rechercher des règles...",

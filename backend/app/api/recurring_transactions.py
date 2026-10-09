@@ -10,11 +10,12 @@ from app.core.workspace_context import (
     current_writable_workspace,
 )
 from app.schemas.recurring_transaction import (
+    RecurringSuggestionRead,
     RecurringTransactionCreate,
     RecurringTransactionRead,
     RecurringTransactionUpdate,
 )
-from app.services import recurring_transaction_service
+from app.services import recurring_detection, recurring_transaction_service
 
 router = APIRouter(prefix="/api/recurring-transactions", tags=["recurring-transactions"])
 
@@ -25,6 +26,16 @@ async def list_recurring_transactions(
     session: AsyncSession = Depends(get_async_session),
 ):
     return await recurring_transaction_service.get_recurring_transactions(session, ctx.workspace.id)
+
+
+@router.get("/suggestions", response_model=list[RecurringSuggestionRead])
+async def recurring_suggestions(
+    ctx: WorkspaceContext = Depends(current_workspace),
+    session: AsyncSession = Depends(get_async_session),
+):
+    """Bills paid about once a month at a similar amount in at least three of
+    the last months, still active, and not registered as recurring yet."""
+    return [RecurringSuggestionRead(**vars(s)) for s in await recurring_detection.suggest(session, ctx.workspace.id)]
 
 
 @router.post("", response_model=RecurringTransactionRead, status_code=status.HTTP_201_CREATED)

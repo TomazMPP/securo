@@ -1727,7 +1727,17 @@
     "pause": "Приостановить",
     "resume": "Возобновить",
     "pausedToast": "Регулярный платёж приостановлен",
-    "resumedToast": "Регулярный платёж возобновлён"
+    "resumedToast": "Регулярный платёж возобновлён",
+    "suggestionsTitle_one": "{{count}} платёж похож на регулярный",
+    "suggestionsTitle_other": "{{count}} платежа похожи на регулярные",
+    "suggestionsTitle_few": "{{count}} платежа похожи на регулярные",
+    "suggestionsTitle_many": "{{count}} платежей похожи на регулярные",
+    "suggestionsBody": "Оплачиваются примерно раз в месяц на похожую сумму и ещё не добавлены. Добавьте их, чтобы видеть в расписании и прогнозе.",
+    "suggestionMeta": "Около {{day}} числа · {{months}} мес. подряд · {{account}}",
+    "suggestionVariable": "сумма меняется",
+    "suggestionAdd": "Добавить",
+    "suggestionDismiss": "Не регулярный платёж",
+    "suggestionAdded": "{{name}} добавлен в регулярные"
   },
   "rules": {
     "searchPlaceholder": "Поиск правил...",

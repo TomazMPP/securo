@@ -1686,7 +1686,15 @@
     "pause": "Pause",
     "resume": "Resume",
     "pausedToast": "Recurring paused",
-    "resumedToast": "Recurring resumed"
+    "resumedToast": "Recurring resumed",
+    "suggestionsTitle_one": "{{count}} bill looks recurring",
+    "suggestionsTitle_other": "{{count}} bills look recurring",
+    "suggestionsBody": "Paid about once a month at a similar amount and not registered yet. Add them to see them in the schedule and the forecast.",
+    "suggestionMeta": "Around day {{day}} · {{months}} months in a row · {{account}}",
+    "suggestionVariable": "amount varies",
+    "suggestionAdd": "Add",
+    "suggestionDismiss": "Not a recurring bill",
+    "suggestionAdded": "{{name}} added to recurring bills"
   },
   "rules": {
     "searchPlaceholder": "Search rules...",

@@ -1727,7 +1727,17 @@
     "pause": "Призупинити",
     "resume": "Відновити",
     "pausedToast": "Регулярний платіж призупинено",
-    "resumedToast": "Регулярний платіж відновлено"
+    "resumedToast": "Регулярний платіж відновлено",
+    "suggestionsTitle_one": "{{count}} платіж схожий на регулярний",
+    "suggestionsTitle_other": "{{count}} платежі схожі на регулярні",
+    "suggestionsTitle_few": "{{count}} платежі схожі на регулярні",
+    "suggestionsTitle_many": "{{count}} платежів схожі на регулярні",
+    "suggestionsBody": "Сплачуються приблизно раз на місяць на схожу суму й ще не додані. Додайте їх, щоб бачити в розкладі та прогнозі.",
+    "suggestionMeta": "Близько {{day}} числа · {{months}} міс. поспіль · {{account}}",
+    "suggestionVariable": "сума змінюється",
+    "suggestionAdd": "Додати",
+    "suggestionDismiss": "Не регулярний платіж",
+    "suggestionAdded": "{{name}} додано до регулярних"
   },
   "rules": {
     "searchPlaceholder": "Пошук правил...",

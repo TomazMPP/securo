@@ -1790,7 +1790,17 @@
     "pause": "Pozastaviť",
     "resume": "Obnoviť",
     "pausedToast": "Opakovaná platba pozastavená",
-    "resumedToast": "Opakovaná platba obnovená"
+    "resumedToast": "Opakovaná platba obnovená",
+    "suggestionsTitle_one": "{{count}} platba vyzerá ako pravidelná",
+    "suggestionsTitle_other": "{{count}} platby vyzerajú ako pravidelné",
+    "suggestionsTitle_few": "{{count}} platby vyzerajú ako pravidelné",
+    "suggestionsTitle_many": "{{count}} platieb vyzerá ako pravidelné",
+    "suggestionsBody": "Platené približne raz mesačne v podobnej sume a ešte neevidované. Pridajte ich, aby sa zobrazovali v pláne a prognóze.",
+    "suggestionMeta": "Okolo {{day}}. dňa · {{months}} mesiacov po sebe · {{account}}",
+    "suggestionVariable": "suma sa mení",
+    "suggestionAdd": "Pridať",
+    "suggestionDismiss": "Nie je pravidelná platba",
+    "suggestionAdded": "{{name}} pridaná medzi pravidelné"
   },
   "rules": {
     "searchPlaceholder": "Hľadať pravidlá...",

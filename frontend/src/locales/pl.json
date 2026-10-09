@@ -1772,7 +1772,17 @@
     "pause": "Wstrzymaj",
     "resume": "Wznów",
     "pausedToast": "Transakcja cykliczna wstrzymana",
-    "resumedToast": "Transakcja cykliczna wznowiona"
+    "resumedToast": "Transakcja cykliczna wznowiona",
+    "suggestionsTitle_one": "{{count}} płatność wygląda na stałą",
+    "suggestionsTitle_other": "{{count}} płatności wygląda na stałe",
+    "suggestionsTitle_few": "{{count}} płatności wyglądają na stałe",
+    "suggestionsTitle_many": "{{count}} płatności wygląda na stałe",
+    "suggestionsBody": "Płacone mniej więcej raz w miesiącu w podobnej kwocie i jeszcze niezarejestrowane. Dodaj je, aby widzieć je w harmonogramie i prognozie.",
+    "suggestionMeta": "Około {{day}}. dnia · {{months}} mies. z rzędu · {{account}}",
+    "suggestionVariable": "kwota się zmienia",
+    "suggestionAdd": "Dodaj",
+    "suggestionDismiss": "To nie jest stała płatność",
+    "suggestionAdded": "Dodano {{name}} do cyklicznych"
   },
   "rules": {
     "searchPlaceholder": "Szukaj reguł...",

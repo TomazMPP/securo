@@ -3,6 +3,7 @@ import type { NumberFormat, DateFormat } from '@/lib/format'
 import type {
   User,
   CardsOverview,
+  RecurringSuggestion,
   Loan,
   LoanPaymentSuggestion,
   LoanSchedule,
@@ -1224,6 +1225,10 @@ export const recurring = {
   },
   delete: async (id: string): Promise<void> => {
     await api.delete(`/recurring-transactions/${id}`)
+  },
+  suggestions: async (): Promise<RecurringSuggestion[]> => {
+    const { data } = await api.get('/recurring-transactions/suggestions')
+    return data
   },
   generate: async (): Promise<{ generated: number }> => {
     const { data } = await api.post('/recurring-transactions/generate')
