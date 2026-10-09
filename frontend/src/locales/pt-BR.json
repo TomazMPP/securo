@@ -1150,7 +1150,37 @@
     "invoiceBadgeTooltip": "Esta transação quita uma cobrança. Abrir.",
     "suggestionBadge": "Pergunta",
     "suggestionBadgeTooltip": "Um pagamento pode quitar esta cobrança. Abra a fila para responder.",
-    "clearGroupFilter": "Limpar filtro de grupo"
+    "clearGroupFilter": "Limpar filtro de grupo",
+    "newTransaction": "Nova transação",
+    "statementView": "Extrato",
+    "byCategoryView": "Por categoria",
+    "viewSwitcherLabel": "Visualização",
+    "monthStrip": {
+      "title": "Resultado por mês",
+      "legend": "Tracejado = projeção com recorrentes e parcelas",
+      "projectedTooltip": "Projeção com recorrentes, parcelas e lançamentos pendentes"
+    },
+    "summaryCountNoun_one": "transação",
+    "summaryCountNoun_other": "transações",
+    "summaryInflows": "Entradas",
+    "summaryOutflows": "Saídas",
+    "summaryExcludedHint": "Transferências e itens ignorados, fora de entradas e saídas",
+    "pendingSection": {
+      "title": "Aguardando o banco · {{count}}",
+      "included": "{{amount}} já somado ao total"
+    },
+    "dayToday": "Hoje",
+    "dayYesterday": "Ontem",
+    "installmentPosition": "parcela {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Ver transações de {{category}}",
+      "emptyTitle": "Nada para agrupar ainda",
+      "emptyHint": "Nenhuma transação neste período com esses filtros.",
+      "partial": "Mostrando as primeiras {{shown}} de {{total}} transações. Reduza o período para ver os totais completos."
+    },
+    "emptyFilteredHint": "Tente outro mês ou limpe os filtros.",
+    "emptyPeriodHint": "Nada registrado neste período ainda.",
+    "selectAll": "Selecionar todas"
   },
   "accounts": {
     "title": "Contas",

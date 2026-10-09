@@ -1148,7 +1148,37 @@
     "invoiceBadgeTooltip": "この取引は請求書を決済しています。開く。",
     "suggestionBadge": "要確認",
     "suggestionBadgeTooltip": "これが何かを消し込む可能性があります。キューを開いて回答してください。",
-    "clearGroupFilter": "グループフィルターを解除"
+    "clearGroupFilter": "グループフィルターを解除",
+    "newTransaction": "新しい取引",
+    "statementView": "明細",
+    "byCategoryView": "カテゴリ別",
+    "viewSwitcherLabel": "表示",
+    "monthStrip": {
+      "title": "月別の収支",
+      "legend": "破線 = 定期取引と分割払いからの予測",
+      "projectedTooltip": "定期取引・分割払い・保留中の取引からの予測"
+    },
+    "summaryCountNoun_one": "件",
+    "summaryCountNoun_other": "件",
+    "summaryInflows": "入金",
+    "summaryOutflows": "出金",
+    "summaryExcludedHint": "振替と無視した項目は入金・出金に含みません",
+    "pendingSection": {
+      "title": "銀行の確定待ち · {{count}}",
+      "included": "{{amount}} は合計に含まれています"
+    },
+    "dayToday": "今日",
+    "dayYesterday": "昨日",
+    "installmentPosition": "分割 {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "{{category}} の取引を表示",
+      "emptyTitle": "まだまとめる取引がありません",
+      "emptyHint": "この期間とフィルターに一致する取引はありません。",
+      "partial": "{{total}} 件中、最初の {{shown}} 件を表示しています。完全な合計を見るには期間を短くしてください。"
+    },
+    "emptyFilteredHint": "別の月を選ぶか、フィルターをクリアしてください。",
+    "emptyPeriodHint": "この期間にはまだ記録がありません。",
+    "selectAll": "すべて選択"
   },
   "accounts": {
     "title": "口座",

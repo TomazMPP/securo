@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ArrowLeftRight, CalendarDays, Copy, Download, List, MoreHorizontal } from 'lucide-react'
+import { ArrowLeftRight, CalendarDays, Copy, Download, List, MoreHorizontal, PieChart, Plus } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { MonthStepper } from '@/components/month-stepper'
 import { TransactionsViewSwitcher, type TransactionsViewSwitcherProps } from '@/components/transactions-view-switcher'
@@ -26,7 +26,8 @@ type ViewSwitcherConfig = TransactionsViewSwitcherProps
 
 export type TransactionsPageActionsProps = {
   month: MonthStepperConfig
-  view: ViewSwitcherConfig
+  /** Omit when the page renders its own view switch outside the header. */
+  view?: ViewSwitcherConfig
   columnPicker: ReactNode
   exportLabel: string
   exporting: boolean
@@ -49,7 +50,7 @@ function DesktopSecondaryActions(props: TransactionsPageActionsProps) {
   const { t } = useTranslation()
   return (
     <div className="hidden sm:contents">
-      <TransactionsViewSwitcher {...props.view} />
+      {props.view && <TransactionsViewSwitcher {...props.view} />}
       {props.columnPicker}
       <Button variant="outline" disabled={props.exporting} onClick={props.onExport}>
         <Download size={16} className="mr-1.5" />{props.exportLabel}
@@ -64,17 +65,19 @@ function PrimaryAddAction({ onAdd }: { onAdd?: () => void }) {
   const { t } = useTranslation()
   if (!onAdd) return null
   return (
-    <Button className="shrink-0 px-3" onClick={onAdd}>
-      + <span className="sm:hidden">{t('common.add')}</span>
-      <span className="hidden sm:inline">{t('transactions.addManual')}</span>
+    <Button className="shrink-0 gap-1.5 px-3 font-semibold sm:px-4" onClick={onAdd}>
+      <Plus size={16} strokeWidth={2.4} aria-hidden="true" />
+      <span className="sm:hidden">{t('common.add')}</span>
+      <span className="hidden sm:inline">{t('transactions.newTransaction')}</span>
     </Button>
   )
 }
 
 function MobileSecondaryMenu(props: TransactionsPageActionsProps) {
   const { t } = useTranslation()
+  const view = props.view
   const changeView = (value: string) => {
-    if (value === 'list' || value === 'calendar') props.view.onChange(value)
+    if (value === 'list' || value === 'calendar' || value === 'category') view?.onChange(value)
   }
   return (
     <DropdownMenu>
@@ -84,11 +87,16 @@ function MobileSecondaryMenu(props: TransactionsPageActionsProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
-        <DropdownMenuRadioGroup value={props.view.value} onValueChange={changeView}>
-          <DropdownMenuRadioItem value="list"><List />{props.view.listLabel}</DropdownMenuRadioItem>
-          <DropdownMenuRadioItem value="calendar"><CalendarDays />{props.view.calendarLabel}</DropdownMenuRadioItem>
-        </DropdownMenuRadioGroup>
-        <DropdownMenuSeparator />
+        {view && (
+          <>
+            <DropdownMenuRadioGroup value={view.value} onValueChange={changeView}>
+              <DropdownMenuRadioItem value="list"><List />{view.listLabel}</DropdownMenuRadioItem>
+              {view.categoryLabel && <DropdownMenuRadioItem value="category"><PieChart />{view.categoryLabel}</DropdownMenuRadioItem>}
+              <DropdownMenuRadioItem value="calendar"><CalendarDays />{view.calendarLabel}</DropdownMenuRadioItem>
+            </DropdownMenuRadioGroup>
+            <DropdownMenuSeparator />
+          </>
+        )}
         <DropdownMenuItem disabled={props.exporting} onClick={props.onExport}><Download size={16} className="mr-2" />{props.exportLabel}</DropdownMenuItem>
         {props.onDuplicate && <DropdownMenuItem onClick={props.onDuplicate}><Copy size={16} className="mr-2" />{t('transactions.duplicate')}</DropdownMenuItem>}
         {props.onTransfer && <DropdownMenuItem onClick={props.onTransfer}><ArrowLeftRight size={16} className="mr-2" />{t('transactions.transfer')}</DropdownMenuItem>}

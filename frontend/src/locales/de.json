@@ -1148,7 +1148,37 @@
     "invoiceBadgeTooltip": "Diese Transaktion begleicht eine Rechnung. Öffnen.",
     "suggestionBadge": "Frage",
     "suggestionBadgeTooltip": "Eine Zahlung könnte diese Rechnung begleichen. Öffnen Sie die Warteschlange.",
-    "clearGroupFilter": "Gruppenfilter entfernen"
+    "clearGroupFilter": "Gruppenfilter entfernen",
+    "newTransaction": "Neue Transaktion",
+    "statementView": "Auszug",
+    "byCategoryView": "Nach Kategorie",
+    "viewSwitcherLabel": "Ansicht",
+    "monthStrip": {
+      "title": "Ergebnis pro Monat",
+      "legend": "Gestrichelt = Prognose aus Daueraufträgen und Raten",
+      "projectedTooltip": "Prognose aus wiederkehrenden Buchungen, Raten und ausstehenden Posten"
+    },
+    "summaryCountNoun_one": "Transaktion",
+    "summaryCountNoun_other": "Transaktionen",
+    "summaryInflows": "Eingänge",
+    "summaryOutflows": "Ausgänge",
+    "summaryExcludedHint": "Überweisungen und ignorierte Posten, nicht in Eingängen und Ausgängen enthalten",
+    "pendingSection": {
+      "title": "Wartet auf die Bank · {{count}}",
+      "included": "{{amount}} bereits in der Summe enthalten"
+    },
+    "dayToday": "Heute",
+    "dayYesterday": "Gestern",
+    "installmentPosition": "Rate {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Transaktionen in {{category}} anzeigen",
+      "emptyTitle": "Noch nichts zu gruppieren",
+      "emptyHint": "Keine Transaktionen in diesem Zeitraum mit diesen Filtern.",
+      "partial": "Die ersten {{shown}} von {{total}} Transaktionen werden angezeigt. Für vollständige Summen den Zeitraum verkürzen."
+    },
+    "emptyFilteredHint": "Versuche einen anderen Monat oder setze die Filter zurück.",
+    "emptyPeriodHint": "In diesem Zeitraum wurde noch nichts erfasst.",
+    "selectAll": "Alle auswählen"
   },
   "accounts": {
     "title": "Konten",

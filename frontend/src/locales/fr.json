@@ -1150,7 +1150,37 @@
     "invoiceBadgeTooltip": "Cette transaction solde une facture. Ouvrir.",
     "suggestionBadge": "Question",
     "suggestionBadgeTooltip": "Un paiement peut solder cette facture. Ouvrez la file pour répondre.",
-    "clearGroupFilter": "Effacer le filtre de groupe"
+    "clearGroupFilter": "Effacer le filtre de groupe",
+    "newTransaction": "Nouvelle transaction",
+    "statementView": "Relevé",
+    "byCategoryView": "Par catégorie",
+    "viewSwitcherLabel": "Affichage",
+    "monthStrip": {
+      "title": "Résultat par mois",
+      "legend": "Pointillés = projection des récurrences et échéances",
+      "projectedTooltip": "Projection des récurrences, échéances et opérations en attente"
+    },
+    "summaryCountNoun_one": "transaction",
+    "summaryCountNoun_other": "transactions",
+    "summaryInflows": "Entrées",
+    "summaryOutflows": "Sorties",
+    "summaryExcludedHint": "Virements et éléments ignorés, exclus des entrées et sorties",
+    "pendingSection": {
+      "title": "En attente de la banque · {{count}}",
+      "included": "{{amount}} déjà inclus dans le total"
+    },
+    "dayToday": "Aujourd'hui",
+    "dayYesterday": "Hier",
+    "installmentPosition": "échéance {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Voir les transactions {{category}}",
+      "emptyTitle": "Rien à regrouper pour l'instant",
+      "emptyHint": "Aucune transaction ne correspond à cette période et à ces filtres.",
+      "partial": "Affichage des {{shown}} premières transactions sur {{total}}. Réduisez la période pour des totaux complets."
+    },
+    "emptyFilteredHint": "Essayez un autre mois ou effacez les filtres.",
+    "emptyPeriodHint": "Rien d'enregistré sur cette période pour l'instant.",
+    "selectAll": "Tout sélectionner"
   },
   "accounts": {
     "title": "Comptes",

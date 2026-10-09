@@ -1150,7 +1150,37 @@
     "invoiceBadgeTooltip": "Questa transazione salda una fattura. Aprila.",
     "suggestionBadge": "Domanda",
     "suggestionBadgeTooltip": "Un pagamento potrebbe saldare questa fattura. Apri la coda per rispondere.",
-    "clearGroupFilter": "Rimuovi filtro gruppo"
+    "clearGroupFilter": "Rimuovi filtro gruppo",
+    "newTransaction": "Nuova transazione",
+    "statementView": "Estratto",
+    "byCategoryView": "Per categoria",
+    "viewSwitcherLabel": "Vista",
+    "monthStrip": {
+      "title": "Risultato per mese",
+      "legend": "Tratteggio = proiezione da ricorrenti e rate",
+      "projectedTooltip": "Proiezione da ricorrenti, rate e movimenti in sospeso"
+    },
+    "summaryCountNoun_one": "transazione",
+    "summaryCountNoun_other": "transazioni",
+    "summaryInflows": "Entrate",
+    "summaryOutflows": "Uscite",
+    "summaryExcludedHint": "Trasferimenti ed elementi ignorati, esclusi da entrate e uscite",
+    "pendingSection": {
+      "title": "In attesa della banca · {{count}}",
+      "included": "{{amount}} già incluso nel totale"
+    },
+    "dayToday": "Oggi",
+    "dayYesterday": "Ieri",
+    "installmentPosition": "rata {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Mostra le transazioni di {{category}}",
+      "emptyTitle": "Ancora niente da raggruppare",
+      "emptyHint": "Nessuna transazione corrisponde a questo periodo e a questi filtri.",
+      "partial": "Visualizzate le prime {{shown}} di {{total}} transazioni. Restringi il periodo per i totali completi."
+    },
+    "emptyFilteredHint": "Prova un altro mese o cancella i filtri.",
+    "emptyPeriodHint": "Ancora nulla registrato in questo periodo.",
+    "selectAll": "Seleziona tutte"
   },
   "accounts": {
     "title": "Conti",

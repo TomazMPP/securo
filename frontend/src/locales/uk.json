@@ -1162,7 +1162,39 @@
     "invoiceBadgeTooltip": "Ця операція закриває рахунок. Відкрити.",
     "suggestionBadge": "Питання",
     "suggestionBadgeTooltip": "Платіж може закрити цей рахунок. Відкрийте чергу, щоб відповісти.",
-    "clearGroupFilter": "Скинути фільтр групи"
+    "clearGroupFilter": "Скинути фільтр групи",
+    "newTransaction": "Нова операція",
+    "statementView": "Виписка",
+    "byCategoryView": "За категоріями",
+    "viewSwitcherLabel": "Вигляд",
+    "monthStrip": {
+      "title": "Підсумок за місяцями",
+      "legend": "Пунктир = прогноз за регулярними платежами та розстроченнями",
+      "projectedTooltip": "Прогноз за регулярними платежами, розстроченнями та очікуваними операціями"
+    },
+    "summaryCountNoun_one": "операція",
+    "summaryCountNoun_few": "операції",
+    "summaryCountNoun_many": "операцій",
+    "summaryCountNoun_other": "операції",
+    "summaryInflows": "Надходження",
+    "summaryOutflows": "Витрати",
+    "summaryExcludedHint": "Перекази та ігноровані операції не входять до надходжень і витрат",
+    "pendingSection": {
+      "title": "Очікує банку · {{count}}",
+      "included": "{{amount}} вже враховано в підсумку"
+    },
+    "dayToday": "Сьогодні",
+    "dayYesterday": "Учора",
+    "installmentPosition": "платіж {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Показати операції категорії {{category}}",
+      "emptyTitle": "Поки нічого групувати",
+      "emptyHint": "Немає операцій за цей період із цими фільтрами.",
+      "partial": "Показано перші {{shown}} з {{total}} операцій. Скоротіть період, щоб побачити повні суми."
+    },
+    "emptyFilteredHint": "Оберіть інший місяць або скиньте фільтри.",
+    "emptyPeriodHint": "За цей період ще нічого не записано.",
+    "selectAll": "Вибрати всі"
   },
   "accounts": {
     "title": "Рахунки",

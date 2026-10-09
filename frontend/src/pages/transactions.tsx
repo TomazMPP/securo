@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react'
+import { Fragment, useState, useMemo, useEffect, useRef } from 'react'
 import { useRegisterPageChatContext } from '@/lib/page-chat-context'
 import { getAccountName } from '@/lib/account-utils'
 import { AccountIcon } from '@/components/account-icon'
@@ -65,6 +65,26 @@ import { useWorkspace } from '@/contexts/workspace-context'
 import { useCollectionFilter } from '@/contexts/collection-filter-context'
 import { formatCurrency } from '@/lib/format'
 import { shouldShowPendingBadge } from '@/lib/transaction-status'
+import { TransactionsMonthStrip } from '@/components/transactions-month-strip'
+import { TransactionsViewSwitcher, type TransactionsViewMode } from '@/components/transactions-view-switcher'
+import { TransactionsCategoryView } from '@/components/transactions-category-view'
+import {
+  CategoryPill,
+  PendingSectionHeader,
+  TransactionDayHeader,
+  TransactionsSummaryLine,
+} from '@/components/transactions-list-sections'
+import {
+  PENDING_SECTION_BORDER,
+  PENDING_SECTION_TINT,
+  formatDayDate,
+  groupByDay,
+  partitionPending,
+  relativeDay,
+  sumSignedAmounts,
+} from '@/lib/transactions-grouping'
+import { useEffectiveTimezone } from '@/hooks/use-timezone'
+import { todayInTimezone } from '@/lib/date-utils'
 
 type TransactionUpdatePayload = TransactionEditPayload & {
   apply_to_transfer_pair?: boolean
@@ -84,6 +104,14 @@ function parseHashtags(notes: string | null): string[] {
 
 const HIDE_IGNORED_STORAGE_KEY = 'securo.transactions.hideIgnored'
 
+function parseViewMode(value: string | null): TransactionsViewMode {
+  return value === 'calendar' || value === 'category' ? value : 'list'
+}
+
+// The category view sums the whole filtered set client-side; this is the
+// list endpoint's own ceiling, and the view says so when a period exceeds it.
+const CATEGORY_VIEW_LIMIT = 500
+
 export default function TransactionsPage() {
   const { t, i18n } = useTranslation()
   const { collapsed: sidebarCollapsed } = useSidebarState()
@@ -98,6 +126,10 @@ export default function TransactionsPage() {
   const { canWrite, hasModule } = useWorkspace()
   const userCurrency = user?.preferences?.currency_display ?? 'USD'
   const queryClient = useQueryClient()
+  // "Today" as the server's books see it, for the day headers and the strip.
+  const timeZone = useEffectiveTimezone()
+  const today = todayInTimezone(timeZone)
+  const thisMonth = today.slice(0, 7)
   const [page, setPage] = useState(1)
   const [limit, setLimit] = useState<number>(() => {
     try {
@@ -147,9 +179,7 @@ export default function TransactionsPage() {
   // Manual installment-series scoped delete. Scoped edits are handled by the
   // shared TransactionDialog so account detail and dashboard behave the same.
   const [pendingSeriesDeleteId, setPendingSeriesDeleteId] = useState<string | null>(null)
-  const [viewMode, setViewMode] = useState<'list' | 'calendar'>(() => (
-    searchParams.get('view') === 'calendar' ? 'calendar' : 'list'
-  ))
+  const [viewMode, setViewMode] = useState<TransactionsViewMode>(() => parseViewMode(searchParams.get('view')))
   const [calendarSelectedDate, setCalendarSelectedDate] = useState<string>(() => searchParams.get('day') ?? '')
   const [filterPayee, setFilterPayee] = useState<string>(searchParams.get('payee_id') ?? '')
   const [filterGroupId, setFilterGroupId] = useState<string>(searchParams.get('group_id') ?? '')
@@ -235,7 +265,7 @@ export default function TransactionsPage() {
     prevSearchRef.current = search
 
     const nextQ = searchParams.get('q') ?? ''
-    setViewMode(searchParams.get('view') === 'calendar' ? 'calendar' : 'list')
+    setViewMode(parseViewMode(searchParams.get('view')))
     setCalendarSelectedDate(searchParams.get('day') ?? '')
     setSearchInput(nextQ)
     setSearchQuery(nextQ)
@@ -275,7 +305,7 @@ export default function TransactionsPage() {
     const params = new URLSearchParams(
       [
         ['q', searchQuery],
-        ['view', viewMode === 'calendar' ? 'calendar' : ''],
+        ['view', viewMode === 'list' ? '' : viewMode],
         ['day', viewMode === 'calendar' ? calendarSelectedDate : ''],
         ['tags', tagFilters.join(',')],
         ['payee_id', filterPayee],
@@ -404,6 +434,33 @@ export default function TransactionsPage() {
         // Mobile has no column headers to change sort; force date-desc so
         // the date grouping always works correctly.
         ...(isMobile ? { sort_by: 'date', sort_dir: 'desc' as const } : grid.apiSort),
+      }),
+  })
+
+  // The category view needs the whole filtered set, not one page of it.
+  const { data: categoryData, isLoading: categoryLoading } = useQuery({
+    queryKey: ['transactions', 'by-category', CATEGORY_VIEW_LIMIT, effectiveAccountIds, filterCategoryIds, filterUncategorized, filterPayee, filterGroupId, filterType, filterStatus, filterFrom, filterTo, filterMinAmount, filterMaxAmount, hideIgnored, searchQuery, tagFilters],
+    enabled: viewMode === 'category' && !noAccounts,
+    queryFn: () =>
+      transactions.list({
+        page: 1,
+        limit: CATEGORY_VIEW_LIMIT,
+        account_ids: effectiveAccountIds.length > 0 ? effectiveAccountIds : undefined,
+        category_ids: filterCategoryIds.length > 0 ? filterCategoryIds : undefined,
+        payee_id: filterPayee || undefined,
+        group_id: filterGroupId || undefined,
+        type: filterType || undefined,
+        status: filterStatus || undefined,
+        uncategorized: filterUncategorized ? true : undefined,
+        from: filterFrom || undefined,
+        to: filterTo || undefined,
+        min_amount: filterMinAmount ? Number(filterMinAmount) : undefined,
+        max_amount: filterMaxAmount ? Number(filterMaxAmount) : undefined,
+        q: searchQuery || undefined,
+        tags: tagFilters.length > 0 ? tagFilters : undefined,
+        exclude_ignored: hideIgnored ? true : undefined,
+        sort_by: 'date',
+        sort_dir: 'desc',
       }),
   })
 
@@ -745,7 +802,7 @@ export default function TransactionsPage() {
 
   const toggleSelect = (id: string, isShiftKey: boolean = false) => {
     setSelectedIds(prev =>
-      calculateRangeSelection(prev, lastSelectedId, id, filteredItems, isShiftKey, tx => !tx.is_shared)
+      calculateRangeSelection(prev, lastSelectedId, id, displayItems, isShiftKey, tx => !tx.is_shared)
     )
     setLastSelectedId(id)
   }
@@ -755,28 +812,29 @@ export default function TransactionsPage() {
   const filteredItems = useMemo(() => data?.items ?? [], [data?.items])
   const selectableItems = filteredItems.filter(tx => !tx.is_shared)
 
-  // Group transactions by date for the mobile card view
-  const groupedByDate = useMemo(() => {
-    const groups: { date: string; label: string; items: Transaction[] }[] = []
-    let current: { date: string; label: string; items: Transaction[] } | null = null
-    for (const tx of filteredItems) {
-      if (!current || current.date !== tx.date) {
-        current = {
-          date: tx.date,
-          label: new Date(tx.date + 'T00:00:00').toLocaleDateString(dateLocale, {
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric',
-          }),
-          items: [],
-        }
-        groups.push(current)
-      }
-      current.items.push(tx)
-    }
-    return groups
-  }, [filteredItems, dateLocale])
+  // Statement layout: rows the bank has not settled yet on top, then the
+  // rest grouped by day. Only when the list is in date order (always on
+  // mobile); sorted by any other column the rows read as a flat table.
+  const groupedLayout = isMobile || !grid.sortBy || grid.sortBy === 'date'
+  const { pending: pendingItems, settled: settledItems } = useMemo(
+    () => (groupedLayout ? partitionPending(filteredItems) : { pending: [], settled: filteredItems }),
+    [groupedLayout, filteredItems],
+  )
+  const dayGroups = useMemo(() => groupByDay(settledItems), [settledItems])
+  const pendingNet = useMemo(() => sumSignedAmounts(pendingItems), [pendingItems])
+  // Rows in the order they are on screen, so shift-click ranges follow what
+  // the user sees rather than the server's order.
+  const displayItems = useMemo(
+    () => (groupedLayout ? [...pendingItems, ...settledItems] : filteredItems),
+    [groupedLayout, pendingItems, settledItems, filteredItems],
+  )
+  const dayLabel = (date: string) => {
+    const base = formatDayDate(date, today, dateLocale)
+    const rel = relativeDay(date, today)
+    if (rel === 'today') return `${t('transactions.dayToday')} · ${base}`
+    if (rel === 'yesterday') return `${t('transactions.dayYesterday')} · ${base}`
+    return base
+  }
 
   // Pre-resolve accounts into a Map for O(1) lookup in the mobile card view
   const accountById = useMemo(() => {
@@ -1025,8 +1083,12 @@ export default function TransactionsPage() {
     return (
       <>
         <span
-          className={`text-xs md:text-sm font-bold tabular-nums ${
-            tx.is_ignored ? 'text-gray-500': tx.type === 'credit' ? 'text-emerald-600' : 'text-rose-500'
+          className={`text-sm font-semibold tabular-nums ${
+            tx.is_ignored
+              ? 'text-muted-foreground'
+              : tx.type === 'credit'
+                ? 'text-[#0B7A41] dark:text-emerald-400'
+                : 'text-foreground'
           }`}
         >
           {mask(
@@ -1067,17 +1129,48 @@ export default function TransactionsPage() {
   }
 
   const renderDescriptionCell = (tx: Transaction) => {
-    const showInlineDate = !grid.isVisible('date')
+    // Under day headers the date is already said; elsewhere it rides along
+    // when its column is hidden.
+    const showInlineDate = !groupedLayout && !grid.isVisible('date')
     const showInlineNotes = !grid.isVisible('notes')
     const showInlineTags = !grid.isVisible('tags')
     const noteText = tx.notes ? stripHashtags(tx.notes) : ''
     const noteTags = tx.notes ? parseHashtags(tx.notes) : []
+    // Secondary line: what the hidden columns would have said, plus the
+    // installment position, joined the way a bank statement reads.
+    const secondaryParts: { key: string; node: React.ReactNode }[] = []
+    if (showInlineDate) {
+      secondaryParts.push({ key: 'date', node: new Date(tx.date + 'T00:00:00').toLocaleDateString(dateLocale) })
+    }
+    if (!grid.isVisible('account') && tx.account_id) {
+      const acc = accountById.get(tx.account_id)
+      if (acc) secondaryParts.push({ key: 'account', node: getAccountName(acc) })
+    }
+    if (tx.installment_number != null && tx.total_installments != null) {
+      secondaryParts.push({
+        key: 'installment',
+        node: (
+          <span
+            className="tabular-nums"
+            title={tx.installment_total_amount != null
+              ? t('transactions.installmentTooltip', { count: tx.total_installments, total: tx.installment_total_amount })
+              : undefined}
+          >
+            {t('transactions.installmentPosition', { current: tx.installment_number, total: tx.total_installments })}
+          </span>
+        ),
+      })
+    }
+    const payeeName = tx.payee_name ?? tx.payee
+    if (!grid.isVisible('payee') && payeeName && payeeName !== tx.description) {
+      secondaryParts.push({ key: 'payee', node: payeeName })
+    }
     return (
-      <div className="flex items-center gap-2 md:gap-3">
+      <div className="flex items-center gap-3">
         <CategoryIcon icon={tx.category?.icon} color={tx.category?.color} size="lg" />
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2">
-            <p className="text-sm font-semibold text-foreground truncate">{tx.description}</p>
+            <p className="text-[14.5px] font-semibold text-foreground truncate">{tx.description}</p>
             {tx.group_id && (
               <span
                 className="inline-flex items-center gap-1 text-[10px] font-semibold uppercase tracking-wide text-violet-700 bg-violet-50 border border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-900 px-1.5 py-0.5 rounded-full"
@@ -1166,16 +1259,6 @@ export default function TransactionsPage() {
                 {t('transactions.recurringBadge')}
               </span>
             )}
-            {tx.installment_number != null && tx.total_installments != null && (
-              <span
-                className="inline-flex items-center text-[10px] font-bold tabular-nums text-amber-700 dark:text-amber-400 bg-amber-100 dark:bg-amber-500/20 border border-amber-200 dark:border-amber-500/30 px-1.5 py-0.5 rounded-full"
-                title={tx.installment_total_amount != null
-                  ? t('transactions.installmentTooltip', { count: tx.total_installments, total: tx.installment_total_amount })
-                  : undefined}
-              >
-                {tx.installment_number}/{tx.total_installments}
-              </span>
-            )}
             {shouldShowPendingBadge(tx) && (
               <span
                 title={t('transactions.pending')}
@@ -1188,8 +1271,15 @@ export default function TransactionsPage() {
               <Paperclip size={12} className="text-muted-foreground shrink-0" />
             )}
           </div>
-          {showInlineDate && (
-            <p className="text-xs text-muted-foreground mt-0.5">{new Date(tx.date + 'T00:00:00').toLocaleDateString(dateLocale)}</p>
+          {secondaryParts.length > 0 && (
+            <p className="mt-0.5 truncate text-[12.5px] text-muted-foreground">
+              {secondaryParts.map((part, i) => (
+                <Fragment key={part.key}>
+                  {i > 0 && ' · '}
+                  {part.node}
+                </Fragment>
+              ))}
+            </p>
           )}
           {(showInlineNotes || showInlineTags) && tx.notes && (
             <div className="mt-1 space-y-0.5">
@@ -1219,7 +1309,7 @@ export default function TransactionsPage() {
   const renderBodyCell = (col: ColumnDef, tx: Transaction) => {
     const widthStyle = { width: grid.widthOf(col.id), minWidth: grid.widthOf(col.id) }
     const alignClass = col.align === 'right' ? 'text-right' : ''
-    const baseClass = `py-2.5 ${alignClass}`
+    const baseClass = `py-3 ${alignClass}`
     switch (col.id) {
       case 'date':
         return (
@@ -1236,11 +1326,7 @@ export default function TransactionsPage() {
       case 'category':
         return (
           <TableCell key={col.id} style={widthStyle} className={baseClass}>
-            {tx.category ? (
-              <span className="text-sm text-muted-foreground">{tx.category.name}</span>
-            ) : (
-              <span className="text-xs text-muted-foreground italic">{t('transactions.noCategory')}</span>
-            )}
+            <CategoryPill category={tx.category} emptyLabel={t('transactions.noCategory')} />
           </TableCell>
         )
       case 'account': {
@@ -1344,6 +1430,104 @@ export default function TransactionsPage() {
       ? t('transactions.exportSelected', { count: selectedIds.size })
       : t('transactions.exportCsv')
 
+  const handleViewChange = (value: TransactionsViewMode) => {
+    if (value === 'calendar' && filterAccountIds.length > 1) setFilterAccountIds([])
+    setViewMode(value)
+  }
+
+  const openTransaction = (tx: Transaction) => {
+    if (tx.is_shared) {
+      // Owned by another user — view in the group context instead.
+      if (tx.group_id) navigate(`/groups/${tx.group_id}`)
+      return
+    }
+    if (!canWrite) return
+    setEditingTx(tx)
+    setDialogOpen(true)
+  }
+
+  const renderDesktopRow = (tx: Transaction, inPendingSection: boolean) => (
+    <TableRow
+      key={tx.id}
+      ref={tx.id === highlightId ? highlightedRowRef : undefined}
+      className={cn(
+        'border-b last:border-0',
+        inPendingSection ? cn(PENDING_SECTION_BORDER, PENDING_SECTION_TINT, 'hover:bg-amber-500/10') : 'border-border/60 hover:bg-muted/50',
+        selectedIds.has(tx.id) && 'bg-primary/5',
+        tx.is_shared || !canWrite ? 'cursor-default' : 'cursor-pointer',
+      )}
+      onClick={() => openTransaction(tx)}
+    >
+      <TableCell style={{ width: 40, minWidth: 40 }} className="py-3 pl-4 pr-0">
+        {/* Bulk operations are scoped to user.id so they
+            silently skip shared rows — hide the checkbox
+            on those to avoid the dead-end UX. */}
+        {canWrite && !tx.is_shared && (
+          <input
+            type="checkbox"
+            checked={selectedIds.has(tx.id)}
+            onChange={() => {}}
+            onClick={(e) => {
+              e.stopPropagation()
+              toggleSelect(tx.id, e.shiftKey)
+            }}
+            aria-label={tx.description}
+            className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
+          />
+        )}
+      </TableCell>
+      {grid.visibleColumns.map(col => renderBodyCell(col, tx))}
+    </TableRow>
+  )
+
+  const renderMobileRow = (tx: Transaction) => (
+    <MobileTransactionRow
+      key={tx.id}
+      tx={tx}
+      account={tx.account_id ? accountById.get(tx.account_id) : undefined}
+      groupName={tx.group_id ? groupNameById.get(tx.group_id) : undefined}
+      selected={selectedIds.has(tx.id)}
+      selectable={canWrite && !tx.is_shared}
+      canWrite={canWrite}
+      highlighted={tx.id === highlightId}
+      highlightedRowRef={tx.id === highlightId ? highlightedRowRef : undefined}
+      locale={locale}
+      userCurrency={userCurrency}
+      onSelect={toggleSelect}
+      onClick={(row) => {
+        if (row.is_shared) {
+          if (row.group_id) navigate(`/groups/${row.group_id}`)
+          return
+        }
+        setEditingTx(row)
+        setDialogOpen(true)
+      }}
+    />
+  )
+
+  const hasActiveFilters = !!(
+    searchQuery || filterAccountIds.length || filterCategoryIds.length || filterUncategorized
+    || filterPayee || filterGroupId || filterType || filterStatus || filterMinAmount
+    || filterMaxAmount || tagFilters.length
+  )
+
+  const renderEmptyState = () => (
+    <div className="flex flex-col items-center gap-2 px-6 py-16 text-center">
+      <div className="mb-1 flex size-11 items-center justify-center rounded-xl bg-muted text-muted-foreground">
+        <Receipt size={20} aria-hidden="true" />
+      </div>
+      <p className="text-sm font-semibold text-foreground">{t('transactions.noResults')}</p>
+      <p className="max-w-sm text-xs text-muted-foreground">
+        {hasActiveFilters ? t('transactions.emptyFilteredHint') : t('transactions.emptyPeriodHint')}
+      </p>
+      {canWrite && !hasActiveFilters && (
+        <Button size="sm" className="mt-2" onClick={() => { setEditingTx(null); setDialogOpen(true) }}>
+          {t('transactions.newTransaction')}
+        </Button>
+      )}
+    </div>
+  )
+
   return (
     <div>
       <PageHeader
@@ -1358,15 +1542,6 @@ export default function TransactionsPage() {
               prevLabel: t('transactions.monthPrevious'),
               nextLabel: t('transactions.monthNext'),
             }}
-            view={{
-              value: viewMode,
-              onChange: (value) => {
-                if (value === 'calendar' && filterAccountIds.length > 1) setFilterAccountIds([])
-                setViewMode(value)
-              },
-              listLabel: t('transactions.listView'),
-              calendarLabel: t('transactions.calendarView'),
-            }}
             columnPicker={viewMode === 'list' ? <TransactionsColumnPicker state={grid} /> : null}
             exportLabel={exportLabel}
             exporting={exporting}
@@ -1377,6 +1552,30 @@ export default function TransactionsPage() {
           />
         }
       />
+
+      {/* Twelve months of net results; picking one sets the list's range. */}
+      <TransactionsMonthStrip
+        currentMonth={thisMonth}
+        selectedMonth={monthFromRange(filterFrom, filterTo)}
+        onSelectMonth={handleMonthChange}
+        accountIds={effectiveAccountIds}
+        disabled={noAccounts}
+        currency={userCurrency}
+        locale={locale}
+        labelLocale={dateLocale}
+      />
+
+      <div className="mb-4 flex flex-wrap items-center gap-2">
+        <TransactionsViewSwitcher
+          value={viewMode}
+          onChange={handleViewChange}
+          listLabel={t('transactions.statementView')}
+          categoryLabel={t('transactions.byCategoryView')}
+          calendarLabel={t('transactions.calendarView')}
+          ariaLabel={t('transactions.viewSwitcherLabel')}
+          className="w-full sm:w-auto"
+        />
+      </div>
 
       {/* Filters */}
       <TransactionsFilterBar
@@ -1442,6 +1641,18 @@ export default function TransactionsPage() {
         categoryGroups={categoryGroupsList ?? []}
         payees={payeesList ?? []}
         groups={allGroups ?? []}
+        summary={viewMode !== 'calendar' && data?.summary ? (
+          <TransactionsSummaryLine
+            count={data.total}
+            income={data.summary.income}
+            expense={data.summary.expense}
+            net={data.summary.net}
+            excluded={data.summary.excluded}
+            currency={data.summary.currency}
+            locale={locale}
+            mask={mask}
+          />
+        ) : undefined}
       />
       {filterGroupId && (
         <div className="mb-4 flex flex-wrap items-center gap-1.5">
@@ -1498,56 +1709,67 @@ export default function TransactionsPage() {
         />
       )}
 
-      {/* Table / Mobile Cards */}
+      {viewMode === 'category' && (
+        <TransactionsCategoryView
+          items={noAccounts ? [] : categoryData?.items}
+          total={noAccounts ? 0 : categoryData?.total ?? 0}
+          isLoading={!noAccounts && categoryLoading}
+          currency={userCurrency}
+          locale={locale}
+          mask={mask}
+          onSelectCategory={(categoryId) => {
+            if (categoryId) {
+              setFilterCategoryIds([categoryId])
+              setFilterUncategorized(false)
+            } else {
+              setFilterCategoryIds([])
+              setFilterUncategorized(true)
+            }
+            setPage(1)
+            setViewMode('list')
+          }}
+        />
+      )}
+
+      {/* Statement: pending block, then rows grouped by day */}
       {viewMode === 'list' && (
-      <div className="bg-card rounded-xl border border-border shadow-sm overflow-hidden mb-4">
+      <div className="bg-card rounded-2xl border border-border overflow-hidden mb-4">
         {isLoading ? (
           <div className="p-6 space-y-3">
             {Array.from({ length: 5 }).map((_, i) => (
               <Skeleton key={i} className="h-14 w-full" />
             ))}
           </div>
+        ) : filteredItems.length === 0 ? (
+          renderEmptyState()
         ) : isMobile ? (
           /* ── Mobile card view: grouped by date ── */
           <div>
-            {groupedByDate.map((group) => (
-              <div key={group.date}>
-                <div className="bg-muted/80 px-4 py-1.5 border-b border-border">
-                  <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-                    {group.label}
-                  </span>
-                </div>
-                {group.items.map((tx) => (
-                  <MobileTransactionRow
-                    key={tx.id}
-                    tx={tx}
-                    account={tx.account_id ? accountById.get(tx.account_id) : undefined}
-                    groupName={tx.group_id ? groupNameById.get(tx.group_id) : undefined}
-                    selected={selectedIds.has(tx.id)}
-                    selectable={canWrite && !tx.is_shared}
-                    canWrite={canWrite}
-                    highlighted={tx.id === highlightId}
-                    highlightedRowRef={tx.id === highlightId ? highlightedRowRef : undefined}
-                    locale={locale}
-                    userCurrency={userCurrency}
-                    onSelect={toggleSelect}
-                    onClick={(t) => {
-                      if (t.is_shared) {
-                        if (t.group_id) navigate(`/groups/${t.group_id}`)
-                        return
-                      }
-                      setEditingTx(t)
-                      setDialogOpen(true)
-                    }}
-                  />
-                ))}
-              </div>
-            ))}
-            {filteredItems.length === 0 && (
-              <div className="text-center py-16 text-muted-foreground">
-                {t('transactions.noResults')}
+            {pendingItems.length > 0 && (
+              <div className={cn('border-b', PENDING_SECTION_TINT, PENDING_SECTION_BORDER)}>
+                <PendingSectionHeader
+                  count={pendingItems.length}
+                  net={pendingNet}
+                  currency={userCurrency}
+                  locale={locale}
+                  mask={mask}
+                />
+                {pendingItems.map(renderMobileRow)}
               </div>
             )}
+            {dayGroups.map((group) => (
+              <div key={group.date}>
+                <TransactionDayHeader
+                  label={dayLabel(group.date)}
+                  net={group.net}
+                  currency={userCurrency}
+                  locale={locale}
+                  mask={mask}
+                  className="border-b border-border/60"
+                />
+                {group.items.map(renderMobileRow)}
+              </div>
+            ))}
           </div>
         ) : (
           /* ── Desktop table view ── */
@@ -1562,6 +1784,7 @@ export default function TransactionsPage() {
                       checked={allSelected}
                       ref={(el) => { if (el) el.indeterminate = someSelected }}
                       onChange={toggleSelectAll}
+                      aria-label={t('transactions.selectAll')}
                       className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
                     />
                   )}
@@ -1570,133 +1793,46 @@ export default function TransactionsPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredItems.map((tx) => (
-                <TableRow
-                  key={tx.id}
-                  ref={tx.id === highlightId ? highlightedRowRef : undefined}
-                  className={`hover:bg-muted border-b border-border last:border-0 ${
-                    selectedIds.has(tx.id) ? 'bg-primary/5' : ''
-                  } ${tx.is_shared || !canWrite ? 'cursor-default' : 'cursor-pointer'}`}
-                  onClick={() => {
-                    if (tx.is_shared) {
-                      // Owned by another user — view in the group context instead.
-                      if (tx.group_id) navigate(`/groups/${tx.group_id}`)
-                      return
-                    }
-                    if (!canWrite) return
-                    setEditingTx(tx)
-                    setDialogOpen(true)
-                  }}
-                >
-                  <TableCell style={{ width: 40, minWidth: 40 }} className="py-2.5 pl-4 pr-0">
-                    {/* Bulk operations are scoped to user.id so they
-                        silently skip shared rows — hide the checkbox
-                        on those to avoid the dead-end UX. */}
-                    {canWrite && !tx.is_shared && (
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(tx.id)}
-                        onChange={() => {}}
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          toggleSelect(tx.id, e.shiftKey)
-                        }}
-                        className="h-4 w-4 rounded border-border accent-primary cursor-pointer"
-                      />
-                    )}
-                  </TableCell>
-                  {grid.visibleColumns.map(col => renderBodyCell(col, tx))}
-                </TableRow>
-              ))}
-              {filteredItems.length === 0 && (
-                <TableRow>
-                  <TableCell colSpan={grid.visibleColumns.length + 1} className="text-center py-16 text-muted-foreground">
-                    {t('transactions.noResults')}
-                  </TableCell>
-                </TableRow>
+              {groupedLayout ? (
+                <>
+                  {pendingItems.length > 0 && (
+                    <>
+                      <TableRow className={cn('hover:bg-transparent', PENDING_SECTION_TINT, PENDING_SECTION_BORDER)}>
+                        <TableCell colSpan={grid.visibleColumns.length + 1} className="p-0">
+                          <PendingSectionHeader
+                            count={pendingItems.length}
+                            net={pendingNet}
+                            currency={userCurrency}
+                            locale={locale}
+                            mask={mask}
+                          />
+                        </TableCell>
+                      </TableRow>
+                      {pendingItems.map((tx) => renderDesktopRow(tx, true))}
+                    </>
+                  )}
+                  {dayGroups.map((group) => (
+                    <Fragment key={group.date}>
+                      <TableRow className="hover:bg-transparent border-b border-border/60">
+                        <TableCell colSpan={grid.visibleColumns.length + 1} className="p-0">
+                          <TransactionDayHeader
+                            label={dayLabel(group.date)}
+                            net={group.net}
+                            currency={userCurrency}
+                            locale={locale}
+                            mask={mask}
+                          />
+                        </TableCell>
+                      </TableRow>
+                      {group.items.map((tx) => renderDesktopRow(tx, false))}
+                    </Fragment>
+                  ))}
+                </>
+              ) : (
+                filteredItems.map((tx) => renderDesktopRow(tx, false))
               )}
             </TableBody>
           </Table>
-          </div>
-        )}
-        {/* Filtered summary (issue #185): income / expenses / net across
-            ALL rows matching the active filters — not just this page. */}
-        {!isLoading && data?.summary && filteredItems.length > 0 && (
-          <div className="flex flex-col sm:flex-row flex-wrap sm:items-center gap-x-5 gap-y-1 border-t border-border bg-muted/30 px-4 py-2.5">
-            {/* Mobile: count + saldo on first line */}
-            <div className="flex items-center justify-between sm:hidden">
-              <span className="text-xs text-muted-foreground">
-                {t('transactions.summaryCount', { count: data.total })}
-              </span>
-              <span className="flex items-baseline gap-1.5 text-xs">
-                <span className="text-muted-foreground">{t('transactions.summaryNet')}</span>
-                <span
-                  className={`text-sm font-bold tabular-nums ${
-                    data.summary.net >= 0 ? 'text-emerald-600' : 'text-rose-500'
-                  }`}
-                >
-                  {mask(formatCurrency(data.summary.net, data.summary.currency, locale))}
-                </span>
-              </span>
-            </div>
-            {/* Mobile: receitas + despesas on second line */}
-            <div className="flex items-center justify-between sm:hidden">
-              <span className="flex items-baseline gap-1.5 text-xs">
-                <span className="text-muted-foreground">{t('transactions.summaryIncome')}</span>
-                <span className="text-sm font-semibold tabular-nums text-emerald-600">
-                  {mask(formatCurrency(data.summary.income, data.summary.currency, locale))}
-                </span>
-              </span>
-              <span className="flex items-baseline gap-1.5 text-xs">
-                <span className="text-muted-foreground">{t('transactions.summaryExpenses')}</span>
-                <span className="text-sm font-semibold tabular-nums text-rose-500">
-                  {mask(formatCurrency(data.summary.expense, data.summary.currency, locale))}
-                </span>
-              </span>
-            </div>
-            {/* Mobile: excluido on third line */}
-            {data.summary.excluded > 0 && (
-              <span className="flex items-baseline gap-1.5 text-xs sm:hidden">
-                <span className="text-muted-foreground">{t('transactions.summaryExcluded')}</span>
-                <span className="text-sm font-semibold tabular-nums text-muted-foreground">
-                  {mask(formatCurrency(data.summary.excluded, data.summary.currency, locale))}
-                </span>
-              </span>
-            )}
-            {/* Desktop: original horizontal layout */}
-            <span className="mr-auto text-xs text-muted-foreground hidden sm:inline">
-              {t('transactions.summaryCount', { count: data.total })}
-            </span>
-            {data.summary.excluded > 0 && (
-              <span className="hidden sm:flex items-baseline gap-1.5 text-xs">
-                <span className="text-muted-foreground">{t('transactions.summaryExcluded')}</span>
-                <span className="text-sm font-semibold tabular-nums text-muted-foreground">
-                  {mask(formatCurrency(data.summary.excluded, data.summary.currency, locale))}
-                </span>
-              </span>
-            )}
-            <span className="hidden sm:flex items-baseline gap-1.5 text-xs">
-              <span className="text-muted-foreground">{t('transactions.summaryIncome')}</span>
-              <span className="text-sm font-semibold tabular-nums text-emerald-600">
-                {mask(formatCurrency(data.summary.income, data.summary.currency, locale))}
-              </span>
-            </span>
-            <span className="hidden sm:flex items-baseline gap-1.5 text-xs">
-              <span className="text-muted-foreground">{t('transactions.summaryExpenses')}</span>
-              <span className="text-sm font-semibold tabular-nums text-rose-500">
-                {mask(formatCurrency(data.summary.expense, data.summary.currency, locale))}
-              </span>
-            </span>
-            <span className="hidden sm:flex items-baseline gap-1.5 text-xs">
-              <span className="text-muted-foreground">{t('transactions.summaryNet')}</span>
-              <span
-                className={`text-sm font-bold tabular-nums ${
-                  data.summary.net >= 0 ? 'text-emerald-600' : 'text-rose-500'
-                }`}
-              >
-                {mask(formatCurrency(data.summary.net, data.summary.currency, locale))}
-              </span>
-            </span>
           </div>
         )}
       </div>

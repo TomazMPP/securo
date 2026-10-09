@@ -1189,7 +1189,39 @@
     "invoiceBadgeTooltip": "Ta transakcja rozlicza fakturę. Otwórz ją.",
     "suggestionBadge": "Pytanie",
     "suggestionBadgeTooltip": "Płatność może opłacić tę fakturę. Otwórz kolejkę, aby odpowiedzieć.",
-    "clearGroupFilter": "Wyczyść filtr grupy"
+    "clearGroupFilter": "Wyczyść filtr grupy",
+    "newTransaction": "Nowa transakcja",
+    "statementView": "Wyciąg",
+    "byCategoryView": "Według kategorii",
+    "viewSwitcherLabel": "Widok",
+    "monthStrip": {
+      "title": "Wynik miesięczny",
+      "legend": "Linia przerywana = prognoza z płatności cyklicznych i rat",
+      "projectedTooltip": "Prognoza z płatności cyklicznych, rat i oczekujących operacji"
+    },
+    "summaryCountNoun_one": "transakcja",
+    "summaryCountNoun_few": "transakcje",
+    "summaryCountNoun_many": "transakcji",
+    "summaryCountNoun_other": "transakcji",
+    "summaryInflows": "Wpływy",
+    "summaryOutflows": "Wydatki",
+    "summaryExcludedHint": "Przelewy i pominięte pozycje, nieliczone do wpływów i wydatków",
+    "pendingSection": {
+      "title": "Oczekuje na bank · {{count}}",
+      "included": "{{amount}} już wliczone do sumy"
+    },
+    "dayToday": "Dziś",
+    "dayYesterday": "Wczoraj",
+    "installmentPosition": "rata {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Pokaż transakcje z kategorii {{category}}",
+      "emptyTitle": "Na razie nie ma czego grupować",
+      "emptyHint": "Brak transakcji w tym okresie przy tych filtrach.",
+      "partial": "Pokazano pierwsze {{shown}} z {{total}} transakcji. Zawęź okres, aby zobaczyć pełne sumy."
+    },
+    "emptyFilteredHint": "Wybierz inny miesiąc lub wyczyść filtry.",
+    "emptyPeriodHint": "W tym okresie nic jeszcze nie zapisano.",
+    "selectAll": "Zaznacz wszystkie"
   },
   "accounts": {
     "title": "Konta",
