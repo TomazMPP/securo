@@ -62,9 +62,11 @@ def test_schedule_without_payments_follows_the_contract():
 def test_real_contract_matches_what_the_bank_reported():
     rate = implied_rate(PRINCIPAL, INSTALLMENT, N)
     s = build_schedule(PRINCIPAL, rate, INSTALLMENT, N, CONTRACT, FIRST_DUE, REAL_PAYMENTS, date(2026, 10, 9))
-    # The bank showed R$ 58.532,39 outstanding and the 7th installment next.
+    # The bank showed R$ 58.532,39 outstanding and 7 of 24 settled (29%):
+    # two regular installments plus five settled early by the two boletos.
     assert s.balance_today == pytest.approx(58532.39, rel=0.01)
-    assert s.paid_installments == 6
+    assert s.paid_installments == 7
+    assert s.remaining_installments == 17
     assert s.next_due == date(2026, 10, 21)
     # Early repayments shorten the contract and save interest.
     assert s.months_saved >= 3
@@ -147,7 +149,7 @@ async def test_linking_extras_updates_balance_and_mirrors_principal(client: Asyn
             assert resp.status_code == 200
 
     sched = (await client.get(f"/api/loans/{loan['id']}/schedule", headers=auth_headers)).json()
-    assert sched["paid_installments"] == 6
+    assert sched["paid_installments"] == 7
     assert len(sched["payments"]) == 4
     assert sched["interest_saved"] > 4000
 

@@ -196,4 +196,19 @@ def build_schedule(
         cursor = due
         k += 1
         due = add_months(first_due, regular + k)
+
+    # Early repayments settle whole installments at the bank (the last ones,
+    # discounted to present value); rebuilding them by accrual leaves a few
+    # reais of rounding as a phantom final installment. Fold a residue under
+    # a quarter installment into the one before it.
+    if len(sched.projected) >= 2 and sched.projected[-1].payment < installment * 0.25:
+        tail = sched.projected.pop()
+        prev = sched.projected[-1]
+        sched.projected[-1] = Projected(
+            prev.date,
+            round(prev.payment + tail.payment, 2),
+            round(prev.interest + tail.interest, 2),
+            round(prev.principal + tail.principal, 2),
+            0.0,
+        )
     return sched

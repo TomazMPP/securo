@@ -9,6 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.accounts import router as accounts_router
 from app.api.analysis import router as analysis_router
 from app.api.loans import router as loans_router
+from app.api.cards import router as cards_router
 from app.api.notifications import router as notifications_router
 from app.api.budgets import router as budgets_router
 from app.api.goals import router as goals_router
@@ -193,6 +194,7 @@ app.include_router(dashboard_router)
 app.include_router(reports_router)
 app.include_router(analysis_router)
 app.include_router(loans_router)
+app.include_router(cards_router)
 app.include_router(notifications_router)
 app.include_router(search_router)
 app.include_router(setup_router)
