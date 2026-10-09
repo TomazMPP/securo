@@ -36,7 +36,12 @@ class Loan(Base):
     connection_id: Mapped[Optional[uuid.UUID]] = mapped_column(
         UUID(as_uuid=True), ForeignKey("bank_connections.id", ondelete="SET NULL"), nullable=True, index=True
     )
-    source: Mapped[str] = mapped_column(String(50), default="pluggy")
+    # The account that represents this debt in balances and net worth (a
+    # manual `loan` account). Matched payments mirror their principal into it.
+    account_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("accounts.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    source: Mapped[str] = mapped_column(String(50), default="pluggy")  # pluggy | manual
     external_id: Mapped[str] = mapped_column(String(255), nullable=False)
     institution_name: Mapped[Optional[str]] = mapped_column(String(255), nullable=True)
     contract_number: Mapped[Optional[str]] = mapped_column(String(100), nullable=True)
@@ -79,4 +84,33 @@ class Loan(Base):
 
     __table_args__ = (
         UniqueConstraint("workspace_id", "source", "external_id", name="uq_loans_workspace_source_external_id"),
+    )
+
+
+class LoanPayment(Base):
+    """A real transaction recognised as a payment of a loan.
+
+    `kind` is "installment" (a scheduled installment) or "extra" (an early
+    repayment). `principal`/`interest` are the split computed from the
+    contract; the principal is mirrored into the loan's account as
+    `mirror_transaction_id` so the account balance follows the debt.
+    """
+
+    __tablename__ = "loan_payments"
+
+    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    loan_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("loans.id", ondelete="CASCADE"), index=True
+    )
+    transaction_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("transactions.id", ondelete="CASCADE"), unique=True
+    )
+    kind: Mapped[str] = mapped_column(String(20), default="installment")
+    principal: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2), nullable=True)
+    interest: Mapped[Optional[Decimal]] = mapped_column(Numeric(15, 2), nullable=True)
+    mirror_transaction_id: Mapped[Optional[uuid.UUID]] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=lambda: datetime.now(timezone.utc)
     )
