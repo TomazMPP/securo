@@ -1155,7 +1155,37 @@
     "invoiceBadgeTooltip": "Esta transacción salda una factura. Ábrela.",
     "suggestionBadge": "Pregunta",
     "suggestionBadgeTooltip": "Un pago puede saldar esta factura. Abre la cola para responder.",
-    "clearGroupFilter": "Quitar filtro de grupo"
+    "clearGroupFilter": "Quitar filtro de grupo",
+    "newTransaction": "Nueva transacción",
+    "statementView": "Extracto",
+    "byCategoryView": "Por categoría",
+    "viewSwitcherLabel": "Vista",
+    "monthStrip": {
+      "title": "Resultado por mes",
+      "legend": "Discontinuo = proyección con recurrentes y cuotas",
+      "projectedTooltip": "Proyección con recurrentes, cuotas y movimientos pendientes"
+    },
+    "summaryCountNoun_one": "transacción",
+    "summaryCountNoun_other": "transacciones",
+    "summaryInflows": "Entradas",
+    "summaryOutflows": "Salidas",
+    "summaryExcludedHint": "Transferencias y elementos ignorados, fuera de entradas y salidas",
+    "pendingSection": {
+      "title": "Esperando al banco · {{count}}",
+      "included": "{{amount}} ya incluido en el total"
+    },
+    "dayToday": "Hoy",
+    "dayYesterday": "Ayer",
+    "installmentPosition": "cuota {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Ver transacciones de {{category}}",
+      "emptyTitle": "Aún no hay nada que agrupar",
+      "emptyHint": "Ninguna transacción coincide con este período y estos filtros.",
+      "partial": "Mostrando las primeras {{shown}} de {{total}} transacciones. Acorta el período para ver los totales completos."
+    },
+    "emptyFilteredHint": "Prueba otro mes o borra los filtros.",
+    "emptyPeriodHint": "Todavía no hay nada registrado en este período.",
+    "selectAll": "Seleccionar todas"
   },
   "accounts": {
     "title": "Cuentas",

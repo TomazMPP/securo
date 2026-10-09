@@ -1153,7 +1153,37 @@
     "invoiceBadgeTooltip": "यह लेन-देन एक इनवॉइस चुकाता है। इसे खोलें।",
     "suggestionBadge": "सवाल",
     "suggestionBadgeTooltip": "एक भुगतान इसे चुका सकता है। जवाब देने के लिए कतार खोलें।",
-    "clearGroupFilter": "समूह फ़िल्टर हटाएँ"
+    "clearGroupFilter": "समूह फ़िल्टर हटाएँ",
+    "newTransaction": "नया लेन-देन",
+    "statementView": "विवरण",
+    "byCategoryView": "श्रेणी के अनुसार",
+    "viewSwitcherLabel": "दृश्य",
+    "monthStrip": {
+      "title": "महीने के अनुसार परिणाम",
+      "legend": "डैश रेखा = आवर्ती और किस्तों से अनुमान",
+      "projectedTooltip": "आवर्ती लेन-देन, किस्तों और लंबित मदों से अनुमान"
+    },
+    "summaryCountNoun_one": "लेन-देन",
+    "summaryCountNoun_other": "लेन-देन",
+    "summaryInflows": "आय",
+    "summaryOutflows": "ख़र्च",
+    "summaryExcludedHint": "ट्रांसफ़र और अनदेखी मदें, आय और ख़र्च से बाहर",
+    "pendingSection": {
+      "title": "बैंक की प्रतीक्षा · {{count}}",
+      "included": "{{amount}} कुल में पहले से शामिल"
+    },
+    "dayToday": "आज",
+    "dayYesterday": "कल",
+    "installmentPosition": "किस्त {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "{{category}} के लेन-देन दिखाएँ",
+      "emptyTitle": "अभी समूह बनाने को कुछ नहीं",
+      "emptyHint": "इस अवधि और इन फ़िल्टरों से कोई लेन-देन मेल नहीं खाता।",
+      "partial": "{{total}} में से पहले {{shown}} लेन-देन दिखाए जा रहे हैं। पूरे योग के लिए अवधि छोटी करें।"
+    },
+    "emptyFilteredHint": "कोई दूसरा महीना आज़माएँ या फ़िल्टर हटाएँ।",
+    "emptyPeriodHint": "इस अवधि में अभी कुछ दर्ज नहीं है।",
+    "selectAll": "सभी चुनें"
   },
   "accounts": {
     "title": "खाते",

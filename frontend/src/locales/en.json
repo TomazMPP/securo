@@ -1153,7 +1153,37 @@
     "invoiceBadgeTooltip": "This transaction settles an invoice. Open it.",
     "suggestionBadge": "Question",
     "suggestionBadgeTooltip": "A payment may settle this. Open the queue to answer.",
-    "clearGroupFilter": "Clear group filter"
+    "clearGroupFilter": "Clear group filter",
+    "newTransaction": "New transaction",
+    "statementView": "Statement",
+    "byCategoryView": "By category",
+    "viewSwitcherLabel": "View",
+    "monthStrip": {
+      "title": "Result by month",
+      "legend": "Dashed = projection from recurring and installments",
+      "projectedTooltip": "Projected from recurring transactions, installments and pending items"
+    },
+    "summaryCountNoun_one": "transaction",
+    "summaryCountNoun_other": "transactions",
+    "summaryInflows": "Inflows",
+    "summaryOutflows": "Outflows",
+    "summaryExcludedHint": "Transfers and ignored items, kept out of inflows and outflows",
+    "pendingSection": {
+      "title": "Waiting on the bank · {{count}}",
+      "included": "{{amount}} already included in the total"
+    },
+    "dayToday": "Today",
+    "dayYesterday": "Yesterday",
+    "installmentPosition": "installment {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Show {{category}} transactions",
+      "emptyTitle": "Nothing to group yet",
+      "emptyHint": "No transactions match this period and these filters.",
+      "partial": "Showing the first {{shown}} of {{total}} transactions. Narrow the period for complete totals."
+    },
+    "emptyFilteredHint": "Try another month or clear the filters.",
+    "emptyPeriodHint": "Nothing recorded in this period yet.",
+    "selectAll": "Select all"
   },
   "accounts": {
     "title": "Accounts",

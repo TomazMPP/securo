@@ -1153,7 +1153,37 @@
     "invoiceBadgeTooltip": "Deze transactie rekent een factuur af. Openen.",
     "suggestionBadge": "Vraag",
     "suggestionBadgeTooltip": "Een betaling kan deze factuur voldoen. Open de wachtrij om te antwoorden.",
-    "clearGroupFilter": "Groepsfilter wissen"
+    "clearGroupFilter": "Groepsfilter wissen",
+    "newTransaction": "Nieuwe transactie",
+    "statementView": "Afschrift",
+    "byCategoryView": "Per categorie",
+    "viewSwitcherLabel": "Weergave",
+    "monthStrip": {
+      "title": "Resultaat per maand",
+      "legend": "Gestippeld = prognose uit terugkerende posten en termijnen",
+      "projectedTooltip": "Prognose uit terugkerende transacties, termijnen en openstaande posten"
+    },
+    "summaryCountNoun_one": "transactie",
+    "summaryCountNoun_other": "transacties",
+    "summaryInflows": "Inkomsten",
+    "summaryOutflows": "Uitgaven",
+    "summaryExcludedHint": "Overboekingen en genegeerde posten, buiten inkomsten en uitgaven gehouden",
+    "pendingSection": {
+      "title": "Wacht op de bank · {{count}}",
+      "included": "{{amount}} al meegeteld in het totaal"
+    },
+    "dayToday": "Vandaag",
+    "dayYesterday": "Gisteren",
+    "installmentPosition": "termijn {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Transacties in {{category}} tonen",
+      "emptyTitle": "Nog niets om te groeperen",
+      "emptyHint": "Geen transacties in deze periode met deze filters.",
+      "partial": "De eerste {{shown}} van {{total}} transacties worden getoond. Verklein de periode voor volledige totalen."
+    },
+    "emptyFilteredHint": "Probeer een andere maand of wis de filters.",
+    "emptyPeriodHint": "Nog niets geregistreerd in deze periode.",
+    "selectAll": "Alles selecteren"
   },
   "accounts": {
     "title": "Rekeningen",

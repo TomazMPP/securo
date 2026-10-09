@@ -32,10 +32,11 @@ export interface ColumnDef {
 // list in registry order; visible columns render in the order the user has
 // chosen (persisted in localStorage), which defaults to registry order.
 export const COLUMN_REGISTRY: ColumnDef[] = [
+  // Account is off by default: each row's secondary line names it.
   { id: 'date',        labelKey: 'transactions.colDate',        defaultVisible: true,  sortable: true,  defaultWidth: 110, align: 'left' },
   { id: 'description', labelKey: 'transactions.colDescription', alwaysOn: true, defaultVisible: true, sortable: true, defaultWidth: 320, align: 'left' },
   { id: 'category',    labelKey: 'transactions.colCategory',    defaultVisible: true,  sortable: true,  defaultWidth: 180, align: 'left' },
-  { id: 'account',     labelKey: 'transactions.colAccount',     defaultVisible: true,  sortable: true,  defaultWidth: 160, align: 'left' },
+  { id: 'account',     labelKey: 'transactions.colAccount',     defaultVisible: false,  sortable: true,  defaultWidth: 160, align: 'left' },
   { id: 'payee',       labelKey: 'transactions.colPayee',       defaultVisible: false, sortable: true,  defaultWidth: 160, align: 'left' },
   { id: 'notes',       labelKey: 'transactions.colNotes',       defaultVisible: false, sortable: false, defaultWidth: 220, align: 'left' },
   { id: 'tags',        labelKey: 'transactions.colTags',        defaultVisible: false, sortable: false, defaultWidth: 180, align: 'left' },

@@ -1167,7 +1167,39 @@
     "invoiceBadgeTooltip": "Эта операция закрывает счёт. Открыть.",
     "suggestionBadge": "Вопрос",
     "suggestionBadgeTooltip": "Платёж может закрыть этот счёт. Откройте очередь, чтобы ответить.",
-    "clearGroupFilter": "Сбросить фильтр группы"
+    "clearGroupFilter": "Сбросить фильтр группы",
+    "newTransaction": "Новая операция",
+    "statementView": "Выписка",
+    "byCategoryView": "По категориям",
+    "viewSwitcherLabel": "Вид",
+    "monthStrip": {
+      "title": "Итог по месяцам",
+      "legend": "Пунктир = прогноз по регулярным платежам и рассрочкам",
+      "projectedTooltip": "Прогноз по регулярным платежам, рассрочкам и ожидающим операциям"
+    },
+    "summaryCountNoun_one": "операция",
+    "summaryCountNoun_few": "операции",
+    "summaryCountNoun_many": "операций",
+    "summaryCountNoun_other": "операции",
+    "summaryInflows": "Поступления",
+    "summaryOutflows": "Расходы",
+    "summaryExcludedHint": "Переводы и игнорируемые операции не входят в поступления и расходы",
+    "pendingSection": {
+      "title": "Ожидает банка · {{count}}",
+      "included": "{{amount}} уже учтено в итоге"
+    },
+    "dayToday": "Сегодня",
+    "dayYesterday": "Вчера",
+    "installmentPosition": "платёж {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Показать операции категории {{category}}",
+      "emptyTitle": "Пока нечего группировать",
+      "emptyHint": "Нет операций за этот период с этими фильтрами.",
+      "partial": "Показаны первые {{shown}} из {{total}} операций. Сократите период, чтобы увидеть полные суммы."
+    },
+    "emptyFilteredHint": "Выберите другой месяц или сбросьте фильтры.",
+    "emptyPeriodHint": "За этот период пока ничего не записано.",
+    "selectAll": "Выбрать все"
   },
   "accounts": {
     "title": "Счета",

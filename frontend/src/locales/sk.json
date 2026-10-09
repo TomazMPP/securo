@@ -1205,7 +1205,39 @@
     "invoiceBadgeTooltip": "Táto transakcia vyrovnáva faktúru. Otvorte ju.",
     "suggestionBadge": "Otázka",
     "suggestionBadgeTooltip": "Platba môže uhradiť túto faktúru. Otvorte front a odpovedzte.",
-    "clearGroupFilter": "Zrušiť filter skupiny"
+    "clearGroupFilter": "Zrušiť filter skupiny",
+    "newTransaction": "Nová transakcia",
+    "statementView": "Výpis",
+    "byCategoryView": "Podľa kategórie",
+    "viewSwitcherLabel": "Zobrazenie",
+    "monthStrip": {
+      "title": "Výsledok po mesiacoch",
+      "legend": "Prerušovaná čiara = prognóza z opakovaných platieb a splátok",
+      "projectedTooltip": "Prognóza z opakovaných platieb, splátok a čakajúcich položiek"
+    },
+    "summaryCountNoun_one": "transakcia",
+    "summaryCountNoun_few": "transakcie",
+    "summaryCountNoun_many": "transakcií",
+    "summaryCountNoun_other": "transakcií",
+    "summaryInflows": "Príjmy",
+    "summaryOutflows": "Výdavky",
+    "summaryExcludedHint": "Prevody a ignorované položky, nezapočítané do príjmov a výdavkov",
+    "pendingSection": {
+      "title": "Čaká na banku · {{count}}",
+      "included": "{{amount}} už započítané v súčte"
+    },
+    "dayToday": "Dnes",
+    "dayYesterday": "Včera",
+    "installmentPosition": "splátka {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Zobraziť transakcie v kategórii {{category}}",
+      "emptyTitle": "Zatiaľ nie je čo zoskupiť",
+      "emptyHint": "V tomto období s týmito filtrami nie sú žiadne transakcie.",
+      "partial": "Zobrazuje sa prvých {{shown}} z {{total}} transakcií. Pre úplné súčty skráťte obdobie."
+    },
+    "emptyFilteredHint": "Skúste iný mesiac alebo zrušte filtre.",
+    "emptyPeriodHint": "V tomto období zatiaľ nie je nič zaznamenané.",
+    "selectAll": "Vybrať všetky"
   },
   "accounts": {
     "title": "Účty",

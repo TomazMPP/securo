@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 import { getAccountName, sortAccountsByDisplayName } from '@/lib/account-utils'
 import { useTranslation } from 'react-i18next'
 import { useDisplayLocale, useDateLocale } from '@/hooks/use-display-locale'
@@ -88,6 +88,8 @@ interface TransactionsFilterBarProps {
   categoryGroups: CategoryGroup[]
   payees: Payee[]
   groups: Group[]
+  /** Count and totals for the active filters, shown under the controls. */
+  summary?: ReactNode
 }
 
 function toggleInArray(arr: string[], id: string): string[] {
@@ -128,6 +130,7 @@ export function TransactionsFilterBar({
   categoryGroups,
   payees,
   groups,
+  summary,
 }: TransactionsFilterBarProps) {
   const { t, i18n } = useTranslation()
   const locale = useDisplayLocale()
@@ -353,7 +356,7 @@ export function TransactionsFilterBar({
       <PopoverAnchor asChild>
       <div
         className={cn(
-          'group/filterbar rounded-xl border border-border bg-card shadow-sm transition-colors',
+          'group/filterbar rounded-2xl border border-border bg-card transition-colors',
           'focus-within:border-primary/40 focus-within:ring-[3px] focus-within:ring-primary/10',
         )}
       >
@@ -1109,6 +1112,12 @@ export function TransactionsFilterBar({
                 onRemove={() => onAmountRangeChange('', '')}
               />
             )}
+          </div>
+        )}
+
+        {summary && (
+          <div className="border-t border-border/60 px-3 py-2">
+            {summary}
           </div>
         )}
       </div>

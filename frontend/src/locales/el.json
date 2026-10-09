@@ -1354,7 +1354,37 @@
     "invoiceBadgeTooltip": "Αυτή η συναλλαγή εξοφλεί ένα τιμολόγιο. Ανοίξτε το.",
     "suggestionBadge": "Ερώτηση",
     "suggestionBadgeTooltip": "Μια πληρωμή μπορεί να εξοφλεί ένα τιμολόγιο. Ανοίξτε την ουρά για να απαντήσετε.",
-    "clearGroupFilter": "Κατάργηση φίλτρου ομάδας"
+    "clearGroupFilter": "Κατάργηση φίλτρου ομάδας",
+    "newTransaction": "Νέα συναλλαγή",
+    "statementView": "Κίνηση",
+    "byCategoryView": "Ανά κατηγορία",
+    "viewSwitcherLabel": "Προβολή",
+    "monthStrip": {
+      "title": "Αποτέλεσμα ανά μήνα",
+      "legend": "Διακεκομμένη = πρόβλεψη από επαναλαμβανόμενες και δόσεις",
+      "projectedTooltip": "Πρόβλεψη από επαναλαμβανόμενες συναλλαγές, δόσεις και εκκρεμείς κινήσεις"
+    },
+    "summaryCountNoun_one": "συναλλαγή",
+    "summaryCountNoun_other": "συναλλαγές",
+    "summaryInflows": "Εισροές",
+    "summaryOutflows": "Εκροές",
+    "summaryExcludedHint": "Μεταφορές και αγνοημένα στοιχεία, εκτός εισροών και εκροών",
+    "pendingSection": {
+      "title": "Αναμονή τράπεζας · {{count}}",
+      "included": "{{amount}} ήδη στο σύνολο"
+    },
+    "dayToday": "Σήμερα",
+    "dayYesterday": "Χθες",
+    "installmentPosition": "δόση {{current}}/{{total}}",
+    "byCategory": {
+      "showTransactions": "Εμφάνιση συναλλαγών {{category}}",
+      "emptyTitle": "Τίποτα για ομαδοποίηση ακόμη",
+      "emptyHint": "Καμία συναλλαγή σε αυτή την περίοδο με αυτά τα φίλτρα.",
+      "partial": "Εμφανίζονται οι πρώτες {{shown}} από {{total}} συναλλαγές. Περιορίστε την περίοδο για πλήρη σύνολα."
+    },
+    "emptyFilteredHint": "Δοκιμάστε άλλον μήνα ή καθαρίστε τα φίλτρα.",
+    "emptyPeriodHint": "Δεν έχει καταγραφεί τίποτα σε αυτή την περίοδο ακόμη.",
+    "selectAll": "Επιλογή όλων"
   },
   "budgets": {
     "title": "Προϋπολογισμοί",
