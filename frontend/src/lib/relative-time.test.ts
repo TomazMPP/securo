@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
-import { formatRelative } from '@/lib/relative-time'
+import { formatRelative, formatTimeAgo } from '@/lib/relative-time'
 
 const NOW = new Date('2026-06-15T12:00:00.000Z')
 
@@ -54,5 +54,20 @@ describe('formatRelative', () => {
     // Never render "NaNm ago" into the UI.
     expect(formatRelative('not a date')).toBe('')
     expect(formatRelative('')).toBe('')
+  })
+})
+
+describe('formatTimeAgo', () => {
+  const now = NOW.getTime()
+
+  it('picks minutes, hours, then days in the given locale', () => {
+    expect(formatTimeAgo(ago(5), 'en', now)).toBe('5 minutes ago')
+    expect(formatTimeAgo(ago(60), 'en', now)).toBe('1 hour ago')
+    expect(formatTimeAgo(ago(60 * 24 * 3), 'en', now)).toBe('3 days ago')
+    expect(formatTimeAgo(ago(60), 'pt-BR', now)).toBe('há 1 hora')
+  })
+
+  it('returns an empty string for an unparseable timestamp', () => {
+    expect(formatTimeAgo('nope', 'en', now)).toBe('')
   })
 })
