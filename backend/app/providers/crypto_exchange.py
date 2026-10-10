@@ -15,9 +15,10 @@ Pricing note: quotes come from Binance's public ticker endpoint, which needs
 no credentials and covers far more symbols than any single exchange's own
 list. It is used purely as a price oracle — a Kraken or Coinbase connection
 never authenticates against Binance, and a user of those exchanges needs no
-Binance account. Anything that table cannot price (newer listings such as
-HYPE are simply absent from it) gets a second lookup against Coinbase's
-public spot endpoint, which is also keyless.
+Binance account. Pairs Binance has halted are dropped first, because its
+table keeps them at their frozen last price. Anything that table cannot price
+(newer listings such as HYPE, or XMR since its delisting) gets a second lookup
+against Coinbase's public spot endpoint and then Kraken's, both keyless.
 """
 from __future__ import annotations
 
@@ -39,9 +40,18 @@ logger = logging.getLogger(__name__)
 
 PRICE_ORACLE_URL = "https://api.binance.com/api/v3/ticker/price"
 
-# Secondary, per-symbol oracle for coins the main table has no pair for.
-# Keyless, like the primary one.
+# Pairs that are actually trading. The ticker table keeps delisted pairs with
+# their last price frozen (XMRUSDT has sat at its 2024 delisting price ever
+# since), so it is filtered against this before any pair counts as priceable.
+TRADING_PAIRS_URL = (
+    "https://api.binance.com/api/v3/exchangeInfo?symbolStatus=TRADING&showPermissionSets=false"
+)
+
+# Secondary, per-symbol oracles for coins the main table has no pair for,
+# tried in order. Keyless, like the primary one. Kraken covers privacy coins
+# (XMR) that neither Binance nor Coinbase list.
 FALLBACK_PRICE_URL = "https://api.coinbase.com/v2/prices/{symbol}-USD/spot"
+KRAKEN_FALLBACK_PRICE_URL = "https://api.kraken.com/0/public/Ticker?pair={symbol}USD"
 
 # One HTTP call per symbol, so this is bounded. A wallet with more unpriced
 # coins than this is holding dust, not positions worth a round trip each.
@@ -97,12 +107,12 @@ class ResolvedAsset:
 
 
 async def fetch_price_table() -> dict[str, Decimal]:
-    """Whole ticker table in one call.
+    """Whole ticker table in one call, minus pairs that no longer trade.
 
-    Deliberately unfiltered: real wallets hold assets with no pair of their
-    own (staking wrappers, fiat), and the batched ``symbols=[...]`` variant
-    fails the *entire* request with ``-1121 Invalid symbol`` at the first
-    unknown one.
+    Deliberately unfiltered by symbol: real wallets hold assets with no pair
+    of their own (staking wrappers, fiat), and the batched ``symbols=[...]``
+    variant fails the *entire* request with ``-1121 Invalid symbol`` at the
+    first unknown one.
     """
     async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
         resp = await client.get(PRICE_ORACLE_URL)
@@ -111,18 +121,63 @@ async def fetch_price_table() -> dict[str, Decimal]:
                 f"price oracle failed: {resp.status_code} {resp.text[:200]}"
             )
         rows = resp.json()
+        trading = await _fetch_trading_pairs(client)
+    return price_table_from_rows(rows, trading)
+
+
+async def _fetch_trading_pairs(client: httpx.AsyncClient) -> Optional[set[str]]:
+    """Symbols currently trading, or None when the list is unavailable.
+
+    None keeps the unfiltered table: a failed status lookup must not leave a
+    whole wallet unpriced, it only loses the stale-pair protection for a sync.
+    """
+    try:
+        resp = await client.get(TRADING_PAIRS_URL)
+        if resp.status_code >= 400:
+            raise RuntimeError(f"{resp.status_code} {resp.text[:200]}")
+        symbols = (resp.json() or {}).get("symbols") or []
+    except (httpx.HTTPError, RuntimeError, ValueError, TypeError) as exc:
+        logger.warning("trading-pair list unavailable, prices not filtered: %s", exc)
+        return None
+    return {s["symbol"] for s in symbols if isinstance(s, dict) and s.get("symbol")}
+
+
+def price_table_from_rows(rows, trading: Optional[set[str]]) -> dict[str, Decimal]:
+    """Build the pair → price table, dropping pairs not in `trading`."""
     return {
         r["symbol"]: to_decimal(r.get("price"))
         for r in rows
         if isinstance(r, dict) and r.get("symbol")
+        and (trading is None or r["symbol"] in trading)
     }
+
+
+def _coinbase_spot(payload) -> Decimal:
+    return to_decimal(((payload or {}).get("data") or {}).get("amount"))
+
+
+def _kraken_last_trade(payload) -> Decimal:
+    """Last trade price from a Kraken Ticker reply. Kraken keys the result by
+    its own pair code (XXMRZUSD for XMRUSD), so take the single entry."""
+    if (payload or {}).get("error"):
+        return Decimal("0")
+    for ticker in ((payload or {}).get("result") or {}).values():
+        return to_decimal(((ticker or {}).get("c") or [None])[0])
+    return Decimal("0")
+
+
+FALLBACK_ORACLES = (
+    (FALLBACK_PRICE_URL, _coinbase_spot),
+    (KRAKEN_FALLBACK_PRICE_URL, _kraken_last_trade),
+)
 
 
 async def fetch_fallback_prices(symbols: set[str]) -> dict[str, Decimal]:
     """USD spot quotes for symbols the main ticker table could not price.
 
-    The endpoint takes one symbol per request, which is why it backs up the
-    batched table rather than replacing it. A symbol it does not recognise is
+    The endpoints take one symbol per request, which is why they back up the
+    batched table rather than replacing it. Each symbol tries the oracles in
+    order and stops at the first quote. A symbol none of them recognises is
     left out, so the holding still surfaces unpriced rather than at a made-up
     value; a failed lookup is likewise never fatal to the sync.
     """
@@ -139,16 +194,18 @@ async def fetch_fallback_prices(symbols: set[str]) -> dict[str, Decimal]:
 
     async with httpx.AsyncClient(timeout=HTTP_TIMEOUT) as client:
         for sym in ordered:
-            try:
-                resp = await client.get(FALLBACK_PRICE_URL.format(symbol=sym))
-                if resp.status_code >= 400:
+            for url, parse in FALLBACK_ORACLES:
+                try:
+                    resp = await client.get(url.format(symbol=sym))
+                    if resp.status_code >= 400:
+                        continue
+                    amount = parse(resp.json())
+                except (httpx.HTTPError, ValueError, TypeError) as exc:  # noqa: PERF203
+                    logger.info("fallback price lookup failed for %s: %s", sym, exc)
                     continue
-                amount = to_decimal(((resp.json() or {}).get("data") or {}).get("amount"))
-            except (httpx.HTTPError, ValueError, TypeError) as exc:  # noqa: PERF203
-                logger.info("fallback price lookup failed for %s: %s", sym, exc)
-                continue
-            if amount > 0:
-                prices[sym] = amount
+                if amount > 0:
+                    prices[sym] = amount
+                    break
     return prices
 
 

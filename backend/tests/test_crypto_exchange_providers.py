@@ -143,6 +143,49 @@ def test_fallback_is_only_consulted_for_unpriced_coins():
     assert h.metadata["price_source"] == "oracle"
 
 
+def test_halted_pairs_are_dropped_from_the_price_table():
+    """A delisted pair keeps its frozen last price on the ticker endpoint
+    (XMRUSDT sat at 118.70 long after delisting); it must not price anything."""
+    from app.providers.crypto_exchange import price_table_from_rows
+
+    rows = [{"symbol": "BTCUSDT", "price": "82676.01"}, {"symbol": "XMRUSDT", "price": "118.70"}]
+    table = price_table_from_rows(rows, {"BTCUSDT"})
+    assert table == {"BTCUSDT": Decimal("82676.01")}
+
+
+def test_price_table_unfiltered_when_trading_list_unavailable():
+    from app.providers.crypto_exchange import price_table_from_rows
+
+    rows = [{"symbol": "BTCUSDT", "price": "1"}, {"symbol": "XMRUSDT", "price": "2"}]
+    assert set(price_table_from_rows(rows, None)) == {"BTCUSDT", "XMRUSDT"}
+
+
+def test_fallback_tries_kraken_when_coinbase_has_no_quote():
+    """XMR is listed on neither Binance nor Coinbase; Kraken's public ticker
+    (keyed by its own pair code) still values it."""
+    import httpx
+    import app.providers.crypto_exchange as ce
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        if request.url.host == "api.coinbase.com":
+            return httpx.Response(404, json={"errors": [{"id": "not_found"}]})
+        assert request.url.params["pair"] == "XMRUSD"
+        return httpx.Response(200, json={"error": [], "result": {"XXMRZUSD": {"c": ["518.05", "0.28"]}}})
+
+    real_client = httpx.AsyncClient
+    ce.httpx.AsyncClient = lambda **kw: real_client(transport=httpx.MockTransport(handler), **kw)  # type: ignore[assignment]
+    try:
+        assert run(ce.fetch_fallback_prices({"XMR"})) == {"XMR": Decimal("518.05")}
+    finally:
+        ce.httpx.AsyncClient = real_client  # type: ignore[assignment]
+
+
+def test_kraken_ticker_error_reply_is_no_quote():
+    from app.providers.crypto_exchange import _kraken_last_trade
+
+    assert _kraken_last_trade({"error": ["EQuery:Unknown asset pair"], "result": {}}) == Decimal("0")
+
+
 def test_currency_is_always_iso_never_the_ticker():
     """Regression guard for #448: a crypto ticker in `currency` breaks sync."""
     class P(CryptoExchangeProvider):
