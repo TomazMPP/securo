@@ -3207,11 +3207,23 @@
     "availableOfLimit": "Доступно {{available}} із {{limit}}",
     "closes": "Закриття {{date}}",
     "due": "Платіж {{date}}",
+    "showAllCategories": "Показати всі категорії ({{count}})",
+    "showFewerCategories": "Показати менше",
+    "categoryDetail": {
+      "inPeriod": "Вибраний період",
+      "monthlyAverage": "У середньому за місяць",
+      "allTime": "За весь час",
+      "since": "з {{date}}",
+      "byMonth": "По місяцях",
+      "viewTransactions": "Переглянути транзакції"
+    },
     "range": {
       "thisMonth": "Цей місяць",
       "lastMonth": "Минулий місяць",
       "last3": "Останні 3 місяці",
+      "last12": "Останні 12 місяців",
       "thisYear": "Цей рік",
+      "allTime": "Увесь час",
       "custom": "Довільний"
     }
   },

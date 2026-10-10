@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { ResponsiveContainer, Tooltip, Treemap } from 'recharts'
-import { ArrowDownRight, ArrowUpRight, HelpCircle, Repeat } from 'lucide-react'
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, Treemap, XAxis, YAxis } from 'recharts'
+import { ArrowDownRight, ArrowUpRight, ChevronRight, HelpCircle, Repeat } from 'lucide-react'
 import { analysis } from '@/lib/api'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover'
 import { PageHeader } from '@/components/page-header'
+import { ChartTooltip } from '@/components/chart-tooltip'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { AccountIcon } from '@/components/account-icon'
 import { getAccountTypeConfig } from '@/lib/account-type-config'
 import { usePrivacyMode } from '@/hooks/use-privacy-mode'
@@ -18,7 +20,9 @@ import type {
   AccountMonthPoint,
   AccountsAnalysis,
   AnalysisAccount,
+  AnalysisCategory,
   AnalysisSide,
+  CategoryAnalysis,
   PeriodAnalysis,
 } from '@/types'
 
@@ -30,9 +34,11 @@ function iso(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
-type RangeKey = 'thisMonth' | 'lastMonth' | 'last3' | 'thisYear' | 'custom'
+type RangeKey = 'thisMonth' | 'lastMonth' | 'last3' | 'last12' | 'thisYear' | 'allTime' | 'custom'
 
-/** Presets resolve against today; `custom` keeps whatever is in the inputs. */
+/** Presets resolve against today; `custom` keeps whatever is in the inputs.
+ *  `allTime`'s start is a placeholder — the server starts at the first
+ *  transaction and echoes the real start back. */
 function rangeFor(key: Exclude<RangeKey, 'custom'>): { start: string; end: string } {
   const now = new Date()
   const y = now.getFullYear()
@@ -44,12 +50,19 @@ function rangeFor(key: Exclude<RangeKey, 'custom'>): { start: string; end: strin
       return { start: iso(new Date(y, m - 1, 1)), end: iso(new Date(y, m, 0)) }
     case 'last3':
       return { start: iso(new Date(y, m - 2, 1)), end: iso(now) }
+    case 'last12':
+      return { start: iso(new Date(y, m - 11, 1)), end: iso(now) }
     case 'thisYear':
       return { start: iso(new Date(y, 0, 1)), end: iso(now) }
+    case 'allTime':
+      return { start: iso(new Date(2000, 0, 1)), end: iso(now) }
   }
 }
 
-const RANGES: RangeKey[] = ['thisMonth', 'lastMonth', 'last3', 'thisYear', 'custom']
+const RANGES: RangeKey[] = ['thisMonth', 'lastMonth', 'last3', 'last12', 'thisYear', 'allTime', 'custom']
+
+/** How many categories the list shows before "show all". */
+const CATEGORY_PREVIEW = 10
 
 function SectionCard({ children, className = '' }: { children: React.ReactNode; className?: string }) {
   return (
@@ -84,15 +97,22 @@ interface TreemapCellProps {
   color?: string
   name?: string
   share?: number
+  category?: AnalysisCategory
+  onSelect?: (c: AnalysisCategory) => void
 }
 
 /** Treemap cell. Labels are dropped when the rectangle is too small to hold
  *  them, which is what keeps a long tail of small categories readable. */
-function TreemapCell({ x = 0, y = 0, width = 0, height = 0, color, name, share = 0 }: TreemapCellProps) {
+function TreemapCell({
+  x = 0, y = 0, width = 0, height = 0, color, name, share = 0, category, onSelect,
+}: TreemapCellProps) {
   const showLabel = width > 62 && height > 30
   const showShare = width > 62 && height > 46
   return (
-    <g>
+    <g
+      onClick={category && onSelect ? () => onSelect(category) : undefined}
+      style={category && onSelect ? { cursor: 'pointer' } : undefined}
+    >
       <rect
         x={x} y={y} width={width} height={height}
         style={{ fill: color || '#6B7280', stroke: 'var(--background, #fff)', strokeWidth: 2 }}
@@ -118,12 +138,15 @@ interface SideProps {
   locale: string
   mask: (s: string) => string
   tone: 'expense' | 'income'
+  onSelectCategory: (c: AnalysisCategory) => void
 }
 
-function SideSection({ side, currency, locale, mask, tone }: SideProps) {
+function SideSection({ side, currency, locale, mask, tone, onSelectCategory }: SideProps) {
   const { t } = useTranslation()
   const money = (v: number) => mask(formatCurrency(v, currency, locale))
   const isExpense = tone === 'expense'
+  const [showAllCategories, setShowAllCategories] = useState(false)
+  const visibleCategories = showAllCategories ? side.categories : side.categories.slice(0, CATEGORY_PREVIEW)
 
   const treemapData = useMemo(
     () =>
@@ -135,6 +158,7 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
           share: c.share,
           color: c.color,
           count: c.count,
+          category: c,
         })),
     [side.categories, t],
   )
@@ -185,7 +209,7 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
               data={treemapData}
               dataKey="size"
               isAnimationActive={false}
-              content={<TreemapCell />}
+              content={<TreemapCell onSelect={onSelectCategory} />}
             >
               <Tooltip
                 formatter={(value) => money(Number(value))}
@@ -200,8 +224,13 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
           </ResponsiveContainer>
         </div>
         <div className="border-t border-border divide-y divide-border">
-          {side.categories.slice(0, 10).map((c) => (
-            <div key={c.category_id ?? 'none'} className="flex items-center gap-3 px-4 sm:px-5 py-2.5">
+          {visibleCategories.map((c) => (
+            <button
+              key={c.category_id ?? 'none'}
+              type="button"
+              onClick={() => onSelectCategory(c)}
+              className="w-full flex items-center gap-3 px-4 sm:px-5 py-2.5 text-left hover:bg-accent/50 transition-colors"
+            >
               <span className="h-2.5 w-2.5 rounded-sm shrink-0" style={{ background: c.color }} />
               <span className="text-sm text-foreground truncate flex-1">
                 {c.category_id ? c.name : t('analysis.uncategorized')}
@@ -215,8 +244,20 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
               <span className="text-sm font-medium tabular-nums text-foreground w-28 text-right">
                 {money(c.total)}
               </span>
-            </div>
+              <ChevronRight size={14} className="text-muted-foreground shrink-0" />
+            </button>
           ))}
+          {side.categories.length > CATEGORY_PREVIEW && (
+            <button
+              type="button"
+              onClick={() => setShowAllCategories((v) => !v)}
+              className="w-full px-4 sm:px-5 py-2.5 text-xs text-muted-foreground hover:text-foreground text-center"
+            >
+              {showAllCategories
+                ? t('analysis.showFewerCategories')
+                : t('analysis.showAllCategories', { count: side.categories.length })}
+            </button>
+          )}
         </div>
       </Panel>
 
@@ -249,7 +290,7 @@ function SideSection({ side, currency, locale, mask, tone }: SideProps) {
             {side.largest.map((tx) => (
               <Link
                 key={tx.id}
-                to={`/transactions?search=${encodeURIComponent(tx.description)}`}
+                to={`/transactions?q=${encodeURIComponent(tx.description)}`}
                 className="flex items-center gap-3 px-4 sm:px-5 py-2.5 hover:bg-accent/50 transition-colors"
               >
                 <div className="min-w-0 flex-1">
@@ -487,17 +528,18 @@ function AccountRow({ acc, currency, locale, mask }: AccountRowProps) {
 }
 
 interface AccountsSectionProps {
+  allTime: boolean
   range: { start: string; end: string }
   accountIds?: string[]
   locale: string
   mask: (s: string) => string
 }
 
-function AccountsSection({ range, accountIds, locale, mask }: AccountsSectionProps) {
+function AccountsSection({ range, accountIds, allTime, locale, mask }: AccountsSectionProps) {
   const { t } = useTranslation()
   const { data, isLoading } = useQuery<AccountsAnalysis>({
-    queryKey: ['analysis-accounts', range.start, range.end, accountIds],
-    queryFn: () => analysis.accounts(range.start, range.end, accountIds),
+    queryKey: ['analysis-accounts', range.start, range.end, accountIds, allTime],
+    queryFn: () => analysis.accounts(range.start, range.end, accountIds, allTime),
   })
 
   if (isLoading || !data) {
@@ -553,6 +595,164 @@ function AccountsSection({ range, accountIds, locale, mask }: AccountsSectionPro
   )
 }
 
+function monthLong(month: string, locale: string) {
+  const [y, m] = month.split('-').map(Number)
+  return new Date(y, m - 1, 1).toLocaleDateString(locale, { month: 'long', year: 'numeric' })
+}
+
+interface CategoryDetailProps {
+  category: AnalysisCategory | null
+  type: 'debit' | 'credit'
+  range: { start: string; end: string }
+  allTime: boolean
+  accountIds?: string[]
+  locale: string
+  mask: (s: string) => string
+  onClose: () => void
+}
+
+/** Drill-down for one category: period and lifetime totals, the month-by-month
+ *  trend, who the money went to, and a jump to the matching transactions. */
+function CategoryDetail({ category, type, range, allTime, accountIds, locale, mask, onClose }: CategoryDetailProps) {
+  const { t } = useTranslation()
+  const categoryId = category?.category_id ?? null
+  const { data, isLoading } = useQuery<CategoryAnalysis>({
+    queryKey: ['analysis-category', categoryId, type, range.start, range.end, accountIds, allTime],
+    queryFn: () => analysis.category(categoryId, type, range.start, range.end, accountIds, allTime),
+    enabled: category !== null,
+  })
+
+  const money = (v: number) => mask(formatCurrency(v, data?.currency ?? 'USD', locale))
+  const compact = (v: number) =>
+    mask(new Intl.NumberFormat(locale, { notation: 'compact', maximumFractionDigits: 1 }).format(v))
+  const name = category ? (category.category_id ? category.name : t('analysis.uncategorized')) : ''
+  const color = category?.color ?? '#6B7280'
+  const txLink = data
+    ? `/transactions?${new URLSearchParams({
+        ...(categoryId ? { category_id: categoryId } : {}),
+        from: data.start,
+        to: data.end,
+      }).toString()}`
+    : null
+
+  return (
+    <Dialog open={category !== null} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-2xl max-h-[calc(100dvh-2rem)] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <span className="h-3 w-3 rounded-sm shrink-0" style={{ background: color }} />
+            {name}
+          </DialogTitle>
+          <DialogDescription>
+            {category?.group_name ? `${category.group_name} · ` : ''}
+            {t(type === 'debit' ? 'analysis.expenses' : 'analysis.income')}
+          </DialogDescription>
+        </DialogHeader>
+
+        {isLoading || !data ? (
+          <div className="space-y-3">
+            <Skeleton className="h-20 w-full" />
+            <Skeleton className="h-48 w-full" />
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <SectionCard className="p-3.5">
+                <p className="text-xs text-muted-foreground mb-1">{t('analysis.categoryDetail.inPeriod')}</p>
+                <p className="text-lg font-semibold tabular-nums text-foreground">{money(data.total)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('analysis.transactionCount', { count: data.count })}
+                </p>
+              </SectionCard>
+              <SectionCard className="p-3.5">
+                <p className="text-xs text-muted-foreground mb-1">{t('analysis.categoryDetail.monthlyAverage')}</p>
+                <p className="text-lg font-semibold tabular-nums text-foreground">{money(data.monthly_average)}</p>
+              </SectionCard>
+              <SectionCard className="p-3.5">
+                <p className="text-xs text-muted-foreground mb-1">{t('analysis.categoryDetail.allTime')}</p>
+                <p className="text-lg font-semibold tabular-nums text-foreground">{money(data.all_time_total)}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  {t('analysis.transactionCount', { count: data.all_time_count })}
+                  {data.first_date &&
+                    ` · ${t('analysis.categoryDetail.since', {
+                      date: new Date(`${data.first_date}T00:00:00`).toLocaleDateString(locale, {
+                        day: 'numeric', month: 'short', year: 'numeric',
+                      }),
+                    })}`}
+                </p>
+              </SectionCard>
+            </div>
+
+            {data.monthly.length > 1 && (
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-2">{t('analysis.categoryDetail.byMonth')}</p>
+                <div className="h-48">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={data.monthly} margin={{ top: 4, right: 4, bottom: 0, left: 0 }}>
+                      <CartesianGrid vertical={false} stroke="var(--border)" />
+                      <XAxis
+                        dataKey="month"
+                        tickFormatter={(m) => monthShort(String(m), locale)}
+                        tickLine={false}
+                        axisLine={false}
+                        fontSize={11}
+                        minTickGap={8}
+                      />
+                      <YAxis tickLine={false} axisLine={false} fontSize={11} width={44} tickFormatter={compact} />
+                      <Tooltip
+                        cursor={{ fill: 'var(--secondary)', opacity: 0.6 }}
+                        content={({ active, payload, label }) =>
+                          active && payload?.length ? (
+                            <ChartTooltip
+                              title={monthLong(String(label), locale)}
+                              format={money}
+                              rows={[{ key: 'total', label: name, value: Number(payload[0].value) || 0, color }]}
+                            />
+                          ) : null
+                        }
+                      />
+                      <Bar dataKey="total" fill={color} radius={[4, 4, 0, 0]} maxBarSize={36} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+
+            {data.payees.length > 0 && (
+              <Panel title={t('analysis.topPayees')} hint={t('analysis.payeesHint')}>
+                <div className="divide-y divide-border">
+                  {data.payees.slice(0, 8).map((p) => (
+                    <div key={p.key} className="flex items-center gap-3 px-4 py-2">
+                      <span className="text-sm text-foreground truncate flex-1" title={p.label}>{p.label}</span>
+                      <span className="text-xs text-muted-foreground tabular-nums w-8 text-right">×{p.count}</span>
+                      <span className="text-xs text-muted-foreground tabular-nums w-10 text-right">
+                        {(p.share * 100).toFixed(0)}%
+                      </span>
+                      <span className="text-sm font-medium tabular-nums text-foreground w-24 text-right">
+                        {money(p.total)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </Panel>
+            )}
+
+            {txLink && categoryId && (
+              <Link
+                to={txLink}
+                className="flex items-center justify-center gap-1 w-full rounded-lg border border-border px-3 py-2 text-sm text-foreground hover:bg-accent/50 transition-colors"
+              >
+                {t('analysis.categoryDetail.viewTransactions')}
+                <ChevronRight size={14} />
+              </Link>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 export default function AnalysisPage() {
   const { t } = useTranslation()
   const { mask } = usePrivacyMode()
@@ -565,12 +765,14 @@ export default function AnalysisPage() {
   const [rangeKey, setRangeKey] = useState<RangeKey>('thisMonth')
   const [custom, setCustom] = useState(() => rangeFor('thisMonth'))
   const [side, setSide] = useState<'expenses' | 'income' | 'accounts'>('expenses')
+  const [selectedCategory, setSelectedCategory] = useState<AnalysisCategory | null>(null)
 
   const range = rangeKey === 'custom' ? custom : rangeFor(rangeKey)
+  const allTime = rangeKey === 'allTime'
 
   const { data, isLoading } = useQuery<PeriodAnalysis>({
-    queryKey: ['analysis', range.start, range.end, accountIds],
-    queryFn: () => analysis.period(range.start, range.end, accountIds),
+    queryKey: ['analysis', range.start, range.end, accountIds, allTime],
+    queryFn: () => analysis.period(range.start, range.end, accountIds, allTime),
   })
 
   const money = (v: number) => mask(formatCurrency(v, data?.currency ?? userCurrency, locale))
@@ -585,7 +787,9 @@ export default function AnalysisPage() {
           <button
             key={key}
             onClick={() => {
-              if (key === 'custom' && rangeKey !== 'custom') setCustom(range)
+              // "All time" only knows its real start once the server answers.
+              if (key === 'custom' && rangeKey !== 'custom')
+                setCustom(allTime && data ? { start: data.start, end: data.end } : range)
               setRangeKey(key)
             }}
             className={`px-3 py-1.5 text-xs rounded-lg border transition-colors ${
@@ -682,7 +886,7 @@ export default function AnalysisPage() {
           </div>
 
           {side === 'accounts' ? (
-            <AccountsSection range={range} accountIds={accountIds} locale={locale} mask={mask} />
+            <AccountsSection range={range} accountIds={accountIds} allTime={allTime} locale={locale} mask={mask} />
           ) : (
             <SideSection
               side={side === 'expenses' ? data.expenses : data.income}
@@ -690,10 +894,22 @@ export default function AnalysisPage() {
               locale={locale}
               mask={mask}
               tone={side === 'expenses' ? 'expense' : 'income'}
+              onSelectCategory={setSelectedCategory}
             />
           )}
         </>
       )}
+
+      <CategoryDetail
+        category={selectedCategory}
+        type={side === 'income' ? 'credit' : 'debit'}
+        range={range}
+        allTime={allTime}
+        accountIds={accountIds}
+        locale={locale}
+        mask={mask}
+        onClose={() => setSelectedCategory(null)}
+      />
     </div>
   )
 }

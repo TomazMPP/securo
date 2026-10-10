@@ -3207,11 +3207,23 @@
     "availableOfLimit": "Доступно {{available}} из {{limit}}",
     "closes": "Закрывается {{date}}",
     "due": "Оплата до {{date}}",
+    "showAllCategories": "Показать все категории ({{count}})",
+    "showFewerCategories": "Показать меньше",
+    "categoryDetail": {
+      "inPeriod": "Выбранный период",
+      "monthlyAverage": "В среднем за месяц",
+      "allTime": "За всё время",
+      "since": "с {{date}}",
+      "byMonth": "По месяцам",
+      "viewTransactions": "Показать транзакции"
+    },
     "range": {
       "thisMonth": "Этот месяц",
       "lastMonth": "Прошлый месяц",
       "last3": "Последние 3 месяца",
+      "last12": "Последние 12 месяцев",
       "thisYear": "Этот год",
+      "allTime": "Всё время",
       "custom": "Произвольный"
     }
   },

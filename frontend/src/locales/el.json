@@ -3162,11 +3162,23 @@
     "availableOfLimit": "{{available}} διαθέσιμα από {{limit}}",
     "closes": "Κλείνει {{date}}",
     "due": "Λήγει {{date}}",
+    "showAllCategories": "Εμφάνιση όλων των {{count}} κατηγοριών",
+    "showFewerCategories": "Εμφάνιση λιγότερων",
+    "categoryDetail": {
+      "inPeriod": "Επιλεγμένη περίοδος",
+      "monthlyAverage": "Μηνιαίος μέσος όρος",
+      "allTime": "Από την αρχή",
+      "since": "από {{date}}",
+      "byMonth": "Ανά μήνα",
+      "viewTransactions": "Προβολή συναλλαγών"
+    },
     "range": {
       "thisMonth": "Αυτόν τον μήνα",
       "lastMonth": "Προηγούμενος μήνας",
       "last3": "Τελευταίοι 3 μήνες",
+      "last12": "Τελευταίοι 12 μήνες",
       "thisYear": "Αυτό το έτος",
+      "allTime": "Όλη η περίοδος",
       "custom": "Προσαρμογή"
     }
   },

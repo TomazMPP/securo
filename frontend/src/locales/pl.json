@@ -3300,11 +3300,23 @@
     "availableOfLimit": "Dostępne {{available}} z {{limit}}",
     "closes": "Zamknięcie {{date}}",
     "due": "Termin płatności {{date}}",
+    "showAllCategories": "Pokaż wszystkie kategorie ({{count}})",
+    "showFewerCategories": "Pokaż mniej",
+    "categoryDetail": {
+      "inPeriod": "Wybrany okres",
+      "monthlyAverage": "Średnia miesięczna",
+      "allTime": "Od początku",
+      "since": "od {{date}}",
+      "byMonth": "Miesiąc po miesiącu",
+      "viewTransactions": "Zobacz transakcje"
+    },
     "range": {
       "thisMonth": "Bieżący miesiąc",
       "lastMonth": "Poprzedni miesiąc",
       "last3": "Ostatnie 3 miesiące",
+      "last12": "Ostatnie 12 miesięcy",
       "thisYear": "Bieżący rok",
+      "allTime": "Cały okres",
       "custom": "Niestandardowy"
     }
   },

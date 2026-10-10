@@ -90,6 +90,7 @@ import type {
   BalanceHistory,
   PaginatedTransactions,
   PeriodAnalysis,
+  CategoryAnalysis,
   AccountsAnalysis,
   ReportResponse,
   Group,
@@ -1554,18 +1555,41 @@ export const loans = {
 }
 
 export const analysis = {
-  period: async (start: string, end: string, accountIds?: string[]): Promise<PeriodAnalysis> => {
+  period: async (start: string, end: string, accountIds?: string[], allTime = false): Promise<PeriodAnalysis> => {
     const extra = acctIdsParam(accountIds)
     const { data } = await api.get('/analysis/period', {
-      params: { start, end, ...(extra.params ?? {}) },
+      params: { start, end, ...(allTime ? { all_time: true } : {}), ...(extra.params ?? {}) },
       ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
     })
     return data
   },
-  accounts: async (start: string, end: string, accountIds?: string[]): Promise<AccountsAnalysis> => {
+  accounts: async (start: string, end: string, accountIds?: string[], allTime = false): Promise<AccountsAnalysis> => {
     const extra = acctIdsParam(accountIds)
     const { data } = await api.get('/analysis/accounts', {
-      params: { start, end, ...(extra.params ?? {}) },
+      params: { start, end, ...(allTime ? { all_time: true } : {}), ...(extra.params ?? {}) },
+      ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
+    })
+    return data
+  },
+  /** One category drilled into; `categoryId` null means uncategorized. */
+  category: async (
+    categoryId: string | null,
+    type: 'debit' | 'credit',
+    start: string,
+    end: string,
+    accountIds?: string[],
+    allTime = false,
+  ): Promise<CategoryAnalysis> => {
+    const extra = acctIdsParam(accountIds)
+    const { data } = await api.get('/analysis/category', {
+      params: {
+        ...(categoryId ? { category_id: categoryId } : {}),
+        type,
+        start,
+        end,
+        ...(allTime ? { all_time: true } : {}),
+        ...(extra.params ?? {}),
+      },
       ...(extra.paramsSerializer ? { paramsSerializer: extra.paramsSerializer } : {}),
     })
     return data

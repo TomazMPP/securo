@@ -3175,11 +3175,23 @@
     "availableOfLimit": "{{available}} disponibles de {{limit}}",
     "closes": "Cierra el {{date}}",
     "due": "Vence el {{date}}",
+    "showAllCategories": "Mostrar las {{count}} categorías",
+    "showFewerCategories": "Mostrar menos",
+    "categoryDetail": {
+      "inPeriod": "Período seleccionado",
+      "monthlyAverage": "Promedio mensual",
+      "allTime": "Desde el inicio",
+      "since": "desde {{date}}",
+      "byMonth": "Mes a mes",
+      "viewTransactions": "Ver transacciones"
+    },
     "range": {
       "thisMonth": "Este mes",
       "lastMonth": "Mes pasado",
       "last3": "Últimos 3 meses",
+      "last12": "Últimos 12 meses",
       "thisYear": "Este año",
+      "allTime": "Todo el período",
       "custom": "Personalizado"
     }
   },

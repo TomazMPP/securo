@@ -1118,6 +1118,28 @@ export interface AccountMonthPoint {
   total: number
 }
 
+export interface CategoryAnalysis {
+  category_id: string | null // null = uncategorized
+  name: string
+  icon: string
+  color: string
+  group_name: string | null
+  type: 'debit' | 'credit'
+  start: string
+  end: string
+  currency: string
+  total: number
+  count: number
+  monthly_average: number
+  monthly: AccountMonthPoint[]
+  payees: AnalysisPayee[]
+  largest: AnalysisTransaction[]
+  // Lifetime figures, independent of the selected range
+  all_time_total: number
+  all_time_count: number
+  first_date: string | null
+}
+
 export interface AnalysisAccount {
   account_id: string
   name: string

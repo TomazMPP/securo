@@ -3164,11 +3164,23 @@
     "availableOfLimit": "{{available}} beschikbaar van {{limit}}",
     "closes": "Sluit {{date}}",
     "due": "Vervalt {{date}}",
+    "showAllCategories": "Alle {{count}} categorieën tonen",
+    "showFewerCategories": "Minder tonen",
+    "categoryDetail": {
+      "inPeriod": "Geselecteerde periode",
+      "monthlyAverage": "Maandgemiddelde",
+      "allTime": "Sinds het begin",
+      "since": "sinds {{date}}",
+      "byMonth": "Per maand",
+      "viewTransactions": "Transacties bekijken"
+    },
     "range": {
       "thisMonth": "Deze maand",
       "lastMonth": "Vorige maand",
       "last3": "Laatste 3 maanden",
+      "last12": "Laatste 12 maanden",
       "thisYear": "Dit jaar",
+      "allTime": "Hele periode",
       "custom": "Aangepast"
     }
   },

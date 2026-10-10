@@ -113,3 +113,27 @@ class AccountsAnalysis(BaseModel):
     card_expense_share: float   # 0..1 of total_expenses that went through credit cards
     trend_months: int
     accounts: list[AnalysisAccount]
+
+
+class CategoryAnalysis(BaseModel):
+    """One category drilled into: how much, when, and with whom."""
+    category_id: Optional[str]   # null = uncategorized
+    name: str
+    icon: str
+    color: str
+    group_name: Optional[str] = None
+    type: str                    # "debit" or "credit"
+    start: str
+    end: str                     # inclusive, ISO
+    currency: str
+    total: float
+    count: int
+    monthly_average: float       # total / months in the range
+    monthly: list[AccountMonthPoint]  # every month of the range, oldest first
+    payees: list[AnalysisPayee]
+    largest: list[AnalysisTransaction]
+    # Lifetime figures, independent of the selected range, so "how much have
+    # I ever spent on this" is always one glance away.
+    all_time_total: float
+    all_time_count: int
+    first_date: Optional[str] = None  # ISO, earliest transaction in the category

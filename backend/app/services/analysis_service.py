@@ -18,7 +18,7 @@ from datetime import date, timedelta
 from decimal import Decimal
 from typing import Optional
 
-from sqlalchemy import String, case, cast, func, or_, select
+from sqlalchemy import String, case, cast, func, literal_column, or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -37,6 +37,7 @@ from app.schemas.analysis import (
     AnalysisPayee,
     AnalysisSide,
     AnalysisTransaction,
+    CategoryAnalysis,
     PeriodAnalysis,
     RecurrenceSplit,
     RecurringItem,
@@ -94,9 +95,14 @@ def _month_bucket_expr(report_date):
     """Year-month as a sortable integer, e.g. 202606.
 
     Built from `extract` rather than `to_char` so the query runs unchanged on
-    both Postgres and the SQLite the test suite uses.
+    both Postgres and the SQLite the test suite uses. The multiplier is a
+    literal, not a bind parameter: Postgres only matches a GROUP BY entry to
+    the selected expression when the SQL text is identical, and each use of
+    a bound `100` gets its own `$n` placeholder.
     """
-    return func.extract("year", report_date) * 100 + func.extract("month", report_date)
+    return func.extract("year", report_date) * literal_column("100") + func.extract(
+        "month", report_date
+    )
 
 
 def _subtract_months(d: date, months: int) -> date:
@@ -330,6 +336,25 @@ async def _build_side(
             min_months=MIN_MONTHS_FOR_RECURRING,
         ),
     )
+
+
+async def first_activity_date(
+    session: AsyncSession, workspace_id: uuid.UUID, account_ids: Optional[list[uuid.UUID]] = None,
+) -> Optional[date]:
+    """Reporting date of the earliest transaction the analysis views count.
+
+    Backs the "all time" range: starting there instead of at some arbitrary
+    early date keeps day counts and averages honest.
+    """
+    report_date = reporting_date_col(await get_credit_card_accounting_mode(session))
+    return (
+        await session.execute(
+            select(func.min(report_date))
+            .select_from(Transaction)
+            .join(Account, Transaction.account_id == Account.id)
+            .where(*_base_filters(workspace_id, account_ids))
+        )
+    ).scalar_one_or_none()
 
 
 async def get_period_analysis(
@@ -637,4 +662,167 @@ async def get_accounts_analysis(
         card_expense_share=(card_expenses / total_expenses) if total_expenses else 0.0,
         trend_months=TREND_MONTHS,
         accounts=accounts,
+    )
+
+
+def _month_labels_between(start: date, end: date) -> list[tuple[int, str]]:
+    """(bucket, "YYYY-MM") for every calendar month touched by start..end."""
+    out = []
+    year, month = start.year, start.month
+    while (year, month) <= (end.year, end.month):
+        out.append((year * 100 + month, f"{year:04d}-{month:02d}"))
+        month += 1
+        if month > 12:
+            month, year = 1, year + 1
+    return out
+
+
+async def get_category_analysis(
+    session: AsyncSession,
+    workspace_id: uuid.UUID,
+    user_id: uuid.UUID,
+    category_id: Optional[uuid.UUID],
+    start: date,
+    end: date,
+    tx_type: str = "debit",
+    account_ids: Optional[list[uuid.UUID]] = None,
+) -> Optional[CategoryAnalysis]:
+    """Drill into one category (or uncategorized, when `category_id` is None).
+
+    Same P/L filters and reporting date as `get_period_analysis`, so the
+    period total here matches that category's row in the period view. On top
+    of the period figures it reports the category's lifetime total, which is
+    what someone asking "how much have I spent on X" usually means.
+
+    The monthly series starts at the category's first month with activity
+    when that is later than `start`, so a category created recently isn't
+    averaged over months it couldn't have had. Returns None for an unknown
+    category.
+    """
+    if end < start:
+        start, end = end, start
+
+    category = None
+    group_name = None
+    if category_id is not None:
+        row = (
+            await session.execute(
+                select(Category, CategoryGroup.name)
+                .outerjoin(CategoryGroup, Category.group_id == CategoryGroup.id)
+                .where(Category.id == category_id, Category.workspace_id == workspace_id)
+            )
+        ).first()
+        if row is None:
+            return None
+        category, group_name = row
+
+    user = await session.get(User, user_id)
+    currency = user.primary_currency if user else get_settings().default_currency
+    report_date = reporting_date_col(await get_credit_card_accounting_mode(session))
+    amount = _amount_expr()
+
+    scope = [
+        *_base_filters(workspace_id, account_ids),
+        Transaction.type == tx_type,
+        Transaction.category_id == category_id
+        if category_id is not None
+        else Transaction.category_id.is_(None),
+    ]
+
+    def scoped(*cols):
+        return (
+            select(*cols)
+            .select_from(Transaction)
+            .join(Account, Transaction.account_id == Account.id)
+            .where(*scope)
+        )
+
+    lifetime = (
+        await session.execute(scoped(func.sum(amount), func.count(), func.min(report_date)))
+    ).one()
+    all_time_total = abs(float(lifetime[0] or 0))
+    all_time_count = int(lifetime[1] or 0)
+    first_date = lifetime[2]
+
+    end_exclusive = end + timedelta(days=1)
+    in_period = [report_date >= start, report_date < end_exclusive]
+
+    month = _month_bucket_expr(report_date)
+    month_rows = (
+        await session.execute(
+            scoped(month, func.sum(amount)).where(*in_period).group_by(month)
+        )
+    ).all()
+    by_month = {int(b): abs(float(t or 0)) for b, t in month_rows}
+    monthly = [
+        AccountMonthPoint(month=label, total=by_month.get(bucket, 0.0))
+        for bucket, label in _month_labels_between(
+            max(start, first_date) if first_date and first_date <= end else start, end
+        )
+    ]
+    total = sum(by_month.values())
+    count = (
+        await session.execute(scoped(func.count()).where(*in_period))
+    ).scalar_one()
+
+    key = _payee_key_expr()
+    payee_rows = (
+        await session.execute(
+            scoped(key, func.min(_payee_label_expr()), func.sum(amount), func.count())
+            .outerjoin(Payee, Transaction.payee_id == Payee.id)
+            .where(*in_period)
+            .group_by(key)
+            .order_by(func.sum(amount).desc())
+            .limit(TOP_N)
+        )
+    ).all()
+    payees = [
+        AnalysisPayee(
+            key=str(k), label=label or "", total=abs(float(t or 0)),
+            share=(abs(float(t or 0)) / total) if total else 0.0,
+            count=int(n or 0), recurring=False,
+        )
+        for k, label, t, n in payee_rows
+    ]
+
+    largest_rows = (
+        await session.execute(
+            scoped(
+                Transaction.id, report_date, Transaction.description,
+                _payee_label_expr(), amount,
+            )
+            .outerjoin(Payee, Transaction.payee_id == Payee.id)
+            .where(*in_period)
+            .order_by(amount.desc())
+            .limit(TOP_N)
+        )
+    ).all()
+    largest = [
+        AnalysisTransaction(
+            id=str(r[0]), date=r[1].isoformat(), description=r[2] or "",
+            payee=r[3], category_name=category.name if category else None,
+            amount=abs(float(r[4] or 0)),
+        )
+        for r in largest_rows
+    ]
+
+    return CategoryAnalysis(
+        category_id=str(category.id) if category else None,
+        name=category.name if category else "",
+        icon=category.icon if category else "circle-help",
+        color=category.color if category else "#6B7280",
+        group_name=group_name,
+        type=tx_type,
+        start=start.isoformat(),
+        end=end.isoformat(),
+        currency=currency,
+        total=total,
+        count=int(count or 0),
+        monthly_average=(total / len(monthly)) if monthly else 0.0,
+        monthly=monthly,
+        payees=payees,
+        largest=largest,
+        all_time_total=all_time_total,
+        all_time_count=all_time_count,
+        first_date=first_date.isoformat() if first_date else None,
     )

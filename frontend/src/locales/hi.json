@@ -3162,11 +3162,23 @@
     "availableOfLimit": "{{limit}} में से {{available}} उपलब्ध",
     "closes": "{{date}} को बंद होगा",
     "due": "{{date}} को देय",
+    "showAllCategories": "सभी {{count}} श्रेणियाँ दिखाएँ",
+    "showFewerCategories": "कम दिखाएँ",
+    "categoryDetail": {
+      "inPeriod": "चुनी गई अवधि",
+      "monthlyAverage": "मासिक औसत",
+      "allTime": "शुरुआत से",
+      "since": "{{date}} से",
+      "byMonth": "महीने-दर-महीने",
+      "viewTransactions": "लेन-देन देखें"
+    },
     "range": {
       "thisMonth": "इस महीने",
       "lastMonth": "पिछले महीने",
       "last3": "पिछले 3 महीने",
+      "last12": "पिछले 12 महीने",
       "thisYear": "इस साल",
+      "allTime": "पूरी अवधि",
       "custom": "कस्टम"
     }
   },

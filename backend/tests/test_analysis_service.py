@@ -14,7 +14,9 @@ from app.services.analysis_service import (
     MIN_MONTHS_FOR_RECURRING,
     TREND_MONTHS,
     _subtract_months,
+    first_activity_date,
     get_accounts_analysis,
+    get_category_analysis,
     get_period_analysis,
 )
 
@@ -775,3 +777,121 @@ async def test_trend_window_crosses_the_year_boundary(session, test_user, test_w
     assert by_month["2025-09"] == 60
     assert by_month["2026-02"] == 25
     assert sum(pt.total for pt in monthly) == 85
+
+
+
+# ---------------------------------------------------------------------------
+# Category drill-down
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_category_total_matches_the_period_view(session, test_user, test_workspace):
+    acc = await _account(session, test_user.id)
+    donations = await _category(session, test_user.id, "Donations")
+    other = await _category(session, test_user.id, "Other")
+    await _txn(session, test_user.id, acc.id, 5, "debit", date(2026, 6, 3), category_id=donations.id)
+    await _txn(session, test_user.id, acc.id, 3, "debit", date(2026, 6, 20), category_id=donations.id)
+    await _txn(session, test_user.id, acc.id, 99, "debit", date(2026, 6, 4), category_id=other.id)
+
+    r = await get_category_analysis(
+        session, test_workspace.id, test_user.id, donations.id, START, END
+    )
+    period = await _analyze(session, test_workspace, test_user)
+
+    assert r.name == "Donations"
+    assert r.total == 8
+    assert r.count == 2
+    row = next(c for c in period.expenses.categories if c.category_id == str(donations.id))
+    assert r.total == row.total
+
+
+@pytest.mark.asyncio
+async def test_category_reports_lifetime_total_beyond_the_range(
+    session, test_user, test_workspace
+):
+    acc = await _account(session, test_user.id)
+    cat = await _category(session, test_user.id, "Donations")
+    await _txn(session, test_user.id, acc.id, 10, "debit", date(2025, 11, 2), category_id=cat.id)
+    await _txn(session, test_user.id, acc.id, 4, "debit", date(2026, 6, 8), category_id=cat.id)
+
+    r = await get_category_analysis(session, test_workspace.id, test_user.id, cat.id, START, END)
+
+    assert r.total == 4
+    assert r.all_time_total == 14
+    assert r.all_time_count == 2
+    assert r.first_date == "2025-11-02"
+
+
+@pytest.mark.asyncio
+async def test_category_monthly_series_starts_at_first_activity(
+    session, test_user, test_workspace
+):
+    """A wide range doesn't pad the series (and dilute the average) with
+    months before the category was ever used; gaps after that stay as zeros."""
+    acc = await _account(session, test_user.id)
+    cat = await _category(session, test_user.id, "Gaming")
+    await _txn(session, test_user.id, acc.id, 30, "debit", date(2026, 3, 15), category_id=cat.id)
+    await _txn(session, test_user.id, acc.id, 30, "debit", date(2026, 5, 2), category_id=cat.id)
+
+    r = await get_category_analysis(
+        session, test_workspace.id, test_user.id, cat.id, date(2020, 1, 1), END
+    )
+
+    assert [p.month for p in r.monthly] == ["2026-03", "2026-04", "2026-05", "2026-06"]
+    assert [p.total for p in r.monthly] == [30, 0, 30, 0]
+    assert r.monthly_average == 15
+
+
+@pytest.mark.asyncio
+async def test_uncategorized_drill_down(session, test_user, test_workspace):
+    acc = await _account(session, test_user.id)
+    cat = await _category(session, test_user.id, "Food")
+    await _txn(session, test_user.id, acc.id, 7, "debit", date(2026, 6, 3))
+    await _txn(session, test_user.id, acc.id, 50, "debit", date(2026, 6, 3), category_id=cat.id)
+
+    r = await get_category_analysis(session, test_workspace.id, test_user.id, None, START, END)
+
+    assert r.category_id is None
+    assert r.total == 7
+
+
+@pytest.mark.asyncio
+async def test_category_payees_and_type_split(session, test_user, test_workspace):
+    acc = await _account(session, test_user.id)
+    cat = await _category(session, test_user.id, "Gambling")
+    await _txn(session, test_user.id, acc.id, 20, "debit", date(2026, 6, 3),
+               description="BET A", category_id=cat.id)
+    await _txn(session, test_user.id, acc.id, 15, "debit", date(2026, 6, 4),
+               description="bet a", category_id=cat.id)
+    await _txn(session, test_user.id, acc.id, 5, "debit", date(2026, 6, 5),
+               description="BET B", category_id=cat.id)
+    await _txn(session, test_user.id, acc.id, 100, "credit", date(2026, 6, 6),
+               description="BET A", category_id=cat.id)
+
+    spent = await get_category_analysis(session, test_workspace.id, test_user.id, cat.id, START, END)
+    won = await get_category_analysis(
+        session, test_workspace.id, test_user.id, cat.id, START, END, tx_type="credit"
+    )
+
+    assert spent.total == 40
+    assert [(p.label.upper(), p.total) for p in spent.payees] == [("BET A", 35), ("BET B", 5)]
+    assert spent.largest[0].amount == 20
+    assert won.total == 100
+
+
+@pytest.mark.asyncio
+async def test_unknown_category_returns_none(session, test_user, test_workspace):
+    r = await get_category_analysis(
+        session, test_workspace.id, test_user.id, uuid.uuid4(), START, END
+    )
+    assert r is None
+
+
+@pytest.mark.asyncio
+async def test_first_activity_date_skips_opening_balance(session, test_user, test_workspace):
+    acc = await _account(session, test_user.id)
+    await _txn(session, test_user.id, acc.id, 1000, "credit", date(2024, 1, 1), source="opening_balance")
+    await _txn(session, test_user.id, acc.id, 10, "debit", date(2025, 3, 9))
+
+    assert await first_activity_date(session, test_workspace.id) == date(2025, 3, 9)

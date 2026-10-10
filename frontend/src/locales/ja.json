@@ -3162,11 +3162,23 @@
     "availableOfLimit": "{{limit}}中{{available}}が利用可能",
     "closes": "締め日 {{date}}",
     "due": "支払期日 {{date}}",
+    "showAllCategories": "{{count}}件のカテゴリをすべて表示",
+    "showFewerCategories": "表示を減らす",
+    "categoryDetail": {
+      "inPeriod": "選択した期間",
+      "monthlyAverage": "月平均",
+      "allTime": "全期間",
+      "since": "{{date}}から",
+      "byMonth": "月別",
+      "viewTransactions": "取引を表示"
+    },
     "range": {
       "thisMonth": "今月",
       "lastMonth": "先月",
       "last3": "過去3か月",
+      "last12": "過去12か月",
       "thisYear": "今年",
+      "allTime": "全期間",
       "custom": "カスタム"
     }
   },

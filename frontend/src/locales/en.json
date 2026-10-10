@@ -3162,11 +3162,23 @@
     "availableOfLimit": "{{available}} available of {{limit}}",
     "closes": "Closes {{date}}",
     "due": "Due {{date}}",
+    "showAllCategories": "Show all {{count}} categories",
+    "showFewerCategories": "Show fewer",
+    "categoryDetail": {
+      "inPeriod": "Selected period",
+      "monthlyAverage": "Monthly average",
+      "allTime": "All time",
+      "since": "since {{date}}",
+      "byMonth": "Month by month",
+      "viewTransactions": "View transactions"
+    },
     "range": {
       "thisMonth": "This month",
       "lastMonth": "Last month",
       "last3": "Last 3 months",
+      "last12": "Last 12 months",
       "thisYear": "This year",
+      "allTime": "All time",
       "custom": "Custom"
     }
   },

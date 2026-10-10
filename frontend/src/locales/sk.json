@@ -3334,11 +3334,23 @@
     "availableOfLimit": "Dostupné {{available}} z {{limit}}",
     "closes": "Uzávierka {{date}}",
     "due": "Splatné {{date}}",
+    "showAllCategories": "Zobraziť všetky kategórie ({{count}})",
+    "showFewerCategories": "Zobraziť menej",
+    "categoryDetail": {
+      "inPeriod": "Vybrané obdobie",
+      "monthlyAverage": "Mesačný priemer",
+      "allTime": "Od začiatku",
+      "since": "od {{date}}",
+      "byMonth": "Mesiac po mesiaci",
+      "viewTransactions": "Zobraziť transakcie"
+    },
     "range": {
       "thisMonth": "Tento mesiac",
       "lastMonth": "Minulý mesiac",
       "last3": "Posledné 3 mesiace",
+      "last12": "Posledných 12 mesiacov",
       "thisYear": "Tento rok",
+      "allTime": "Celé obdobie",
       "custom": "Vlastné"
     }
   },
