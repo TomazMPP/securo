@@ -59,6 +59,7 @@ class ModuleId(str, Enum):
     SPLIT_GROUPS = "split_groups"
     RULES = "rules"
     INVOICES = "invoices"
+    INCOME_STATEMENT = "income_statement"
 
 
 @dataclass(frozen=True)
@@ -87,6 +88,7 @@ CATALOG: Mapping[ModuleId, ModuleSpec] = {
         ModuleSpec(ModuleId.SPLIT_GROUPS, default_enabled=True),
         ModuleSpec(ModuleId.RULES, default_enabled=True),
         ModuleSpec(ModuleId.INVOICES, default_enabled=False),
+        ModuleSpec(ModuleId.INCOME_STATEMENT, default_enabled=False),
     )
 }
 
@@ -122,7 +124,7 @@ class BusinessPolicy:
     """The catalog defaults plus what a workspace tracking work needs."""
 
     def modules(self, base: frozenset[ModuleId]) -> frozenset[ModuleId]:
-        return base | {ModuleId.INVOICES}
+        return base | {ModuleId.INVOICES, ModuleId.INCOME_STATEMENT}
 
 
 KIND_POLICIES: Mapping[str, ModulePolicy] = {

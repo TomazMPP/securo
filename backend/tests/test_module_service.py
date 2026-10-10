@@ -48,17 +48,17 @@ def test_personal_resolves_to_todays_navigation():
     assert resolve_modules(ws("personal")) == PERSONAL_MODULES
 
 
-def test_business_is_personal_plus_invoices():
+def test_business_is_personal_plus_invoices_and_income_statement():
     assert resolve_modules(ws("business")) == sorted(
-        PERSONAL_MODULES + ["invoices"]
+        PERSONAL_MODULES + ["income_statement", "invoices"]
     )
 
 
-def test_invoices_is_the_only_difference():
+def test_business_modules_are_the_only_difference():
     """Resist giving the policies more differences than the product has."""
     personal = set(resolve_modules(ws("personal")))
     business = set(resolve_modules(ws("business")))
-    assert business - personal == {"invoices"}
+    assert business - personal == {"income_statement", "invoices"}
     assert personal - business == set()
 
 
@@ -147,9 +147,9 @@ def test_catalog_covers_every_module_id():
     assert set(CATALOG) == set(ModuleId)
 
 
-def test_invoices_is_the_only_module_off_by_default():
+def test_only_business_modules_are_off_by_default():
     off = {m.value for m in ModuleId} - {m.value for m in catalog_defaults()}
-    assert off == {"invoices"}
+    assert off == {"income_statement", "invoices"}
 
 
 @pytest.mark.parametrize("module_id", list(ModuleId))
