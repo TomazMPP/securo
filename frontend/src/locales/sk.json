@@ -1525,6 +1525,14 @@
       "bybit": {
         "title": "Prepojiť cez Bybit",
         "description": "Vytvor v Bybit API kľúč len na čítanie (režim Read-Only — nikdy obchodovanie ani výbery) a vlož ho nižšie ako {\"api_key\": \"...\", \"api_secret\": \"...\"} alebo ako key:secret. Zostatky sa stanú investičnými pozíciami; neimportujú sa žiadne účty ani transakcie."
+      },
+      "ext_contabilidade": {
+        "title": "Pripojiť cez EXT Contabilidade",
+        "description": "Importuje firemné bankové účty, ktoré EXT už pripojil cez Open Finance. Prihláste sa e-mailom a heslom z aplikácie EXT; Securo iba číta a heslo ukladá šifrované."
+      },
+      "fields": {
+        "email": "E-mail",
+        "password": "Heslo"
       }
     },
     "providers": {

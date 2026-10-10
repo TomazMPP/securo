@@ -12,6 +12,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import { ExternalLink } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -27,6 +28,16 @@ const PROVIDER_BRIDGE_URLS: Record<string, string> = {
   simplefin: 'https://bridge.simplefin.org/simplefin/create',
 }
 
+// Providers that sign in with a login form instead of a pasted token. The
+// fields are sent as one JSON object in place of the token.
+type CredentialField = { name: string; type: 'email' | 'password'; autoComplete: string }
+const PROVIDER_CREDENTIAL_FIELDS: Record<string, CredentialField[]> = {
+  ext_contabilidade: [
+    { name: 'email', type: 'email', autoComplete: 'username' },
+    { name: 'password', type: 'password', autoComplete: 'current-password' },
+  ],
+}
+
 export function TokenConnectDialog({
   open,
   onClose,
@@ -39,10 +50,12 @@ export function TokenConnectDialog({
   const [token, setToken] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [syncAssets, setSyncAssets] = useState(true)
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({})
 
   useEffect(() => {
     if (!open) {
       setToken('')
+      setFieldValues({})
       setSubmitting(false)
       setSyncAssets(true)
     }
@@ -51,13 +64,23 @@ export function TokenConnectDialog({
   const bridgeUrl = PROVIDER_BRIDGE_URLS[provider]
   const i18nKey = `accounts.tokenConnect.${provider}`
   const isReconnect = Boolean(reconnectConnectionId)
+  const credentialFields = PROVIDER_CREDENTIAL_FIELDS[provider]
+  const secret = credentialFields
+    ? credentialFields.every((f) => fieldValues[f.name]?.trim())
+      ? JSON.stringify(
+          Object.fromEntries(
+            credentialFields.map((f) => [f.name, f.type === 'password' ? fieldValues[f.name] : fieldValues[f.name].trim()]),
+          ),
+        )
+      : ''
+    : token.trim()
 
   const handleSubmit = async () => {
-    if (!token.trim()) return
+    if (!secret) return
     setSubmitting(true)
     try {
       await connections.handleCallback(
-        token.trim(),
+        secret,
         provider,
         undefined,
         supportsAssetSync && !isReconnect ? { sync_assets: syncAssets } : undefined,
@@ -124,6 +147,26 @@ export function TokenConnectDialog({
           </div>
         )}
 
+        {credentialFields ? (
+          <div className="space-y-3">
+            {credentialFields.map((field) => (
+              <div key={field.name} className="space-y-1.5">
+                <label className="text-sm font-medium" htmlFor={`securo-credential-${field.name}`}>
+                  {t(`accounts.tokenConnect.fields.${field.name}`)}
+                </label>
+                <Input
+                  id={`securo-credential-${field.name}`}
+                  type={field.type}
+                  autoComplete={field.autoComplete}
+                  value={fieldValues[field.name] ?? ''}
+                  onChange={(e) => setFieldValues((v) => ({ ...v, [field.name]: e.target.value }))}
+                  onKeyDown={(e) => e.key === 'Enter' && secret && !submitting && handleSubmit()}
+                  disabled={submitting}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
         <div className="space-y-1.5">
           <label className="text-sm font-medium" htmlFor="securo-token-input">
             {t('accounts.tokenConnect.tokenLabel')}
@@ -142,12 +185,13 @@ export function TokenConnectDialog({
             {t('accounts.tokenConnect.tokenHelp')}
           </p>
         </div>
+        )}
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose} disabled={submitting}>
             {t('common.cancel')}
           </Button>
-          <Button onClick={handleSubmit} disabled={!token.trim() || submitting}>
+          <Button onClick={handleSubmit} disabled={!secret || submitting}>
             {submitting
               ? t('accounts.tokenConnect.connecting')
               : t(isReconnect ? 'accounts.tokenConnect.reconnect' : 'accounts.tokenConnect.connect')}

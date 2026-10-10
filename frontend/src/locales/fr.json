@@ -1451,6 +1451,14 @@
       "bybit": {
         "title": "Connexion via Bybit",
         "description": "Créez une clé API en lecture seule dans Bybit (mode « Read-Only » — jamais le trading ni les retraits), puis collez-la ci-dessous au format {\"api_key\": \"...\", \"api_secret\": \"...\"} ou key:secret. Les soldes deviennent des positions d'investissement ; aucun compte ni transaction n'est importé."
+      },
+      "ext_contabilidade": {
+        "title": "Connecter via EXT Contabilidade",
+        "description": "Importe les comptes bancaires de l'entreprise déjà connectés par EXT via Open Finance. Connectez-vous avec l'e-mail et le mot de passe de l'app EXT ; Securo ne fait que lire et stocke le mot de passe chiffré."
+      },
+      "fields": {
+        "email": "E-mail",
+        "password": "Mot de passe"
       }
     },
     "providers": {

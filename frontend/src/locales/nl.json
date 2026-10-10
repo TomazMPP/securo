@@ -1440,6 +1440,14 @@
       "bybit": {
         "title": "Maak verbinding via Bybit",
         "description": "Maak een alleen-lezen API-sleutel aan in Bybit (Read-Only-modus — nooit handelen of opnames) en plak deze hieronder als {\"api_key\": \"...\", \"api_secret\": \"...\"} of als key:secret. Saldi worden beleggingsbezit; er worden geen rekeningen of transacties geïmporteerd."
+      },
+      "ext_contabilidade": {
+        "title": "Verbinden via EXT Contabilidade",
+        "description": "Importeert de zakelijke rekeningen die EXT al via Open Finance heeft gekoppeld. Log in met het e-mailadres en wachtwoord van de EXT-app; Securo leest alleen en bewaart het wachtwoord versleuteld."
+      },
+      "fields": {
+        "email": "E-mail",
+        "password": "Wachtwoord"
       }
     },
     "providers": {

@@ -1510,6 +1510,14 @@
       "bybit": {
         "title": "Połącz przez Bybit",
         "description": "Utwórz w Bybit klucz API tylko do odczytu (tryb „Read-Only” — nigdy handel ani wypłaty), a następnie wklej go poniżej jako {\"api_key\": \"...\", \"api_secret\": \"...\"} lub jako key:secret. Salda staną się pozycjami inwestycyjnymi; konta ani transakcje nie są importowane."
+      },
+      "ext_contabilidade": {
+        "title": "Połącz przez EXT Contabilidade",
+        "description": "Importuje firmowe konta bankowe, które EXT już połączył przez Open Finance. Zaloguj się e-mailem i hasłem z aplikacji EXT; Securo tylko odczytuje dane i przechowuje hasło w postaci zaszyfrowanej."
+      },
+      "fields": {
+        "email": "E-mail",
+        "password": "Hasło"
       }
     },
     "providers": {

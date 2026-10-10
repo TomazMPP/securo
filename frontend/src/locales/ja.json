@@ -1439,6 +1439,14 @@
       "bybit": {
         "title": "Bybitで接続",
         "description": "Bybitで読み取り専用のAPIキーを作成し（Read-Onlyモード。取引や出金は絶対に有効にしないでください）、下に{\"api_key\": \"...\", \"api_secret\": \"...\"}またはkey:secretの形式で貼り付けてください。残高は投資の保有として登録されます。口座や取引はインポートされません。"
+      },
+      "ext_contabilidade": {
+        "title": "EXT Contabilidade で接続",
+        "description": "EXT が Open Finance で接続済みの法人口座を取り込みます。EXT アプリのメールアドレスとパスワードでログインしてください。Securo は読み取りのみ行い、パスワードは暗号化して保存します。"
+      },
+      "fields": {
+        "email": "メールアドレス",
+        "password": "パスワード"
       }
     },
     "providers": {

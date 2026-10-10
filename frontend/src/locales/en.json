@@ -1439,6 +1439,14 @@
       "bybit": {
         "title": "Connect via Bybit",
         "description": "Create a read-only API key in Bybit (Read-Only mode — never trading or withdrawals), then paste it below as {\"api_key\": \"...\", \"api_secret\": \"...\"} or as key:secret. Balances become investment holdings; no accounts or transactions are imported."
+      },
+      "ext_contabilidade": {
+        "title": "Connect via EXT Contabilidade",
+        "description": "Imports the business bank accounts your EXT accountant already connected via Open Finance. Sign in with the email and password you use on the EXT app; Securo only reads, never changes anything there, and stores the password encrypted."
+      },
+      "fields": {
+        "email": "Email",
+        "password": "Password"
       }
     },
     "providers": {
