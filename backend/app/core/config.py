@@ -57,6 +57,11 @@ class Settings(BaseSettings):
     kraken_enabled: bool = False
     bybit_enabled: bool = False
 
+    # EXT Contabilidade (Brazilian accounting firm): reads the business bank
+    # feed it already pulls via Open Finance, logged in as the company owner.
+    # Off by default; the email/password live on the connection, encrypted.
+    ext_contabilidade_enabled: bool = False
+
     # Frontend
     frontend_url: str = "http://localhost:5173"
 

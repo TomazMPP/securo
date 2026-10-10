@@ -42,6 +42,14 @@ KNOWN_PROVIDERS = [
         "supports_asset_sync": True,
     },
     {
+        "name": "ext_contabilidade",
+        "display_name": "EXT Contabilidade",
+        "description": "Business bank accounts your EXT accountant already connected via Open Finance",
+        "flow_type": "token",
+        "requires_institution_select": False,
+        "supports_asset_sync": False,
+    },
+    {
         "name": "binance",
         "display_name": "Binance",
         "description": "Crypto balances from Binance (read-only API key)",
@@ -125,6 +133,10 @@ def _auto_register_providers() -> None:
     if settings.simplefin_enabled:
         from app.providers.simplefin import SimpleFinProvider
         register_provider("simplefin", SimpleFinProvider)
+
+    if settings.ext_contabilidade_enabled:
+        from app.providers.ext_contabilidade import ExtContabilidadeProvider
+        register_provider("ext_contabilidade", ExtContabilidadeProvider)
 
     if settings.binance_enabled:
         from app.providers.binance import BinanceProvider
