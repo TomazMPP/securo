@@ -1,6 +1,6 @@
 import logging
 import uuid
-from datetime import date
+from datetime import date, timedelta
 from decimal import Decimal
 from typing import Optional
 
@@ -77,6 +77,44 @@ async def sync_rates(
     await session.commit()
     logger.info("Synced %d FX rates for %s", count, target)
     return count
+
+
+# How far back the scheduled sync looks for days with no stored rate. A day is
+# only fetched on demand when something asks for it, and read paths such as the
+# portfolio chart deliberately never fetch, so a stretch where the worker was
+# down would otherwise stay on the closest-rate fallback forever.
+FX_GAP_DAYS = 14
+
+
+async def missing_rate_dates(session: AsyncSession, start: date, end: date) -> list[date]:
+    """Days in [start, end] with no stored USD-based rate at all."""
+    have = set(
+        (
+            await session.scalars(
+                select(FxRate.date)
+                .where(FxRate.base_currency == "USD", FxRate.date >= start, FxRate.date <= end)
+                .distinct()
+            )
+        ).all()
+    )
+    return [start + timedelta(days=i) for i in range((end - start).days + 1)
+            if start + timedelta(days=i) not in have]
+
+
+async def fill_recent_gaps(session: AsyncSession, days: int = FX_GAP_DAYS) -> int:
+    """Fetch rates for each of the last `days` days (before today) that has none.
+
+    Bounded so a long outage costs at most `days` provider calls; one failing
+    day is logged and skipped rather than aborting the rest.
+    """
+    today = app_today()
+    total = 0
+    for d in await missing_rate_dates(session, today - timedelta(days=days), today - timedelta(days=1)):
+        try:
+            total += await sync_rates(session, d)
+        except Exception:
+            logger.warning("FX gap fill failed for %s", d, exc_info=True)
+    return total
 
 
 async def _resolve_rate(

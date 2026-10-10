@@ -958,11 +958,17 @@ async def get_portfolio_trend(
                 native = 0.0
                 last_known[aid] = 0.0
 
-            # Convert native amount to primary currency at this display date
+            # Convert native amount to primary currency at this display date.
+            # Stored rates only: this runs once per (date, asset), and an
+            # on-demand provider fetch per missing historical date (e.g. after
+            # backdated trades extend the history) stalls the request past the
+            # proxy timeout. A missing day falls back to the closest stored
+            # rate; the scheduled FX sync keeps recent dates filled.
             currency = asset_currency[aid]
             if native != 0.0 and currency != primary_currency:
                 converted, _ = await convert(
-                    session, Decimal(str(native)), currency, primary_currency, d
+                    session, Decimal(str(native)), currency, primary_currency, d,
+                    allow_fetch=False,
                 )
                 val = round(float(converted), 2)
             else:

@@ -1693,3 +1693,44 @@ class TestFxFallbackFlag:
         assert len(fallback_items) == 1
         assert fallback_items[0]["amount_primary"] is None
         assert fallback_items[0]["fx_fallback"] is True
+
+
+class TestFillRecentGaps:
+    """The scheduled sync backfills recent days that have no stored rate."""
+
+    @pytest.mark.asyncio
+    async def test_missing_rate_dates_lists_only_days_without_rates(self, session: AsyncSession):
+        from app.services.fx_rate_service import missing_rate_dates
+
+        start = date(2026, 3, 1)
+        await _insert_rate(session, "BRL", Decimal("5.1"), start)
+        await _insert_rate(session, "EUR", Decimal("0.9"), start + timedelta(days=2))
+
+        missing = await missing_rate_dates(session, start, start + timedelta(days=3))
+
+        assert missing == [start + timedelta(days=1), start + timedelta(days=3)]
+
+    @pytest.mark.asyncio
+    async def test_fill_recent_gaps_syncs_each_missing_day_and_survives_failures(self):
+        from app.services import fx_rate_service as svc
+
+        today = date(2026, 10, 10)
+        gaps = [date(2026, 10, 7), date(2026, 10, 8)]
+        calls = []
+
+        async def fake_sync(_session, d):
+            calls.append(d)
+            if d == gaps[0]:
+                raise RuntimeError("provider down")
+            return 3
+
+        with patch.object(svc, "app_today", return_value=today), \
+             patch.object(svc, "missing_rate_dates", AsyncMock(return_value=gaps)) as missing, \
+             patch.object(svc, "sync_rates", side_effect=fake_sync):
+            total = await svc.fill_recent_gaps(AsyncMock(), days=14)
+
+        missing.assert_awaited_once()
+        _, start, end = missing.await_args.args
+        assert (start, end) == (today - timedelta(days=14), today - timedelta(days=1))
+        assert calls == gaps
+        assert total == 3

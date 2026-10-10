@@ -18,13 +18,15 @@ def _make_session_maker():
 
 
 async def _sync_fx_rates() -> int:
-    """Fetch latest FX rates and store them."""
-    from app.services.fx_rate_service import sync_rates
+    """Fetch latest FX rates and store them, then fill recent days left
+    without any rate (e.g. while the worker was down)."""
+    from app.services.fx_rate_service import fill_recent_gaps, sync_rates
 
     engine, session_maker = _make_session_maker()
     try:
         async with session_maker() as session, use_timezone(session, fresh=True):
             count = await sync_rates(session)
+            count += await fill_recent_gaps(session)
         return count
     finally:
         await engine.dispose()
