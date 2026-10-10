@@ -1976,7 +1976,10 @@
     "confirmDeleteDescription": "Grupa kategorii „{{name}}” zostanie usunięta. Jej kategorie pozostaną i staną się niezgrupowane. Tej operacji nie można cofnąć.",
     "hiddenBadge": "Ukryta",
     "showDefault": "Pokaż domyślną grupę",
-    "hideDefault": "Ukryj domyślną grupę"
+    "hideDefault": "Ukryj domyślną grupę",
+    "dreSection": "Pozycja w rachunku",
+    "dreSectionNone": "Poza rachunkiem",
+    "dreSectionHint": "Wszystkie kategorie z tej grupy trafiają do tej pozycji rachunku zysków i strat."
   },
   "import": {
     "acceptedFormats": "Akceptowane formaty: OFX, CSV, QIF, CAMT",

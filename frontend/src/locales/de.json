@@ -1880,7 +1880,10 @@
     "confirmDeleteDescription": "Die Kategoriegruppe \"{{name}}\" wird gelöscht. Ihre Kategorien bleiben erhalten und werden keiner Gruppe mehr zugeordnet. Diese Aktion kann nicht rückgängig gemacht werden.",
     "hiddenBadge": "Ausgeblendet",
     "showDefault": "Standardgruppe anzeigen",
-    "hideDefault": "Standardgruppe ausblenden"
+    "hideDefault": "Standardgruppe ausblenden",
+    "dreSection": "GuV-Zeile",
+    "dreSectionNone": "Nicht in der GuV",
+    "dreSectionHint": "Alle Kategorien dieser Gruppe landen in dieser Zeile der GuV."
   },
   "import": {
     "acceptedFormats": "Unterstützte Formate: OFX, CSV, QIF, CAMT",

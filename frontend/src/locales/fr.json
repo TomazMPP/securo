@@ -1892,7 +1892,10 @@
     "confirmDeleteDescription": "Le groupe de catégories « {{name}} » sera supprimé. Ses catégories resteront et ne seront plus regroupées. Cette action est irréversible.",
     "hiddenBadge": "Masqué",
     "showDefault": "Afficher le groupe par défaut",
-    "hideDefault": "Masquer le groupe par défaut"
+    "hideDefault": "Masquer le groupe par défaut",
+    "dreSection": "Ligne du compte de résultat",
+    "dreSectionNone": "Hors compte de résultat",
+    "dreSectionHint": "Toutes les catégories de ce groupe vont sur cette ligne du compte de résultat."
   },
   "import": {
     "acceptedFormats": "Formats acceptés : OFX, CSV, QIF, CAMT",

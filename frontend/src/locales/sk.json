@@ -1997,7 +1997,10 @@
     "confirmDeleteDescription": "Skupina kategórií „{{name}}“ bude vymazaná. Jej kategórie zostanú, ale budú bez skupiny. Túto akciu nie je možné vrátiť späť.",
     "hiddenBadge": "Skrytá",
     "showDefault": "Zobraziť predvolenú skupinu",
-    "hideDefault": "Skryť predvolenú skupinu"
+    "hideDefault": "Skryť predvolenú skupinu",
+    "dreSection": "Riadok výkazu",
+    "dreSectionNone": "Mimo výkazu",
+    "dreSectionHint": "Všetky kategórie tejto skupiny patria do tohto riadku výkazu ziskov a strát."
   },
   "import": {
     "acceptedFormats": "Podporované formáty: OFX, CSV, QIF, CAMT",

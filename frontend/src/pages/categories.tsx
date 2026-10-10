@@ -25,6 +25,8 @@ import { CategoryIcon } from '@/components/category-icon'
 import { CategorySelect } from '@/components/category-select'
 import { IconPicker } from '@/components/icon-picker'
 import { useWorkspace } from '@/contexts/workspace-context'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { DRE_SECTIONS, type DreSection } from '@/lib/income-statement'
 
 function SectionCard({ children }: { children: React.ReactNode }) {
   return (
@@ -48,7 +50,8 @@ function SectionHeader({ title, titleExtra, action }: { title: string; titleExtr
 export default function CategoriesPage() {
   const { t } = useTranslation()
   const queryClient = useQueryClient()
-  const { canWrite } = useWorkspace()
+  const { canWrite, hasModule } = useWorkspace()
+  const showDreSection = hasModule('income_statement')
   const [catDialogOpen, setCatDialogOpen] = useState(false)
   const [editingCat, setEditingCat] = useState<Category | null>(null)
   const [formIcon, setFormIcon] = useState('circle-help')
@@ -59,6 +62,7 @@ export default function CategoriesPage() {
   const [editingGroup, setEditingGroup] = useState<CategoryGroup | null>(null)
   const [groupFormIcon, setGroupFormIcon] = useState('folder')
   const [groupFormColor, setGroupFormColor] = useState('#6B7280')
+  const [groupFormDre, setGroupFormDre] = useState<DreSection | 'none'>('none')
   const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set())
   const [deletingCategory, setDeletingCategory] = useState<Category | null>(null)
   const [deletingGroup, setDeletingGroup] = useState<CategoryGroup | null>(null)
@@ -244,6 +248,7 @@ export default function CategoriesPage() {
     setEditingGroup(group)
     setGroupFormIcon(group?.icon ?? 'folder')
     setGroupFormColor(group?.color ?? '#6B7280')
+    setGroupFormDre(group?.dre_section ?? 'none')
     setGroupDialogOpen(true)
   }
 
@@ -523,6 +528,7 @@ export default function CategoriesPage() {
                 icon: formData.get('icon') as string,
                 color: formData.get('color') as string,
                 position: parseInt(formData.get('position') as string) || 0,
+                ...(showDreSection ? { dre_section: groupFormDre === 'none' ? null : groupFormDre } : {}),
               }
               if (editingGroup) {
                 updateGroupMutation.mutate({ id: editingGroup.id, ...data })
@@ -549,6 +555,25 @@ export default function CategoriesPage() {
               <IconPicker value={groupFormIcon} color={groupFormColor} onChange={setGroupFormIcon} />
               <input type="hidden" name="icon" value={groupFormIcon} />
             </div>
+            {showDreSection && (
+              <div className="space-y-2">
+                <Label>{t('groups.dreSection')}</Label>
+                <Select value={groupFormDre} onValueChange={(v) => setGroupFormDre(v as DreSection | 'none')}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {DRE_SECTIONS.map((section) => (
+                      <SelectItem key={section} value={section}>
+                        {t(`incomeStatement.section.${section}`)}
+                      </SelectItem>
+                    ))}
+                    <SelectItem value="none">{t('groups.dreSectionNone')}</SelectItem>
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">{t('groups.dreSectionHint')}</p>
+              </div>
+            )}
             <DialogFooter>
               <Button type="button" variant="outline" onClick={() => { setGroupDialogOpen(false); setEditingGroup(null) }}>
                 {t('common.cancel')}

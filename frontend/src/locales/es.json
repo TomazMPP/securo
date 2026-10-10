@@ -1892,7 +1892,10 @@
     "confirmDeleteDescription": "El grupo de categorías \"{{name}}\" se eliminará. Sus categorías permanecerán y quedarán sin grupo. Esta acción no se puede deshacer.",
     "hiddenBadge": "Oculto",
     "showDefault": "Mostrar grupo predeterminado",
-    "hideDefault": "Ocultar grupo predeterminado"
+    "hideDefault": "Ocultar grupo predeterminado",
+    "dreSection": "Línea del estado de resultados",
+    "dreSectionNone": "Fuera del estado",
+    "dreSectionHint": "Todas las categorías de este grupo van a esta línea del estado de resultados."
   },
   "import": {
     "acceptedFormats": "Formatos aceptados: OFX, CSV, QIF, CAMT",

@@ -1879,7 +1879,10 @@
     "confirmDeleteDescription": "श्रेणी समूह \"{{name}}\" हट जाएगा। इसकी श्रेणियाँ बनी रहेंगी और असमूहित हो जाएँगी। यह कार्रवाई पूर्ववत नहीं की जा सकती।",
     "hiddenBadge": "छिपा हुआ",
     "showDefault": "डिफ़ॉल्ट समूह दिखाएँ",
-    "hideDefault": "डिफ़ॉल्ट समूह छिपाएँ"
+    "hideDefault": "डिफ़ॉल्ट समूह छिपाएँ",
+    "dreSection": "विवरण पंक्ति",
+    "dreSectionNone": "विवरण से बाहर",
+    "dreSectionHint": "इस समूह की सभी श्रेणियाँ आय विवरण की इस पंक्ति में जाती हैं।"
   },
   "import": {
     "acceptedFormats": "स्वीकृत प्रारूप: OFX, CSV, QIF, CAMT",

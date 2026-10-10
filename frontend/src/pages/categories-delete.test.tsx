@@ -34,7 +34,7 @@ vi.mock('@/lib/api', () => ({
 }))
 
 vi.mock('@/contexts/workspace-context', () => ({
-  useWorkspace: () => ({ canWrite: true }),
+  useWorkspace: () => ({ canWrite: true, hasModule: () => false }),
   WorkspaceContext: createContext<{ canWrite: boolean } | undefined>({ canWrite: true }),
 }))
 

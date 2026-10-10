@@ -1892,7 +1892,10 @@
     "confirmDeleteDescription": "Il gruppo di categorie \"{{name}}\" verrà eliminato. Le sue categorie rimarranno e non saranno più raggruppate. Questa azione non può essere annullata.",
     "hiddenBadge": "Nascosto",
     "showDefault": "Mostra gruppo predefinito",
-    "hideDefault": "Nascondi gruppo predefinito"
+    "hideDefault": "Nascondi gruppo predefinito",
+    "dreSection": "Riga del conto economico",
+    "dreSectionNone": "Fuori dal conto economico",
+    "dreSectionHint": "Tutte le categorie di questo gruppo finiscono in questa riga del conto economico."
   },
   "import": {
     "acceptedFormats": "Formati accettati: OFX, CSV, QIF, CAMT",

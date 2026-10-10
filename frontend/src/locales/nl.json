@@ -1881,7 +1881,10 @@
     "confirmDeleteDescription": "De categoriegroep \"{{name}}\" wordt verwijderd. De categorieën blijven bestaan en worden niet meer gegroepeerd. Deze actie kan niet ongedaan worden gemaakt.",
     "hiddenBadge": "Verborgen",
     "hideDefault": "Standaardgroep verbergen",
-    "showDefault": "Standaardgroep tonen"
+    "showDefault": "Standaardgroep tonen",
+    "dreSection": "Resultaatregel",
+    "dreSectionNone": "Niet in de resultatenrekening",
+    "dreSectionHint": "Alle categorieën in deze groep komen op deze regel van de winst-en-verliesrekening."
   },
   "import": {
     "acceptedFormats": "Geaccepteerde formaten: OFX, CSV, QIF, CAMT",

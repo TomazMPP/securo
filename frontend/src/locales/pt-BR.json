@@ -1891,7 +1891,10 @@
     "confirmDeleteDescription": "O grupo de categorias \"{{name}}\" será excluído. Suas categorias permanecerão e ficarão sem grupo. Esta ação não pode ser desfeita.",
     "hiddenBadge": "Oculto",
     "showDefault": "Mostrar grupo padrão",
-    "hideDefault": "Ocultar grupo padrão"
+    "hideDefault": "Ocultar grupo padrão",
+    "dreSection": "Linha na DRE",
+    "dreSectionNone": "Fora da DRE",
+    "dreSectionHint": "Todas as categorias deste grupo entram nesta linha da DRE."
   },
   "import": {
     "acceptedFormats": "Formatos aceitos: OFX, CSV, QIF, CAMT",

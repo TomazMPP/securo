@@ -1879,7 +1879,10 @@
     "confirmDeleteDescription": "カテゴリグループ「{{name}}」を削除します。カテゴリは残り、グループなしになります。この操作は取り消せません。",
     "hiddenBadge": "非表示",
     "showDefault": "既定グループを表示",
-    "hideDefault": "既定グループを非表示"
+    "hideDefault": "既定グループを非表示",
+    "dreSection": "損益計算書の行",
+    "dreSectionNone": "損益計算書に含めない",
+    "dreSectionHint": "このグループのすべてのカテゴリは損益計算書のこの行に計上されます。"
   },
   "import": {
     "acceptedFormats": "対応形式: OFX, CSV, QIF, CAMT",

@@ -1879,7 +1879,10 @@
     "confirmDeleteDescription": "The category group \"{{name}}\" will be deleted. Its categories will remain and become ungrouped. This action cannot be undone.",
     "hiddenBadge": "Hidden",
     "showDefault": "Show default group",
-    "hideDefault": "Hide default group"
+    "hideDefault": "Hide default group",
+    "dreSection": "Income statement line",
+    "dreSectionNone": "Not in the statement",
+    "dreSectionHint": "Every category in this group lands on this line of the income statement."
   },
   "import": {
     "acceptedFormats": "Accepted formats: OFX, CSV, QIF, CAMT",
