@@ -52,7 +52,7 @@ def test_personal_resolves_to_todays_navigation():
 
 def test_business_is_personal_plus_business_modules_minus_household_ones():
     expected = set(PERSONAL_MODULES) | {"income_statement", "invoices"}
-    expected -= {"goals", "split_groups", "cards", "loans"}
+    expected -= {"goals", "split_groups", "cards", "loans", "recurring", "assets"}
     assert resolve_modules(ws("business")) == sorted(expected)
 
 
@@ -61,7 +61,7 @@ def test_business_modules_are_the_only_difference():
     personal = set(resolve_modules(ws("personal")))
     business = set(resolve_modules(ws("business")))
     assert business - personal == {"income_statement", "invoices"}
-    assert personal - business == {"goals", "split_groups", "cards", "loans"}
+    assert personal - business == {"goals", "split_groups", "cards", "loans", "recurring", "assets"}
 
 
 def test_every_workspace_kind_has_a_policy():

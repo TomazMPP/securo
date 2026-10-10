@@ -135,10 +135,17 @@ class BusinessPolicy:
     Cards and loans are fed by an Open Finance aggregator's credit data. The
     business feed in use (the accountant's, EXT Contabilidade) exposes bank
     accounts only, so those pages would stay empty in a business workspace.
+
+    Recurring bills and assets (investment holdings, net worth) are household
+    planning tools; a company's recurring picture is its invoices and its
+    result is the income statement.
     """
 
     ADDED = frozenset({ModuleId.INVOICES, ModuleId.INCOME_STATEMENT})
-    REMOVED = frozenset({ModuleId.GOALS, ModuleId.SPLIT_GROUPS, ModuleId.CARDS, ModuleId.LOANS})
+    REMOVED = frozenset({
+        ModuleId.GOALS, ModuleId.SPLIT_GROUPS, ModuleId.CARDS, ModuleId.LOANS,
+        ModuleId.RECURRING, ModuleId.ASSETS,
+    })
 
     def modules(self, base: frozenset[ModuleId]) -> frozenset[ModuleId]:
         return (base | self.ADDED) - self.REMOVED
