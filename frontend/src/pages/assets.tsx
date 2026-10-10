@@ -1658,7 +1658,7 @@ export default function AssetsPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label>{t('assets.unitPrice')}</Label>
+                      <Label>{t('assets.buyUnitPrice')}</Label>
                       <Input
                         type="number"
                         step="any"
@@ -1668,11 +1668,17 @@ export default function AssetsPage() {
                         placeholder={selectedQuote ? String(selectedQuote.price) : '0.00'}
                       />
                     </div>
+                    {/* A blank price silently falls back to the live quote on
+                        the server, which the placeholder makes look filled in. */}
+                    <p className="col-span-2 text-xs text-muted-foreground">{t('assets.buyUnitPriceHint')}</p>
                   </div>
                 ) : (
                   <div className="space-y-2">
                     <Label>{t('assets.quantity')}</Label>
                     <Input type="number" step="any" min="0" value={formUnits} onChange={e => setFormUnits(e.target.value)} placeholder="10" disabled={editingIsLedgerBacked} />
+                    {editingIsLedgerBacked && (
+                      <p className="text-xs text-muted-foreground">{t('assets.ledgerFieldsHint')}</p>
+                    )}
                   </div>
                 )}
 

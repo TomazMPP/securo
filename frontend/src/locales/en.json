@@ -2172,7 +2172,10 @@
     "class_other": "Other",
     "region_brazil": "Brazil",
     "region_unitedStates": "United States",
-    "region_global": "Global"
+    "region_global": "Global",
+    "buyUnitPrice": "Purchase price (per unit)",
+    "buyUnitPriceHint": "Leave blank to use the current quote.",
+    "ledgerFieldsHint": "Quantity, purchase price and date come from this holding's transactions. To change them, edit the buy under Transactions."
   },
   "reports": {
     "section": "Analytics",

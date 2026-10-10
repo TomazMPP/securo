@@ -2174,7 +2174,10 @@
     "class_other": "Overig",
     "region_brazil": "Brazilië",
     "region_unitedStates": "Verenigde Staten",
-    "region_global": "Wereldwijd"
+    "region_global": "Wereldwijd",
+    "buyUnitPrice": "Aankoopprijs (per eenheid)",
+    "buyUnitPriceHint": "Laat leeg om de huidige koers te gebruiken.",
+    "ledgerFieldsHint": "Aantal, aankoopprijs en datum komen uit de transacties van deze positie. Bewerk de aankoop onder Transacties om ze te wijzigen."
   },
   "reports": {
     "section": "Analyses",

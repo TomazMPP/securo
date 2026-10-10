@@ -2287,7 +2287,10 @@
     "region_global": "Globalne",
     "region_unitedStates": "Stany Zjednoczone",
     "viewByWallet": "Według portfela",
-    "viewConsolidated": "Skonsolidowane"
+    "viewConsolidated": "Skonsolidowane",
+    "buyUnitPrice": "Cena zakupu (za jednostkę)",
+    "buyUnitPriceHint": "Pozostaw puste, aby użyć bieżącego kursu.",
+    "ledgerFieldsHint": "Ilość, cena zakupu i data pochodzą z transakcji tej pozycji. Aby je zmienić, edytuj zakup w Transakcjach."
   },
   "reports": {
     "section": "Analityka",

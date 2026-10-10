@@ -2173,7 +2173,10 @@
     "region_global": "Global",
     "region_unitedStates": "USA",
     "viewByWallet": "Nach Wallet",
-    "viewConsolidated": "Konsolidiert"
+    "viewConsolidated": "Konsolidiert",
+    "buyUnitPrice": "Kaufpreis (pro Einheit)",
+    "buyUnitPriceHint": "Leer lassen, um den aktuellen Kurs zu verwenden.",
+    "ledgerFieldsHint": "Menge, Kaufpreis und Datum stammen aus den Transaktionen dieser Position. Zum Ändern den Kauf unter Transaktionen bearbeiten."
   },
   "reports": {
     "section": "Analysen",

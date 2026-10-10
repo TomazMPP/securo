@@ -2184,7 +2184,10 @@
     "class_other": "Outros",
     "region_brazil": "Brasil",
     "region_unitedStates": "Estados Unidos",
-    "region_global": "Global"
+    "region_global": "Global",
+    "buyUnitPrice": "Preço de compra (por cota)",
+    "buyUnitPriceHint": "Deixe em branco para usar a cotação atual.",
+    "ledgerFieldsHint": "Quantidade, preço de compra e data vêm dos lançamentos deste ativo. Para corrigir, edite a compra na aba Transações."
   },
   "reports": {
     "section": "Análises",

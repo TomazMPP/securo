@@ -2314,7 +2314,10 @@
     "class_other": "Iné",
     "region_brazil": "Brazília",
     "region_unitedStates": "Spojené štáty",
-    "region_global": "Globálne"
+    "region_global": "Globálne",
+    "buyUnitPrice": "Nákupná cena (za jednotku)",
+    "buyUnitPriceHint": "Nechajte prázdne, ak chcete použiť aktuálny kurz.",
+    "ledgerFieldsHint": "Množstvo, nákupná cena a dátum pochádzajú z transakcií tejto pozície. Ak ich chcete zmeniť, upravte nákup v Transakciách."
   },
   "reports": {
     "section": "Analytika",

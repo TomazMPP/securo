@@ -2185,7 +2185,10 @@
     "region_global": "Globale",
     "region_unitedStates": "Stati Uniti",
     "viewByWallet": "Per portafoglio",
-    "viewConsolidated": "Consolidato"
+    "viewConsolidated": "Consolidato",
+    "buyUnitPrice": "Prezzo di acquisto (per unità)",
+    "buyUnitPriceHint": "Lascia vuoto per usare la quotazione attuale.",
+    "ledgerFieldsHint": "Quantità, prezzo di acquisto e data derivano dalle operazioni di questo titolo. Per correggerli, modifica l'acquisto in Transazioni."
   },
   "reports": {
     "section": "Analisi",

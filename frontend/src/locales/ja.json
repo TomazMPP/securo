@@ -2172,7 +2172,10 @@
     "class_other": "その他",
     "region_brazil": "ブラジル",
     "region_unitedStates": "アメリカ合衆国",
-    "region_global": "グローバル"
+    "region_global": "グローバル",
+    "buyUnitPrice": "購入単価",
+    "buyUnitPriceHint": "空欄の場合は現在の株価を使用します。",
+    "ledgerFieldsHint": "数量・購入単価・日付はこの銘柄の取引履歴から計算されます。変更するには、取引履歴で購入を編集してください。"
   },
   "reports": {
     "section": "分析",

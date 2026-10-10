@@ -1,4 +1,5 @@
 from celery import Celery
+from celery.schedules import crontab
 
 from app.core.config import get_settings
 
@@ -44,7 +45,11 @@ celery_app.conf.beat_schedule = {
         # well under Yahoo's unofficial per-IP caps and avoids the bot
         # heuristics that trip on a chatty schedule. Task upserts today's
         # AssetValue so history stays at one row per day per asset.
-        "schedule": 60 * 60 * 24,
+        # Pinned to 21:30 UTC so it lands after the close of both B3
+        # (17:00 BRT = 20:00 UTC) and NYSE/Nasdaq (16:00 ET = 20:00 UTC in
+        # summer, 21:00 UTC in winter), recording the day's closing price.
+        # Runs on weekends too so crypto still gets a daily point.
+        "schedule": crontab(hour=21, minute=30),
     },
     "send-due-notifications-hourly": {
         "task": "app.tasks.notification_tasks.send_due_notifications",

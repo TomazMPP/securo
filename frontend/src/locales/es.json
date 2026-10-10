@@ -2185,7 +2185,10 @@
     "region_global": "Global",
     "region_unitedStates": "Estados Unidos",
     "viewByWallet": "Por cartera",
-    "viewConsolidated": "Consolidado"
+    "viewConsolidated": "Consolidado",
+    "buyUnitPrice": "Precio de compra (por unidad)",
+    "buyUnitPriceHint": "Déjalo en blanco para usar la cotización actual.",
+    "ledgerFieldsHint": "La cantidad, el precio de compra y la fecha provienen de los movimientos de este activo. Para corregirlos, edita la compra en Transacciones."
   },
   "reports": {
     "section": "Analítica",
