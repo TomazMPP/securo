@@ -48,6 +48,8 @@ class ModuleId(str, Enum):
 
     TRANSACTIONS = "transactions"
     ACCOUNTS = "accounts"
+    CARDS = "cards"
+    LOANS = "loans"
     IMPORT = "import"
     REPORTS = "reports"
     ASSETS = "assets"
@@ -77,6 +79,8 @@ CATALOG: Mapping[ModuleId, ModuleSpec] = {
     for spec in (
         ModuleSpec(ModuleId.TRANSACTIONS, default_enabled=True),
         ModuleSpec(ModuleId.ACCOUNTS, default_enabled=True),
+        ModuleSpec(ModuleId.CARDS, default_enabled=True),
+        ModuleSpec(ModuleId.LOANS, default_enabled=True),
         ModuleSpec(ModuleId.IMPORT, default_enabled=True),
         ModuleSpec(ModuleId.REPORTS, default_enabled=True),
         ModuleSpec(ModuleId.ASSETS, default_enabled=True),
@@ -127,10 +131,14 @@ class BusinessPolicy:
     Goals are personal savings targets and split groups share bills with
     friends; neither has a meaning in a company's books, and both only add
     noise to its sidebar, dashboard and command palette.
+
+    Cards and loans are fed by an Open Finance aggregator's credit data. The
+    business feed in use (the accountant's, EXT Contabilidade) exposes bank
+    accounts only, so those pages would stay empty in a business workspace.
     """
 
     ADDED = frozenset({ModuleId.INVOICES, ModuleId.INCOME_STATEMENT})
-    REMOVED = frozenset({ModuleId.GOALS, ModuleId.SPLIT_GROUPS})
+    REMOVED = frozenset({ModuleId.GOALS, ModuleId.SPLIT_GROUPS, ModuleId.CARDS, ModuleId.LOANS})
 
     def modules(self, base: frozenset[ModuleId]) -> frozenset[ModuleId]:
         return (base | self.ADDED) - self.REMOVED
