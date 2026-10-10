@@ -138,7 +138,8 @@
     "groupControl": "Kontrolle",
     "groupStrategy": "Strategie",
     "loans": "Kredite",
-    "cards": "Kreditkarten"
+    "cards": "Kreditkarten",
+    "incomeStatement": "Gewinn- und Verlustrechnung"
   },
   "invoices": {
     "title": "Invoices",
@@ -3424,5 +3425,37 @@
     "tooltipTotal": "Summe",
     "segmentTitle": "{{name}}: {{used}} genutzt · {{share}} des Gesamtlimits · {{ofUsed}} der Nutzung",
     "progressTitle": "{{paid}} von {{total}} Raten bezahlt ({{paidAmount}}) · noch {{left}} von {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Gewinn- und Verlustrechnung",
+    "subtitle": "Umsatz abzüglich Steuern, Kosten und Ausgaben, Monat für Monat. Zahlungsbasis: Jede Buchung zählt in dem Monat, in dem das Geld floss.",
+    "range": {
+      "last6": "Letzte 6 Monate",
+      "last12": "Letzte 12 Monate",
+      "thisYear": "Dieses Jahr",
+      "lastYear": "Letztes Jahr"
+    },
+    "section": {
+      "revenue": "Bruttoumsatz",
+      "deductions": "Umsatzsteuern",
+      "costs": "Kosten der Leistungen",
+      "operating_expenses": "Betriebsausgaben",
+      "financial": "Finanzergebnis",
+      "unclassified": "Nicht zugeordnet",
+      "owners": "Gesellschafter"
+    },
+    "subtotal": {
+      "net_revenue": "Nettoumsatz",
+      "gross_profit": "Bruttogewinn",
+      "operating_result": "Betriebsergebnis",
+      "net_income": "Jahresergebnis"
+    },
+    "margin": "Marge",
+    "total": "Gesamt",
+    "uncategorized": "Ohne Kategorie",
+    "unclassifiedHint": "{{amount}} in diesem Zeitraum steht in keiner Zeile der GuV (ohne Kategorie oder in einer Gruppe ohne Zeile). Der Betrag ist im Ergebnis bereits enthalten.",
+    "unclassifiedLink": "Zeilen der Gruppen festlegen",
+    "ownersCaption": "Außerhalb des Ergebnisses: Gewinnausschüttungen und Einlagen der Gesellschafter",
+    "footnote": "Die Zeilen ergeben sich aus der „GuV-Zeile“ jeder Kategoriegruppe, die auf der Seite Kategorien geändert werden kann. Umbuchungen zwischen eigenen Konten und Investitionen sind ausgenommen."
   }
 }

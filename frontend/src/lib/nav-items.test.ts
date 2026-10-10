@@ -87,6 +87,13 @@ describe('visibleNavItems', () => {
     expect(linkKeys(business).indexOf('invoices')).toBe(1)
   })
 
+  it('adds the income statement next to the reports for a business workspace', () => {
+    const business = linkKeys(visibleNavItems(navItems, all))
+    expect(business.indexOf('incomeStatement')).toBe(business.indexOf('analysis') + 1)
+    const personal = linkKeys(visibleNavItems(navItems, (id) => PERSONAL_MODULES.includes(id)))
+    expect(personal).not.toContain('incomeStatement')
+  })
+
   it('hides a section header once its last link goes', () => {
     const items: NavItem[] = [
       { type: 'separator', labelKey: 'a' },

@@ -138,7 +138,8 @@
     "groupControl": "Kontrola",
     "groupStrategy": "Stratégia",
     "loans": "Úvery",
-    "cards": "Kreditné karty"
+    "cards": "Kreditné karty",
+    "incomeStatement": "Výkaz ziskov a strát"
   },
   "invoices": {
     "title": "Faktúry",
@@ -3617,5 +3618,37 @@
     "tooltipTotal": "Spolu",
     "segmentTitle": "{{name}}: využité {{used}} · {{share}} celkového limitu · {{ofUsed}} z využitia",
     "progressTitle": "Zaplatené {{paid}} z {{total}} splátok ({{paidAmount}}) · zostáva {{left}} z {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Výkaz ziskov a strát",
+    "subtitle": "Tržby mínus dane, náklady a výdavky, mesiac po mesiaci. Peňažná báza: každá transakcia sa počíta v mesiaci pohybu peňazí.",
+    "range": {
+      "last6": "Posledných 6 mesiacov",
+      "last12": "Posledných 12 mesiacov",
+      "thisYear": "Tento rok",
+      "lastYear": "Minulý rok"
+    },
+    "section": {
+      "revenue": "Hrubé tržby",
+      "deductions": "Dane z tržieb",
+      "costs": "Náklady na služby",
+      "operating_expenses": "Prevádzkové náklady",
+      "financial": "Finančný výsledok",
+      "unclassified": "Nezaradené",
+      "owners": "Spoločníci"
+    },
+    "subtotal": {
+      "net_revenue": "Čisté tržby",
+      "gross_profit": "Hrubý zisk",
+      "operating_result": "Prevádzkový výsledok",
+      "net_income": "Čistý zisk"
+    },
+    "margin": "Marža",
+    "total": "Spolu",
+    "uncategorized": "Bez kategórie",
+    "unclassifiedHint": "{{amount}} v tomto období nie je v žiadnom riadku výkazu (bez kategórie alebo v skupine bez riadku). Suma je už zahrnutá v čistom zisku.",
+    "unclassifiedLink": "Priradiť riadky skupín",
+    "ownersCaption": "Mimo výsledku: výplaty zisku a vklady spoločníkov",
+    "footnote": "Riadky pochádzajú z „riadku výkazu“ každej skupiny kategórií, ktorý možno zmeniť na stránke Kategórie. Prevody medzi vlastnými účtami a investície sa nezapočítavajú."
   }
 }

@@ -138,7 +138,8 @@
     "groupControl": "管理",
     "groupStrategy": "戦略",
     "loans": "ローン",
-    "cards": "クレジットカード"
+    "cards": "クレジットカード",
+    "incomeStatement": "損益計算書"
   },
   "invoices": {
     "title": "請求書",
@@ -3423,5 +3424,37 @@
     "tooltipTotal": "合計",
     "segmentTitle": "{{name}}: 利用 {{used}} · 総限度額の{{share}} · 利用額の{{ofUsed}}",
     "progressTitle": "{{total}}回中{{paid}}回支払済み（{{paidAmount}}）· 残り{{left}}／{{all}}"
+  },
+  "incomeStatement": {
+    "title": "損益計算書",
+    "subtitle": "売上から税金・原価・経費を差し引いた結果を月ごとに表示します。現金主義：取引はお金が動いた月に計上されます。",
+    "range": {
+      "last6": "過去6か月",
+      "last12": "過去12か月",
+      "thisYear": "今年",
+      "lastYear": "昨年"
+    },
+    "section": {
+      "revenue": "売上高",
+      "deductions": "売上にかかる税金",
+      "costs": "売上原価",
+      "operating_expenses": "営業費用",
+      "financial": "財務損益",
+      "unclassified": "未分類",
+      "owners": "出資者"
+    },
+    "subtotal": {
+      "net_revenue": "純売上高",
+      "gross_profit": "売上総利益",
+      "operating_result": "営業利益",
+      "net_income": "当期純利益"
+    },
+    "margin": "利益率",
+    "total": "合計",
+    "uncategorized": "カテゴリなし",
+    "unclassifiedHint": "この期間の{{amount}}は損益計算書のどの行にも入っていません（カテゴリなし、または行が未設定のグループ）。この金額は当期純利益にすでに含まれています。",
+    "unclassifiedLink": "グループの行を設定",
+    "ownersCaption": "損益の外：利益配当と出資者からの拠出",
+    "footnote": "各行はカテゴリグループごとの「損益計算書の行」から決まり、カテゴリページで変更できます。自社口座間の振替と投資は含まれません。"
   }
 }

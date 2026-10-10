@@ -1,3 +1,6 @@
+// Relative, not aliased, so files compiled without the `@/*` mapping can import it.
+import type { DreSection, IncomeStatementSectionKey } from '../lib/income-statement'
+
 export interface User {
   id: string
   email: string
@@ -124,6 +127,8 @@ export interface CategoryGroup {
   position: number
   is_system: boolean
   is_hidden: boolean
+  /** Income statement line; null = not classified. */
+  dre_section?: DreSection | null
   categories: Category[]
 }
 
@@ -2120,4 +2125,43 @@ export interface RecurringSuggestion {
   category_name: string | null
   payee_name: string | null
   currency: string
+}
+
+// Income statement (DRE) — business workspaces
+export interface IncomeStatementLine {
+  category_id: string | null
+  name: string | null
+  icon: string | null
+  color: string | null
+  group_name: string | null
+  total: number
+  months: number[]
+}
+
+export interface IncomeStatementSection {
+  key: IncomeStatementSectionKey
+  total: number
+  months: number[]
+  lines: IncomeStatementLine[]
+}
+
+export interface IncomeStatementAmount {
+  total: number
+  months: number[]
+}
+
+export interface IncomeStatement {
+  start: string
+  end: string
+  currency: string
+  months: string[]
+  sections: IncomeStatementSection[]
+  subtotals: {
+    net_revenue: IncomeStatementAmount
+    gross_profit: IncomeStatementAmount
+    operating_result: IncomeStatementAmount
+    net_income: IncomeStatementAmount
+  }
+  margin: number | null
+  margins: (number | null)[]
 }

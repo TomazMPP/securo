@@ -138,7 +138,8 @@
     "groupControl": "Controllo",
     "groupStrategy": "Strategia",
     "loans": "Prestiti",
-    "cards": "Carte di credito"
+    "cards": "Carte di credito",
+    "incomeStatement": "Conto economico"
   },
   "invoices": {
     "title": "Invoices",
@@ -3447,5 +3448,37 @@
     "tooltipTotal": "Totale",
     "segmentTitle": "{{name}}: {{used}} usati · {{share}} del limite totale · {{ofUsed}} dell'utilizzato",
     "progressTitle": "{{paid}} di {{total}} rate pagate ({{paidAmount}}) · mancano {{left}} su {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Conto economico",
+    "subtitle": "Ricavi meno imposte, costi e spese, mese per mese. Principio di cassa: ogni transazione conta nel mese in cui il denaro si è mosso.",
+    "range": {
+      "last6": "Ultimi 6 mesi",
+      "last12": "Ultimi 12 mesi",
+      "thisYear": "Quest'anno",
+      "lastYear": "Anno scorso"
+    },
+    "section": {
+      "revenue": "Ricavi lordi",
+      "deductions": "Imposte sui ricavi",
+      "costs": "Costi dei servizi",
+      "operating_expenses": "Spese operative",
+      "financial": "Risultato finanziario",
+      "unclassified": "Non classificato",
+      "owners": "Soci"
+    },
+    "subtotal": {
+      "net_revenue": "Ricavi netti",
+      "gross_profit": "Utile lordo",
+      "operating_result": "Risultato operativo",
+      "net_income": "Utile netto"
+    },
+    "margin": "Margine",
+    "total": "Totale",
+    "uncategorized": "Senza categoria",
+    "unclassifiedHint": "{{amount}} in questo periodo non è in nessuna riga del conto economico (senza categoria o in un gruppo senza riga). È già incluso nell'utile netto.",
+    "unclassifiedLink": "Assegna la riga dei gruppi",
+    "ownersCaption": "Fuori dal risultato: distribuzione degli utili e apporti dei soci",
+    "footnote": "Le righe derivano dalla \"riga del conto economico\" di ogni gruppo di categorie, modificabile nella pagina Categorie. Trasferimenti tra conti propri e investimenti sono esclusi."
   }
 }

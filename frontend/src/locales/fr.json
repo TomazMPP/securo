@@ -138,7 +138,8 @@
     "groupControl": "Contrôle",
     "groupStrategy": "Stratégie",
     "loans": "Prêts",
-    "cards": "Cartes de crédit"
+    "cards": "Cartes de crédit",
+    "incomeStatement": "Compte de résultat"
   },
   "invoices": {
     "title": "Invoices",
@@ -3447,5 +3448,37 @@
     "tooltipTotal": "Total",
     "segmentTitle": "{{name}} : {{used}} utilisés · {{share}} de la limite totale · {{ofUsed}} de l'utilisé",
     "progressTitle": "{{paid}} sur {{total}} échéances payées ({{paidAmount}}) · reste {{left}} sur {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Compte de résultat",
+    "subtitle": "Recettes moins impôts, coûts et charges, mois par mois. Comptabilité de trésorerie : chaque transaction compte le mois où l'argent a bougé.",
+    "range": {
+      "last6": "6 derniers mois",
+      "last12": "12 derniers mois",
+      "thisYear": "Cette année",
+      "lastYear": "L'an dernier"
+    },
+    "section": {
+      "revenue": "Chiffre d'affaires",
+      "deductions": "Impôts sur le chiffre d'affaires",
+      "costs": "Coût des services",
+      "operating_expenses": "Charges d'exploitation",
+      "financial": "Résultat financier",
+      "unclassified": "Non classé",
+      "owners": "Associés"
+    },
+    "subtotal": {
+      "net_revenue": "Chiffre d'affaires net",
+      "gross_profit": "Marge brute",
+      "operating_result": "Résultat d'exploitation",
+      "net_income": "Résultat net"
+    },
+    "margin": "Marge",
+    "total": "Total",
+    "uncategorized": "Sans catégorie",
+    "unclassifiedHint": "{{amount}} sur cette période ne figure sur aucune ligne du compte de résultat (sans catégorie, ou dans un groupe sans ligne). Ce montant est déjà inclus dans le résultat net.",
+    "unclassifiedLink": "Définir la ligne des groupes",
+    "ownersCaption": "Hors résultat : distributions de bénéfices et apports des associés",
+    "footnote": "Les lignes proviennent de la « ligne du compte de résultat » de chaque groupe de catégories, modifiable sur la page Catégories. Les virements entre comptes de l'entreprise et les placements sont exclus."
   }
 }

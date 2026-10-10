@@ -138,7 +138,8 @@
     "groupControl": "Beheer",
     "groupStrategy": "Strategie",
     "loans": "Leningen",
-    "cards": "Creditcards"
+    "cards": "Creditcards",
+    "incomeStatement": "Winst-en-verliesrekening"
   },
   "invoices": {
     "title": "Invoices",
@@ -3425,5 +3426,37 @@
     "tooltipTotal": "Totaal",
     "segmentTitle": "{{name}}: {{used}} gebruikt · {{share}} van de totale limiet · {{ofUsed}} van het gebruik",
     "progressTitle": "{{paid}} van {{total}} termijnen betaald ({{paidAmount}}) · nog {{left}} van {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Winst-en-verliesrekening",
+    "subtitle": "Omzet min belastingen, kosten en uitgaven, per maand. Kasbasis: elke transactie telt in de maand waarin het geld bewoog.",
+    "range": {
+      "last6": "Laatste 6 maanden",
+      "last12": "Laatste 12 maanden",
+      "thisYear": "Dit jaar",
+      "lastYear": "Vorig jaar"
+    },
+    "section": {
+      "revenue": "Bruto-omzet",
+      "deductions": "Belastingen op omzet",
+      "costs": "Kosten van diensten",
+      "operating_expenses": "Bedrijfskosten",
+      "financial": "Financieel resultaat",
+      "unclassified": "Niet ingedeeld",
+      "owners": "Eigenaren"
+    },
+    "subtotal": {
+      "net_revenue": "Netto-omzet",
+      "gross_profit": "Brutowinst",
+      "operating_result": "Bedrijfsresultaat",
+      "net_income": "Nettoresultaat"
+    },
+    "margin": "Marge",
+    "total": "Totaal",
+    "uncategorized": "Zonder categorie",
+    "unclassifiedHint": "{{amount}} in deze periode staat op geen enkele regel (zonder categorie, of in een groep zonder regel). Het zit al in het nettoresultaat.",
+    "unclassifiedLink": "Regels van groepen instellen",
+    "ownersCaption": "Buiten het resultaat: winstuitkeringen en inbreng van eigenaren",
+    "footnote": "De regels komen uit de \"resultaatregel\" van elke categoriegroep, aan te passen op de pagina Categorieën. Overboekingen tussen eigen rekeningen en beleggingen tellen niet mee."
   }
 }

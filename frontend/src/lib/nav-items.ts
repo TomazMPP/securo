@@ -1,6 +1,7 @@
 import {
   ArrowLeftRight,
   BarChart3,
+  FileSpreadsheet,
   Building2,
   CreditCard,
   Landmark,
@@ -50,6 +51,7 @@ export const navItems: NavItem[] = [
   { type: 'separator', labelKey: 'nav.groupStrategy' },
   { type: 'link', key: 'reports', path: '/reports', icon: BarChart3, module: 'reports' },
   { type: 'link', key: 'analysis', path: '/analysis', icon: PieChart, module: 'reports' },
+  { type: 'link', key: 'incomeStatement', path: '/income-statement', icon: FileSpreadsheet, module: 'income_statement' },
   { type: 'link', key: 'assets', path: '/assets', icon: Layers, module: 'assets' },
   { type: 'separator', labelKey: 'nav.groupSetup' },
   { type: 'link', key: 'payees', path: '/payees', icon: Users, module: 'payees' },

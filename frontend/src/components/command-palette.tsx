@@ -63,6 +63,7 @@ const NAV_ITEMS: StaticItem[] = [
   { id: 'nav-import', labelKey: 'nav.import', icon: Upload, path: '/import', keywords: ['csv', 'ofx', 'importar'], module: 'import' },
   { id: 'nav-reports', labelKey: 'nav.reports', icon: BarChart3, path: '/reports', keywords: ['relatorios', 'relatórios', 'charts'], module: 'reports' },
   { id: 'nav-analysis', labelKey: 'nav.analysis', icon: PieChart, path: '/analysis', keywords: ['analise', 'análise', 'spending', 'gastos'], module: 'reports' },
+  { id: 'nav-income-statement', labelKey: 'nav.incomeStatement', icon: FileSpreadsheet, path: '/income-statement', keywords: ['dre', 'resultado', 'lucro', 'margem', 'profit', 'p&l', 'income statement'], module: 'income_statement' },
   { id: 'nav-cards', labelKey: 'nav.cards', icon: CreditCard, path: '/cards', keywords: ['cartoes', 'cartões', 'fatura', 'parcelas', 'limite', 'cards'], module: 'accounts' },
   { id: 'nav-loans', labelKey: 'nav.loans', icon: Landmark, path: '/loans', keywords: ['emprestimos', 'empréstimos', 'financiamento', 'financing', 'loan'], module: 'accounts' },
   { id: 'nav-assets', labelKey: 'nav.assets', icon: Landmark, path: '/assets', keywords: ['patrimonio', 'patrimônio'], module: 'assets' },

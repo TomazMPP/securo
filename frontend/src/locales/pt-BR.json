@@ -138,7 +138,8 @@
     "groupControl": "Controle",
     "groupStrategy": "Estratégia",
     "loans": "Empréstimos",
-    "cards": "Cartões de crédito"
+    "cards": "Cartões de crédito",
+    "incomeStatement": "DRE"
   },
   "invoices": {
     "title": "Cobranças",
@@ -3435,5 +3436,37 @@
     "tooltipTotal": "Total",
     "segmentTitle": "{{name}}: {{used}} usados · {{share}} do limite total · {{ofUsed}} do que está usado",
     "progressTitle": "{{paid}} de {{total}} parcelas pagas ({{paidAmount}}) · faltam {{left}} de {{all}}"
+  },
+  "incomeStatement": {
+    "title": "DRE — Demonstração do Resultado",
+    "subtitle": "Receita menos impostos, custos e despesas, mês a mês. Regime de caixa: cada transação conta no mês em que o dinheiro se moveu.",
+    "range": {
+      "last6": "Últimos 6 meses",
+      "last12": "Últimos 12 meses",
+      "thisYear": "Este ano",
+      "lastYear": "Ano passado"
+    },
+    "section": {
+      "revenue": "Receita bruta",
+      "deductions": "Impostos sobre vendas",
+      "costs": "Custos dos serviços",
+      "operating_expenses": "Despesas operacionais",
+      "financial": "Resultado financeiro",
+      "unclassified": "Não classificado",
+      "owners": "Sócios"
+    },
+    "subtotal": {
+      "net_revenue": "Receita líquida",
+      "gross_profit": "Lucro bruto",
+      "operating_result": "Resultado operacional",
+      "net_income": "Lucro líquido"
+    },
+    "margin": "Margem",
+    "total": "Total",
+    "uncategorized": "Sem categoria",
+    "unclassifiedHint": "{{amount}} neste período não está em nenhuma linha da DRE (sem categoria, ou num grupo sem linha definida). Esse valor já entra no lucro líquido.",
+    "unclassifiedLink": "Definir a linha dos grupos",
+    "ownersCaption": "Fora do resultado: distribuição de lucros e aportes dos sócios",
+    "footnote": "As linhas vêm da \"linha na DRE\" de cada grupo de categorias, que pode ser alterada na página Categorias. Transferências entre contas da própria empresa e investimentos ficam de fora."
   }
 }

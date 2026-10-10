@@ -138,7 +138,8 @@
     "groupControl": "Control",
     "groupStrategy": "Strategy",
     "loans": "Loans",
-    "cards": "Credit cards"
+    "cards": "Credit cards",
+    "incomeStatement": "Income statement"
   },
   "invoices": {
     "title": "Invoices",
@@ -3423,5 +3424,37 @@
     "tooltipTotal": "Total",
     "segmentTitle": "{{name}}: {{used}} used · {{share}} of the total limit · {{ofUsed}} of what's used",
     "progressTitle": "{{paid}} of {{total}} installments paid ({{paidAmount}}) · {{left}} left of {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Income statement",
+    "subtitle": "Revenue minus taxes, costs and expenses, month by month. Cash basis: each transaction counts in the month it moved.",
+    "range": {
+      "last6": "Last 6 months",
+      "last12": "Last 12 months",
+      "thisYear": "This year",
+      "lastYear": "Last year"
+    },
+    "section": {
+      "revenue": "Gross revenue",
+      "deductions": "Taxes on revenue",
+      "costs": "Cost of services",
+      "operating_expenses": "Operating expenses",
+      "financial": "Financial result",
+      "unclassified": "Unclassified",
+      "owners": "Owners"
+    },
+    "subtotal": {
+      "net_revenue": "Net revenue",
+      "gross_profit": "Gross profit",
+      "operating_result": "Operating result",
+      "net_income": "Net income"
+    },
+    "margin": "Margin",
+    "total": "Total",
+    "uncategorized": "Uncategorized",
+    "unclassifiedHint": "{{amount}} in this period is in no line of the statement (uncategorized, or in a group without a statement line). It is already in net income.",
+    "unclassifiedLink": "Assign the groups' lines",
+    "ownersCaption": "Outside the result: profit distributions and owner contributions",
+    "footnote": "Lines come from each category group's \"statement line\", which can be changed on the Categories page. Transfers between the company's own accounts and investments are left out."
   }
 }

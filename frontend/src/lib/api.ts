@@ -90,6 +90,7 @@ import type {
   BalanceHistory,
   PaginatedTransactions,
   PeriodAnalysis,
+  IncomeStatement,
   CategoryAnalysis,
   AccountsAnalysis,
   ReportResponse,
@@ -1550,6 +1551,13 @@ export const loans = {
   },
   unlinkPayment: async (id: string, transactionId: string): Promise<Loan> => {
     const { data } = await api.delete(`/loans/${id}/payments/${transactionId}`)
+    return data
+  },
+}
+
+export const incomeStatement = {
+  get: async (start: string, end: string): Promise<IncomeStatement> => {
+    const { data } = await api.get('/income-statement', { params: { start, end } })
     return data
   },
 }

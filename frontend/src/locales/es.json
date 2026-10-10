@@ -138,7 +138,8 @@
     "groupControl": "Control",
     "groupStrategy": "Estrategia",
     "loans": "Préstamos",
-    "cards": "Tarjetas de crédito"
+    "cards": "Tarjetas de crédito",
+    "incomeStatement": "Estado de resultados"
   },
   "invoices": {
     "title": "Invoices",
@@ -3447,5 +3448,37 @@
     "tooltipTotal": "Total",
     "segmentTitle": "{{name}}: {{used}} usados · {{share}} del límite total · {{ofUsed}} de lo usado",
     "progressTitle": "{{paid}} de {{total}} cuotas pagadas ({{paidAmount}}) · faltan {{left}} de {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Estado de resultados",
+    "subtitle": "Ingresos menos impuestos, costos y gastos, mes a mes. Base de caja: cada transacción cuenta en el mes en que se movió el dinero.",
+    "range": {
+      "last6": "Últimos 6 meses",
+      "last12": "Últimos 12 meses",
+      "thisYear": "Este año",
+      "lastYear": "Año pasado"
+    },
+    "section": {
+      "revenue": "Ingresos brutos",
+      "deductions": "Impuestos sobre ventas",
+      "costs": "Costos de servicios",
+      "operating_expenses": "Gastos operativos",
+      "financial": "Resultado financiero",
+      "unclassified": "Sin clasificar",
+      "owners": "Socios"
+    },
+    "subtotal": {
+      "net_revenue": "Ingresos netos",
+      "gross_profit": "Utilidad bruta",
+      "operating_result": "Resultado operativo",
+      "net_income": "Utilidad neta"
+    },
+    "margin": "Margen",
+    "total": "Total",
+    "uncategorized": "Sin categoría",
+    "unclassifiedHint": "{{amount}} en este período no está en ninguna línea del estado (sin categoría, o en un grupo sin línea). Ya está incluido en la utilidad neta.",
+    "unclassifiedLink": "Asignar la línea de los grupos",
+    "ownersCaption": "Fuera del resultado: distribución de utilidades y aportes de los socios",
+    "footnote": "Las líneas vienen de la \"línea del estado\" de cada grupo de categorías, que se puede cambiar en la página Categorías. Las transferencias entre cuentas propias y las inversiones quedan fuera."
   }
 }

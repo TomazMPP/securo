@@ -19,6 +19,7 @@ describe('MODULE_IDS', () => {
         'categories',
         'goals',
         'import',
+        'income_statement',
         'invoices',
         'payees',
         'recurring',

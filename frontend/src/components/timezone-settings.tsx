@@ -24,6 +24,7 @@ const calendarQueryKeys = new Set([
   'fx-rates',
   'invoice',
   'invoices',
+  'income-statement',
   'invoice-summary',
   'invoice-facets',
   'invoice-document',

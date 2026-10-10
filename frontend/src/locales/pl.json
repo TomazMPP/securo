@@ -138,7 +138,8 @@
     "groupControl": "Kontrola",
     "groupStrategy": "Strategia",
     "loans": "Kredyty",
-    "cards": "Karty kredytowe"
+    "cards": "Karty kredytowe",
+    "incomeStatement": "Rachunek zysków i strat"
   },
   "invoices": {
     "title": "Invoices",
@@ -3583,5 +3584,37 @@
     "tooltipTotal": "Suma",
     "segmentTitle": "{{name}}: wykorzystano {{used}} · {{share}} łącznego limitu · {{ofUsed}} wykorzystania",
     "progressTitle": "Zapłacono {{paid}} z {{total}} rat ({{paidAmount}}) · zostało {{left}} z {{all}}"
+  },
+  "incomeStatement": {
+    "title": "Rachunek zysków i strat",
+    "subtitle": "Przychody minus podatki, koszty i wydatki, miesiąc po miesiącu. Metoda kasowa: każda transakcja liczy się w miesiącu przepływu pieniędzy.",
+    "range": {
+      "last6": "Ostatnie 6 miesięcy",
+      "last12": "Ostatnie 12 miesięcy",
+      "thisYear": "Ten rok",
+      "lastYear": "Poprzedni rok"
+    },
+    "section": {
+      "revenue": "Przychody brutto",
+      "deductions": "Podatki od przychodu",
+      "costs": "Koszty usług",
+      "operating_expenses": "Koszty operacyjne",
+      "financial": "Wynik finansowy",
+      "unclassified": "Niesklasyfikowane",
+      "owners": "Wspólnicy"
+    },
+    "subtotal": {
+      "net_revenue": "Przychody netto",
+      "gross_profit": "Zysk brutto",
+      "operating_result": "Wynik operacyjny",
+      "net_income": "Zysk netto"
+    },
+    "margin": "Marża",
+    "total": "Suma",
+    "uncategorized": "Bez kategorii",
+    "unclassifiedHint": "{{amount}} w tym okresie nie jest w żadnej pozycji (bez kategorii lub w grupie bez pozycji). Kwota jest już ujęta w zysku netto.",
+    "unclassifiedLink": "Przypisz pozycje grup",
+    "ownersCaption": "Poza wynikiem: wypłaty zysku i wkłady wspólników",
+    "footnote": "Pozycje wynikają z \"pozycji w rachunku\" każdej grupy kategorii, którą można zmienić na stronie Kategorie. Przelewy między własnymi kontami i inwestycje są pomijane."
   }
 }

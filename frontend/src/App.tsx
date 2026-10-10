@@ -42,6 +42,7 @@ const AgentsListPage = lazy(() => import('@/pages/agents-list'))
 const AgentDetailPage = lazy(() => import('@/pages/agent-detail'))
 const AgentConnectionsPage = lazy(() => import('@/pages/agent-connections'))
 const InvoicesPage = lazy(() => import('@/pages/invoices'))
+const IncomeStatementPage = lazy(() => import('@/pages/income-statement'))
 const InvoiceSchedulesPage = lazy(() => import('@/pages/invoice-schedules'))
 const InvoiceScheduleDetailPage = lazy(() => import('@/pages/invoice-schedule-detail'))
 const ProductsPage = lazy(() => import('@/pages/products'))
@@ -118,6 +119,7 @@ function App() {
                   <Route path="/assets/import" element={<Navigate to="/import?tab=investments" replace />} />
                   <Route path="/reports" element={<ModuleRoute module="reports"><ReportsPage /></ModuleRoute>} />
                   <Route path="/analysis" element={<ModuleRoute module="reports"><AnalysisPage /></ModuleRoute>} />
+                  <Route path="/income-statement" element={<ModuleRoute module="income_statement"><IncomeStatementPage /></ModuleRoute>} />
                   <Route path="/payees" element={<ModuleRoute module="payees"><PayeesPage /></ModuleRoute>} />
                   <Route path="/groups" element={<ModuleRoute module="split_groups"><GroupsPage /></ModuleRoute>} />
                   <Route path="/groups/:id" element={<ModuleRoute module="split_groups"><GroupDetailPage /></ModuleRoute>} />
