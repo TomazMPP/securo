@@ -265,7 +265,7 @@ async def create_workspace(
         from app.services.rule_service import create_default_rules
 
         await create_default_categories(
-            session, creator.id, workspace_locale, workspace_id=workspace.id
+            session, creator.id, workspace_locale, workspace_id=workspace.id, kind=kind
         )
         await create_default_rules(
             session, creator.id, workspace_locale, workspace_id=workspace.id

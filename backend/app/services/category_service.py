@@ -58,6 +58,7 @@ async def create_default_categories(
     user_id: uuid.UUID,
     lang: str = "pt-BR",
     workspace_id: Optional[uuid.UUID] = None,
+    kind: str = "personal",
 ) -> list[Category]:
     # Guard against double-creation. Scope the check to the workspace
     # when one is provided so a user creating a SECOND workspace still
@@ -85,6 +86,11 @@ async def create_default_categories(
             )
             scope_id = row.scalar()
             return await get_categories(session, scope_id) if scope_id else []
+
+    if kind == "business":
+        from app.services.business_categories import create_business_categories
+
+        return await create_business_categories(session, user_id, lang, workspace_id)
 
     # Create default groups first
     groups = await create_default_groups(session, user_id, lang, workspace_id=workspace_id)

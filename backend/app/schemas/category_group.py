@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, ConfigDict
 
+from app.models.category_group import DreSection
 from app.schemas.category import CategoryRead
 
 
@@ -11,6 +12,7 @@ class CategoryGroupBase(BaseModel):
     icon: str = "folder"
     color: str = "#6B7280"
     position: int = 0
+    dre_section: Optional[DreSection] = None
 
 
 class CategoryGroupCreate(CategoryGroupBase):
@@ -23,6 +25,8 @@ class CategoryGroupUpdate(BaseModel):
     color: Optional[str] = None
     position: Optional[int] = None
     is_hidden: Optional[bool] = None
+    # Explicit null clears it (the update applies only fields that were sent).
+    dre_section: Optional[DreSection] = None
 
 
 class CategoryGroupRead(CategoryGroupBase):
