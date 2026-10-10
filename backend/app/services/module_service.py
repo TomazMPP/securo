@@ -121,10 +121,19 @@ class PersonalPolicy:
 
 
 class BusinessPolicy:
-    """The catalog defaults plus what a workspace tracking work needs."""
+    """The catalog defaults plus what a workspace tracking work needs, minus
+    what only describes a household's money.
+
+    Goals are personal savings targets and split groups share bills with
+    friends; neither has a meaning in a company's books, and both only add
+    noise to its sidebar, dashboard and command palette.
+    """
+
+    ADDED = frozenset({ModuleId.INVOICES, ModuleId.INCOME_STATEMENT})
+    REMOVED = frozenset({ModuleId.GOALS, ModuleId.SPLIT_GROUPS})
 
     def modules(self, base: frozenset[ModuleId]) -> frozenset[ModuleId]:
-        return base | {ModuleId.INVOICES, ModuleId.INCOME_STATEMENT}
+        return (base | self.ADDED) - self.REMOVED
 
 
 KIND_POLICIES: Mapping[str, ModulePolicy] = {
