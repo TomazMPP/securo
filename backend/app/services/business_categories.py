@@ -12,9 +12,12 @@ lands on the right line by joining a group.
 
 Two choices worth knowing:
 
-  - Profit distribution and owner contributions are `treat_as_transfer`: they
-    are equity, not profit or loss, so the ordinary reports leave them out.
-    The income statement still shows them, below the bottom line.
+  - Owner withdrawals are one category, not pró-labore vs profit
+    distribution: owners usually take both in the same lumpy transfers, so a
+    per-transaction split is guesswork. They count as outflows in the
+    ordinary reports (cash really left the company) and sit below the bottom
+    line of the income statement. Owner contributions are `treat_as_transfer`:
+    equity coming in is not income.
   - "Transferências" and "Investimentos" keep the exact names (and the
     transfer flag) of the personal defaults, so the default rules and rule
     packs that target them by name resolve here too.
@@ -69,7 +72,7 @@ BUSINESS_CATEGORIES_I18N: dict[str, dict] = {
     "interest_iof":         {"group": "financial",  "en": "Interest & IOF",           "pt-BR": "Juros e IOF",               "pt-PT": "Juros e impostos",           "es": "Intereses e impuestos",    "icon": "trending-down",    "color": "#0284C7"},
     "financial_income":     {"group": "financial",  "en": "Interest income",          "pt-BR": "Rendimentos financeiros",   "pt-PT": "Rendimentos financeiros",    "es": "Rendimientos financieros", "icon": "coins",            "color": "#38BDF8"},
     # Owners: equity movements, below the bottom line
-    "profit_distribution":  {"group": "owners",     "en": "Profit distribution",      "pt-BR": "Distribuição de lucros",    "pt-PT": "Distribuição de lucros",     "es": "Distribución de utilidades", "icon": "hand-coins",     "color": "#64748B", "treat_as_transfer": True},
+    "owner_withdrawals":    {"group": "owners",     "en": "Owner withdrawals",        "pt-BR": "Retiradas dos sócios",      "pt-PT": "Levantamentos dos sócios",   "es": "Retiros de los socios",    "icon": "hand-coins",       "color": "#64748B"},
     "capital_contribution": {"group": "owners",     "en": "Owner contribution",       "pt-BR": "Aporte dos sócios",         "pt-PT": "Entrada dos sócios",         "es": "Aporte de los socios",     "icon": "piggy-bank",       "color": "#94A3B8", "treat_as_transfer": True},
     # Other (outside the statement)
     "transfers":            {"group": "other",      "en": "Transfers",                "pt-BR": "Transferências",            "pt-PT": "Transferências",             "es": "Transferencias",           "icon": "arrow-left-right", "color": "#64748B", "treat_as_transfer": True},

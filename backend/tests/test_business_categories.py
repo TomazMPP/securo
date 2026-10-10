@@ -42,13 +42,15 @@ async def test_business_workspace_gets_business_categories(session, test_user: U
     assert section("Pró-labore") == "operating_expenses"
     assert section("Contabilidade") == "operating_expenses"
     assert section("Tarifas bancárias") == "financial"
-    assert section("Distribuição de lucros") == "owners"
+    assert section("Retiradas dos sócios") == "owners"
     assert section("Transferências") is None
     assert {g.dre_section for g in groups.values()} - {None} <= set(DRE_SECTIONS)
 
-    # Equity and own-account movements stay out of the ordinary reports.
-    for name in ("Distribuição de lucros", "Aporte dos sócios", "Transferências", "Investimentos"):
+    # Contributions and own-account movements stay out of the ordinary reports.
+    for name in ("Aporte dos sócios", "Transferências", "Investimentos"):
         assert cats[name].treat_as_transfer, name
+    # Withdrawals are real outflows in the ordinary reports.
+    assert not cats["Retiradas dos sócios"].treat_as_transfer
     assert not cats["Pró-labore"].treat_as_transfer
 
 

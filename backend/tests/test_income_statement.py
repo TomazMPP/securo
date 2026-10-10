@@ -60,7 +60,8 @@ async def test_statement_lines_subtotals_and_margin(session, test_user: User):
         _tx(test_user, ws, acc, c["Tarifas bancárias"], "30", sep, "debit"),
         _tx(test_user, ws, acc, c["Rendimentos financeiros"], "100", sep, "credit"),
         _tx(test_user, ws, acc, None, "200", sep, "debit"),  # uncategorized
-        _tx(test_user, ws, acc, c["Distribuição de lucros"], "3000", sep, "debit"),
+        _tx(test_user, ws, acc, c["Retiradas dos sócios"], "3000", sep, "debit"),
+        _tx(test_user, ws, acc, c["Aporte dos sócios"], "500", sep, "credit"),  # a transfer-flagged owners row
         _tx(test_user, ws, acc, c["Transferências"], "999", sep, "debit"),  # own accounts
         _tx(test_user, ws, acc, c["Contabilidade"], "50", sep, "debit", is_ignored=True),
         _tx(test_user, ws, acc, c["Receita de serviços"], "4000", oct_, "credit"),
@@ -91,7 +92,8 @@ async def test_statement_lines_subtotals_and_margin(session, test_user: User):
 
     # Equity movements are shown but stay out of net income; transfers between
     # own accounts appear nowhere.
-    assert _section(st, "owners").total == -3000.0
+    # Both owner categories show, whatever their transfer flag.
+    assert _section(st, "owners").total == -2500.0
     names = {ln.name for s in st.sections for ln in s.lines}
     assert "Transferências" not in names
 

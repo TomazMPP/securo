@@ -21,10 +21,10 @@ Two deliberate departures:
     section form an "unclassified" section that still enters net income, so
     the bottom line always equals what the company actually earned minus
     spent; a large unclassified figure is the cue to categorize.
-  - The owners section (profit distribution, owner contributions) is shown
-    below net income and never enters it. Those categories are usually
-    `treat_as_transfer`, which `counts_as_user_pnl()` drops, so this section
-    is read with only the ignore/pair/settlement exclusions.
+  - The owners section (withdrawals, contributions) is shown below net
+    income and never enters it. Some owner categories are `treat_as_transfer`
+    (contributions), which `counts_as_user_pnl()` drops, so this section is
+    read with only the ignore/pair/settlement exclusions, whatever the flag.
 
 Closed accounts are included: closing an account doesn't undo the revenue
 or expenses it carried in past months.
