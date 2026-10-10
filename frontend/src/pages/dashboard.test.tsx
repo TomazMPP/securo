@@ -180,7 +180,7 @@ beforeEach(() => {
   vi.clearAllMocks()
   vi.useFakeTimers({ toFake: ['Date'] })
   vi.setSystemTime(new Date(2026, 9, 9, 10, 0, 0))
-  modules.enabled = new Set(['transactions', 'accounts', 'reports', 'assets', 'recurring', 'budgets', 'goals'])
+  modules.enabled = new Set(['transactions', 'accounts', 'cards', 'loans', 'reports', 'assets', 'recurring', 'budgets', 'goals'])
   api.dashboard.summary.mockResolvedValue(summary)
   api.dashboard.spendingByCategory.mockResolvedValue([])
   api.dashboard.projectedTransactions.mockResolvedValue([])

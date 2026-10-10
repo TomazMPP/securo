@@ -27,15 +27,22 @@ const SEG_OFF = 'font-medium text-muted-foreground hover:text-foreground'
 export function AccountsSectionNav({
   section,
   onChange,
+  showCards = true,
+  showLoans = true,
 }: {
   section: AccountsSection
   onChange: (section: AccountsSection) => void
+  /** Off in workspaces without the cards / loans modules (business). */
+  showCards?: boolean
+  showLoans?: boolean
 }) {
   const { t } = useTranslation()
+  // With only "Contas" left there is nothing to switch between.
+  if (!showCards && !showLoans) return null
   return (
     <nav aria-label={t('accounts.sectionsLabel')} className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
       <div className="inline-flex gap-1 rounded-xl bg-muted p-1">
-        {(['accounts', 'cards'] as const).map((s) => (
+        {(showCards ? (['accounts', 'cards'] as const) : (['accounts'] as const)).map((s) => (
           <button
             key={s}
             type="button"
@@ -46,12 +53,14 @@ export function AccountsSectionNav({
             {t(s === 'accounts' ? 'accounts.sectionAccounts' : 'accounts.sectionCards')}
           </button>
         ))}
-        <Link to="/loans" className={cn(SEG_ITEM, SEG_OFF)}>
-          {t('accounts.sectionLoans')}
-          <span className="rounded-full bg-primary px-1.5 py-px text-[10px] font-bold tracking-wide text-primary-foreground">
-            {t('accounts.newBadge')}
-          </span>
-        </Link>
+        {showLoans && (
+          <Link to="/loans" className={cn(SEG_ITEM, SEG_OFF)}>
+            {t('accounts.sectionLoans')}
+            <span className="rounded-full bg-primary px-1.5 py-px text-[10px] font-bold tracking-wide text-primary-foreground">
+              {t('accounts.newBadge')}
+            </span>
+          </Link>
+        )}
       </div>
     </nav>
   )
@@ -257,10 +266,19 @@ export function AccountRow({
 }
 
 /** Link to the loans page and the dashed "add a manual account" card. */
-export function AccountsFooterCards({ canWrite, onAddManual }: { canWrite: boolean; onAddManual: () => void }) {
+export function AccountsFooterCards({
+  canWrite,
+  onAddManual,
+  showLoans = true,
+}: {
+  canWrite: boolean
+  onAddManual: () => void
+  showLoans?: boolean
+}) {
   const { t } = useTranslation()
   return (
     <div className="grid gap-4 md:grid-cols-2">
+      {showLoans && (
       <Link
         to="/loans"
         className="flex items-center gap-4 rounded-2xl border border-border bg-card p-5 text-inherit no-underline transition-colors hover:bg-muted/40"
@@ -274,6 +292,7 @@ export function AccountsFooterCards({ canWrite, onAddManual }: { canWrite: boole
         </span>
         <ChevronRight size={18} className="shrink-0 text-muted-foreground" />
       </Link>
+      )}
       {canWrite && (
         <div className="flex flex-wrap items-center gap-4 rounded-2xl border border-dashed border-border bg-card/60 p-5">
           <span className="flex size-12 shrink-0 items-center justify-center rounded-[14px] bg-muted text-muted-foreground">

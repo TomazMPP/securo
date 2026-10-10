@@ -9,6 +9,8 @@
 export const MODULE_IDS = [
   'transactions',
   'accounts',
+  'cards',
+  'loans',
   'import',
   'reports',
   'assets',

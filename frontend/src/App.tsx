@@ -103,8 +103,8 @@ function App() {
                   <Route path="/transactions" element={<ModuleRoute module="transactions"><TransactionsPage /></ModuleRoute>} />
                   <Route path="/accounts" element={<ModuleRoute module="accounts"><AccountsPage /></ModuleRoute>} />
                   <Route path="/accounts/:id" element={<ModuleRoute module="accounts"><AccountDetailPage /></ModuleRoute>} />
-                  <Route path="/loans" element={<ModuleRoute module="accounts"><LoansPage /></ModuleRoute>} />
-                  <Route path="/cards" element={<ModuleRoute module="accounts"><CardsPage /></ModuleRoute>} />
+                  <Route path="/loans" element={<ModuleRoute module="loans"><LoansPage /></ModuleRoute>} />
+                  <Route path="/cards" element={<ModuleRoute module="cards"><CardsPage /></ModuleRoute>} />
                   <Route path="/oauth/callback" element={<OAuthCallbackPage />} />
                   <Route path="/enable-banking" element={<OAuthCallbackPage />} />
                   <Route path="/import" element={<ModuleRoute module="import"><ImportPage /></ModuleRoute>} />

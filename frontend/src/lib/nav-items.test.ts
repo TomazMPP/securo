@@ -15,6 +15,8 @@ const allExcept =
 const PERSONAL_MODULES: ModuleId[] = [
   'transactions',
   'accounts',
+  'cards',
+  'loans',
   'import',
   'reports',
   'assets',
@@ -44,9 +46,9 @@ describe('nav catalog', () => {
   })
 
   // Fork: the Breakdown page (/analysis) is a second view of the reports
-  // module and Loans one of the accounts module, so they share those
-  // modules rather than adding their own.
-  const SHARED_MODULE_LINKS = ['analysis', 'loans', 'cards']
+  // module, so it shares that module rather than adding its own. Cards and
+  // Loans have their own modules so a business workspace can drop them.
+  const SHARED_MODULE_LINKS = ['analysis']
 
   it('gives every other link a distinct module', () => {
     const covered = navItems

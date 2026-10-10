@@ -55,9 +55,11 @@ export default function AccountsPage() {
   const { mask } = usePrivacyMode()
   const { user } = useAuth()
   const { activeAccountIds } = useCollectionFilter()
-  const { canWrite } = useWorkspace()
+  const { canWrite, hasModule } = useWorkspace()
+  const cardsOn = hasModule('cards')
+  const loansOn = hasModule('loans')
   const [searchParams, setSearchParams] = useSearchParams()
-  const section: AccountsSection = searchParams.get('section') === 'cards' ? 'cards' : 'accounts'
+  const section: AccountsSection = cardsOn && searchParams.get('section') === 'cards' ? 'cards' : 'accounts'
   const setSection = (next: AccountsSection) => {
     const params = new URLSearchParams(searchParams)
     if (next === 'cards') params.set('section', 'cards')
@@ -319,7 +321,7 @@ export default function AccountsPage() {
         />
       </div>
 
-      <AccountsSectionNav section={section} onChange={setSection} />
+      <AccountsSectionNav section={section} onChange={setSection} showCards={cardsOn} showLoans={loansOn} />
 
       {isLoading ? (
         <div className="space-y-3">
@@ -441,7 +443,7 @@ export default function AccountsPage() {
               </div>
             )}
 
-            <AccountsFooterCards canWrite={canWrite} onAddManual={openNewManual} />
+            <AccountsFooterCards canWrite={canWrite} onAddManual={openNewManual} showLoans={loansOn} />
 
             {/* Closed Accounts */}
             {closedAccounts.length > 0 && (

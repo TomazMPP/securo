@@ -576,7 +576,7 @@ export default function DashboardPage() {
           mask={mask}
           linkTo={hasModule('assets') ? '/assets' : reportsOn ? '/reports' : undefined}
         />
-        {accountsOn && (
+        {accountsOn && hasModule('cards') && (
           <OpenBillsCard
             loading={accountsLoading}
             cards={creditCards}
@@ -601,7 +601,7 @@ export default function DashboardPage() {
           mask={mask}
           linkTo={hasModule('recurring') ? '/recurring' : hasModule('transactions') ? '/transactions' : undefined}
         />
-        {accountsOn && <FinancingCard locale={locale} uiLocale={uiLocale} mask={mask} />}
+        {accountsOn && hasModule('loans') && <FinancingCard locale={locale} uiLocale={uiLocale} mask={mask} />}
         <NextStepCard
           loading={summaryLoading || (!noAccounts && thisMonthDebitsLoading)}
           steps={nextSteps}
